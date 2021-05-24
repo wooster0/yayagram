@@ -2,11 +2,13 @@
 
 **yayagram** is a puzzle game in which you fill out a grid based on logic and number clues.
 
-![Showcase](showcase.mp4)
+![Showcase](showcase.png)
+
+*White signifies a filled cell, red signifies a crossed out cell.*
 
 Playing it is as easy as:
 
-```
+```console
 cargo install yayagram
 yayagram
 ```
@@ -14,33 +16,33 @@ yayagram
 # Features
 
 * Runs in the terminal!
-* Cross-platform: runs on Linux, Windows and [probably macOS](macOS).
+* Cross-platform: runs on Linux, Windows and [probably macOS](##macOS).
 * Helpful features like undo, redo and reset that are just a button press away.
 * Create your own grids for others to play.
-* A new cell kind: [maybed](Maybed).
+* A new cell kind: [maybed](##Maybed).
 * Intuitive to play.
 
 # Controls
 
 - Mouse movement: select a cell.
 - Left-click: fill a cell.
-- Middle-click: [maybe a cell](Maybed).
+- Middle-click: [maybe a cell](##Maybed).
 - Right-click: cross out a cell.
 - `R`: reset the grid.
 - `Q` or left arrow key: undo a cell placement or a grid reset.
 - `E` or right arrow key: redo a cell placement or a grid reset.
-- `Tab`: toggle the [editor](Editor).
+- `Tab`: toggle the [editor](##Editor).
 - `S`: save the grid as a file locally.
 - `Esc`: exit.
 
-# Maybed
+## Maybed
 
 The maybed cell kind, which can be placed with the middle mouse, is supposed to make "what if?" reasoning and trying out things easier.
 It can help you imagine theoretical situations better.
 
 NOTE: if on Windows the game is closed in the middle of the game, will the content be written back to the file?
 
-# Editor
+## Editor
 
 Press the tab key to toggle the editor and start placing the cells for your grid.
 You can make use of all cell kinds.
@@ -50,17 +52,17 @@ Note that in the same session it will always write the grid to the same file aga
 On Windows you can drag `.yaya` grid files onto the `.exe` to play the grid.
 Note that the `.yaya` file will be empty for the duration of the play before the content will be written back.
 
-# Command line arguments
+## Command line arguments
 
 The program takes one argument: either a grid size (a single number) or the filename of a `.yaya` grid.
 
-# Other Tips
+## Other Tips
 
 - Try to avoid guesssing and play it safe! Guessing can come back later to bite you. Guessing is `unsafe`.
 - Don't forget to cross out cells that you are sure won't be filled.
   This helps immensely at ruling out possibilities.
 
-# Example
+## Example
 
 Here's a simple example to help you grasp the game.
 
