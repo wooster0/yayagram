@@ -32,8 +32,22 @@ fn main() {
     process::exit(code);
 }
 
+const HELP: &[&str] = &[
+    "Play nonograms/picross in your terminal.",
+    "As an argument you can specify either a number for the grid's size or a path to a `.yaya` grid file.",
+    "For more information see <https://github.com/r00ster91/yayagram/blob/main/README.md>",
+];
+
 fn run() -> Result<(), Cow<'static, str>> {
     let arg = args::parse();
+
+    if let Ok(Some(args::Arg::Help)) = arg {
+        for line in HELP {
+            println!("{}", line);
+        }
+
+        return Ok(());
+    }
 
     let grid = match get_grid(&arg) {
         Ok(grid) => grid,

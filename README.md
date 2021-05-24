@@ -54,6 +54,7 @@ Note that while playing a `.yaya` grid, the file will be empty for the duration 
 ## Command line arguments
 
 The program takes one argument: either a grid size (a single number) or the filename of a `.yaya` grid.
+`--help` and `-h` are also supported.
 
 ## Other Tips
 

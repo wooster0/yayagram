@@ -20,6 +20,7 @@ pub enum Arg {
         content: String,
     },
     GridSize(Size),
+    Help,
 }
 
 enum SizeError {
@@ -130,11 +131,17 @@ fn parse_string(string: String) -> Result<Option<Arg>, &'static str> {
             }
         }
         Err(err) => match err.kind() {
-            io::ErrorKind::NotFound => match parse_size(&string) {
-                Ok(size) => Ok(size),
-                Err(SizeError::OutOfRange) => Err("grid size must be in range 1 to 100"),
-                Err(SizeError::Other(message)) => Err(message),
-            },
+            io::ErrorKind::NotFound => {
+                if string == "--help" || string == "-h" {
+                    return Ok(Some(Arg::Help));
+                } else {
+                    match parse_size(&string) {
+                        Ok(size) => Ok(size),
+                        Err(SizeError::OutOfRange) => Err("grid size must be in range 1 to 100"),
+                        Err(SizeError::Other(message)) => Err(message),
+                    }
+                }
+            }
             _ => Err("file opening error"),
         },
     }
