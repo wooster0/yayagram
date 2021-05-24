@@ -1,6 +1,6 @@
 # yayagram - Play nonograms/picross in your terminal
 
-**yayagram** is a puzzle game in which you fill out a grid based on logic and number clues.
+**yayagram** is a puzzle game in which you fill out a grid with cells based on logic and number clues.
 
 ![Showcase](showcase.png)
 
@@ -19,7 +19,7 @@ yayagram
 * Cross-platform: runs on Linux, Windows and [probably macOS](#macOS).
 * Helpful features like undo, redo and reset that are just a button press away.
 * [Create your own grids](#Editor) for others to play.
-* A new cell kind: [maybed](#Maybed).
+* A new kind of cell: [maybed](#Maybed).
 * Intuitive to play.
 
 # Controls
@@ -32,12 +32,13 @@ yayagram
 - `Q` or left arrow key: undo a cell placement or a grid reset.
 - `E` or right arrow key: redo a cell placement or a grid reset.
 - `Tab`: toggle the [editor](#Editor).
-- `S`: save the grid as a file locally.
+- `S`: save the edited grid as a file locally.
 - `Esc`: exit.
 
 ## Maybed
 
-The blue maybed cell kind, which can be placed with the middle mouse, is supposed to make "what if?" reasoning and trying out things easier, as an alternative to using crosses or filled cells to mark which might be confusing.
+The blue "maybed" cell kind can be placed on the grid with middle-click and is supposed to make "what if?" reasoning and trying out things easier,
+as an alternative to using crossed out or filled cells which might be confusing.
 It can help you imagine theoretical situations better.
 
 ## Editor
