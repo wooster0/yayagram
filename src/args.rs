@@ -8,7 +8,7 @@
 use crate::util;
 use std::{
     env, fs,
-    io::{self, Read, Write},
+    io::{self, Write},
 };
 use terminal::util::Size;
 
@@ -37,47 +37,12 @@ fn parse_size(str: &str) -> Result<Option<Arg>, SizeError> {
             }))),
             _ => Err(SizeError::OutOfRange),
         }
-    } else if is_numeric(str) {
+    } else if util::is_numeric(str) {
         // A value >u16::MAX will not parse but might still be a number
         Err(SizeError::OutOfRange)
     } else {
         Err(SizeError::Other("file not found"))
     }
-}
-
-/// Checks whether `str` is a number consisting of ASCII digits, regardless of the length, negative or not.
-///
-/// Note that an empty string returns `true`.
-///
-/// ```
-/// assert!(is_numeric("---123"));
-/// assert!(is_numeric("-123456789012345678901234567890"));
-/// assert!(is_numeric("123"));
-///
-/// assert!(!is_numeric("---123-"));
-/// assert!(!is_numeric("hello"));
-/// assert!(!is_numeric(" "));
-/// ```
-fn is_numeric(str: &str) -> bool {
-    let mut digit_encountered = false;
-    str.chars().all(|char| {
-        if char.is_ascii_digit() {
-            digit_encountered = true;
-            true
-        } else {
-            char == '-' && !digit_encountered
-        }
-    })
-}
-
-fn optimal_string_capacity(file: &fs::File) -> io::Result<usize> {
-    Ok(file.metadata()?.len() as usize + 1)
-}
-
-fn read_file_content(file: &mut fs::File) -> io::Result<String> {
-    let mut string = String::with_capacity(optimal_string_capacity(&file)?);
-    file.read_to_string(&mut string)?;
-    Ok(string)
 }
 
 fn get_writer(file: fs::File, content: &str) -> Result<io::BufWriter<fs::File>, &'static str> {
@@ -119,7 +84,7 @@ fn parse_string(string: String) -> Result<Option<Arg>, &'static str> {
                 return Err("filename extension must be \"yaya\"");
             }
 
-            let content = read_file_content(&mut file).map_err(|_| "file reading error")?;
+            let content = util::read_file_content(&mut file).map_err(|_| "file reading error")?;
 
             match get_writer(file, &content) {
                 Ok(writer) => Ok(Some(Arg::File {
