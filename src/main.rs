@@ -140,7 +140,7 @@ fn get_grid(arg: &Result<Option<args::Arg>, &'static str>) -> Result<Grid, Cow<'
                 let grid_size = if let Some(args::Arg::GridSize(size)) = arg {
                     size.clone()
                 } else {
-                    Size::new(10, 10)
+                    Size::new(5, 5)
                 };
                 Ok(Grid::random(grid_size))
             }
