@@ -54,10 +54,23 @@ pub fn handle_mouse(
             point,
         } => {
             if builder.contains(point) {
+                let starting_time = starting_time.get_or_insert(Instant::now());
+
                 let cell_point = get_cell_point_by_cursor_point(point, builder);
                 let cell = builder.grid.get_mut_cell(cell_point.x, cell_point.y);
+
                 if let Some(plot_mode) = *plot_mode {
                     if *cell == plot_mode {
+                        let cell = *cell;
+
+                        // No grid mutation happened
+                        let _all_clues_solved = builder.draw(terminal);
+
+                        // Overdraw this hovered cell with a dark color
+                        draw_dark_cell_color(terminal, point, &builder.grid, cell);
+
+                        terminal.flush();
+
                         return State::Continue;
                     }
                     *cell = plot_mode;
@@ -91,15 +104,13 @@ pub fn handle_mouse(
                 } else {
                     let all_clues_solved = builder.draw(terminal);
 
-                    let starting_time = starting_time.get_or_insert(Instant::now());
-
                     if all_clues_solved {
                         return State::Solved(starting_time.elapsed());
                     }
-
-                    // Overdraw it with a dark color because we know that the cell is hovered
-                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
                 }
+
+                // Overdraw this hovered cell with a dark color
+                draw_dark_cell_color(terminal, point, &builder.grid, cell);
 
                 terminal.flush();
             } else {
