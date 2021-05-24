@@ -16,41 +16,40 @@ yayagram
 # Features
 
 * Runs in the terminal!
-* Cross-platform: runs on Linux, Windows and [probably macOS](##macOS).
+* Cross-platform: runs on Linux, Windows and [probably macOS](#macOS).
 * Helpful features like undo, redo and reset that are just a button press away.
-* Create your own grids for others to play.
-* A new cell kind: [maybed](##Maybed).
+* [Create your own grids](#Editor) for others to play.
+* A new cell kind: [maybed](#Maybed).
 * Intuitive to play.
 
 # Controls
 
 - Mouse movement: select a cell.
 - Left-click: fill a cell.
-- Middle-click: [maybe a cell](##Maybed).
+- Middle-click: [maybe a cell](#Maybed).
 - Right-click: cross out a cell.
 - `R`: reset the grid.
 - `Q` or left arrow key: undo a cell placement or a grid reset.
 - `E` or right arrow key: redo a cell placement or a grid reset.
-- `Tab`: toggle the [editor](##Editor).
+- `Tab`: toggle the [editor](#Editor).
 - `S`: save the grid as a file locally.
 - `Esc`: exit.
 
 ## Maybed
 
-The maybed cell kind, which can be placed with the middle mouse, is supposed to make "what if?" reasoning and trying out things easier.
+The blue maybed cell kind, which can be placed with the middle mouse, is supposed to make "what if?" reasoning and trying out things easier, as an alternative to using crosses or filled cells to mark which might be confusing.
 It can help you imagine theoretical situations better.
-
-NOTE: if on Windows the game is closed in the middle of the game, will the content be written back to the file?
 
 ## Editor
 
-Press the tab key to toggle the editor and start placing the cells for your grid.
+Press `Tab` to toggle the editor and start placing the cells for your grid.
 You can make use of all cell kinds.
 To export your grid, press `S` to save while in editor mode. This will create a new `.yaya` grid file.
 Note that in the same session it will always write the grid to the same file again unless renamed.
 
 On Windows you can drag `.yaya` grid files onto the `.exe` to play the grid.
-Note that the `.yaya` file will be empty for the duration of the play before the content will be written back.
+
+Note that while playing a `.yaya` grid, the file will be empty for the duration of the play before the content will be written back.
 
 ## Command line arguments
 
@@ -123,7 +122,9 @@ or
 
 Both solutions fulfill the requirements.
 
-I hope this helped you grasp the game a little bit. Now you can try to apply some of what you learned on a small grid like 3x3 or 5x5 by simply passing the grid size as a command line argument to the program: `yayagram 3` or `yayagram 5` respectively.
+I hope this helped you grasp the game a little bit.
+Now you can try to apply some of what you learned on a small grid like 3x3 or 5x5 by simply passing the grid size as a command line argument to the program:
+`yayagram 3` or `yayagram 5` respectively.
 
 You can also load the above grid into the game by passing this file as a command line argument to the binary: [example.yaya](example.yaya).
 

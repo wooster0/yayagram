@@ -199,7 +199,7 @@ pub fn handle_key(
             editor.toggle();
 
             if editor.toggled {
-                // TODO: maybe this should be shown all the time (make it part of window title?)
+                // TODO: maybe this info should be shown all the time (make it part of window title?)
                 State::Alert("Editor enabled")
             } else {
                 State::Alert("Editor disabled")

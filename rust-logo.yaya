@@ -33,4 +33,4 @@
 
 1: filled
 
-Simply pass the filename as a command line argument to the binary to run.
+Simply pass the file as a command line argument to the binary to run.

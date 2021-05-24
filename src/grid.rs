@@ -113,7 +113,6 @@ impl Grid {
             size.width, size.height,
             "width != height. currently non-squared grids don't work well"
         );
-        // assert_eq!(cells.len(), cells.capacity());
         assert_eq!(cells.len(), (size.width as usize * size.height as usize));
 
         let mut horizontal_clues_solutions = Vec::<Clues>::new();
