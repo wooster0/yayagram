@@ -1,0 +1,25 @@
+[package]
+name = "yayagram"
+version = "0.1.0"
+authors = ["r00ster91 <r00ster91@protonmail.com>"]
+edition = "2018"
+description = "Play nonograms/picross in your terminal"
+readme = "README.md"
+repository = "https://github.com/r00ster91/yayagram/"
+license = "MIT"
+keywords = ["cli", "game", "terminal", "graphics", "puzzle"]
+categories = ["command-line-utilities", "games"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# terminal = { package = "tanmatsu", path = "../tanmatsu" } #version = "0.1.1" }
+terminal = { version = "0.1.1", package = "tanmatsu", path = "../tanmatsu" }
+rand = { version = "0.8.3", features = ["small_rng"] }
+itertools = "0.10.0"
+
+# The following branch has a patch that isn't merged into the main repo yet which allows handling SIGHUP,
+# which is sent on Linux and macOS when the terminal is terminated with the X button for instance.
+# On Windows this is already handled.
+ctrlc = { git = "https://github.com/r00ster91/rust-ctrlc", branch = "patch-1", features = ["termination"] }
+# ctrlc = { version = "3.1.9", features = ["termination"] }
