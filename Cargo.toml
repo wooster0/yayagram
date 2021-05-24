@@ -13,12 +13,11 @@ categories = ["command-line-utilities", "games"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# terminal = { package = "tanmatsu", path = "../tanmatsu" } #version = "0.1.1" }
-terminal = { version = "0.1.1", package = "tanmatsu", path = "../tanmatsu" }
+terminal = { package = "tanmatsu", version = "0.2.0" }
 rand = { version = "0.8.3", features = ["small_rng"] }
 itertools = "0.10.0"
 
-# The following branch has a patch that isn't merged into the main repo yet which allows handling SIGHUP,
+# The following branch has a patch that isn't merged into the main repo yet which handles SIGHUP,
 # which is sent on Linux and macOS when the terminal is terminated with the X button for instance.
 # On Windows this is already handled.
 ctrlc = { git = "https://github.com/r00ster91/rust-ctrlc", branch = "patch-1", features = ["termination"] }

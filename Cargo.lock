@@ -289,7 +289,9 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 
 [[package]]
 name = "tanmatsu"
-version = "0.1.1"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e66e262e72635991eb625cd343659b629709429e9ea7750ee86bd3e4dedd846e"
 dependencies = [
  "crossterm",
  "termion",
