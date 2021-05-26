@@ -7,7 +7,7 @@ mod util;
 
 use event::State;
 use grid::{builder::Builder, Grid};
-use std::{borrow::Cow, io::Write, process, sync, time::Duration};
+use std::{borrow::Cow, fs, io, io::Write, process, sync, time::Duration};
 use terminal::{
     util::{Color, Point, Size},
     Terminal,
@@ -68,9 +68,9 @@ fn run() -> Result<(), Cow<'static, str>> {
     {
         let writer_arc = sync::Arc::new(sync::Mutex::new(writer));
 
-        let ctrlc_writer = writer_arc.clone();
+        let mut ctrlc_writer = writer_arc.clone();
         ctrlc::set_handler(move || {
-            ctrlc_writer.lock().unwrap().flush().unwrap();
+            write_grid_back(&mut ctrlc_writer);
         })
         .unwrap();
 
@@ -111,11 +111,16 @@ fn run() -> Result<(), Cow<'static, str>> {
         }
     }
 
-    if let Some(writer) = writer_arc {
-        writer.lock().unwrap().flush().unwrap();
+    if let Some(mut writer) = writer_arc {
+        write_grid_back(&mut writer);
     }
 
     Ok(())
+}
+
+fn write_grid_back(writer: &mut sync::Arc<sync::Mutex<io::BufWriter<fs::File>>>) {
+    // If flushing failed there is not much we can do.
+    writer.lock().unwrap().flush().ok();
 }
 
 fn draw_help(terminal: &mut Terminal, builder: &Builder) {
