@@ -54,7 +54,15 @@ Note that while playing a `.yaya` grid, the file will be empty for the duration 
 
 ## Command line arguments
 
-The program takes one argument: either a grid size (a single number) or the filename of a `.yaya` grid.
+The program takes a single number for a squared grid size, two numbers for a width and height or the filename of a `.yaya` grid file.
+
+```shell
+yayagram # a random 5x5 grid
+yayagram 10 # a random 10x10 grid
+yayagram 5 15 # a random 5x15 grid
+yayagram example.yaya # a custom grid
+```
+
 `--help` and `-h` are also supported.
 
 ## Other Tips

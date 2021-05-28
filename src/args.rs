@@ -1,18 +1,14 @@
-//! Parses the argument to the program, if present.
-//!
-//! The first and only argument to the program should be either:
-//!
-//! * A filename pointing to a file containing a valid grid.
-//! * A grid size in range `1..=100`.
+//! Parses the arguments to the program, if present.
 
 use crate::util;
 use std::{
+    borrow::Cow,
     env, fs,
     io::{self, Write},
 };
 use terminal::util::Size;
 
-/// The values that can be created out of the argument.
+/// The values that can be created out of the arguments.
 pub enum Arg {
     File {
         writer: io::BufWriter<fs::File>,
@@ -24,32 +20,57 @@ pub enum Arg {
 }
 
 enum SizeError {
-    OutOfRange,
+    OutOfRange(&'static str),
     Other(&'static str),
 }
 
-fn parse_size(str: &str) -> Result<Option<Arg>, SizeError> {
-    if let Ok(parsed_size) = str.parse::<u16>() {
+fn parse_squared_size(size_str: &str) -> Result<Option<Arg>, SizeError> {
+    if let Ok(parsed_size) = size_str.parse::<u16>() {
         match parsed_size {
             1..=100 => Ok(Some(Arg::GridSize(Size {
                 width: parsed_size,
                 height: parsed_size,
             }))),
-            _ => Err(SizeError::OutOfRange),
+            _ => Err(SizeError::OutOfRange("size")),
         }
-    } else if util::is_numeric(str) {
+    } else if util::is_numeric(size_str) {
         // A value >u16::MAX will not parse but might still be a number
-        Err(SizeError::OutOfRange)
+        Err(SizeError::OutOfRange("size"))
     } else {
         Err(SizeError::Other("file not found"))
     }
+}
+
+fn parse_size(width_str: &str, height_str: &str) -> Result<Option<Arg>, SizeError> {
+    if let Ok(parsed_width) = width_str.parse::<u16>() {
+        if let Ok(parsed_height) = height_str.parse::<u16>() {
+            if !(1..=100).contains(&parsed_width) {
+                return Err(SizeError::OutOfRange("width"));
+            }
+            if !(1..=100).contains(&parsed_height) {
+                return Err(SizeError::OutOfRange("height"));
+            }
+            return Ok(Some(Arg::GridSize(Size {
+                width: parsed_width,
+                height: parsed_height,
+            })));
+        } else if util::is_numeric(height_str) {
+            // A value >u16::MAX will not parse but might still be a number
+            return Err(SizeError::OutOfRange("height"));
+        }
+    } else if util::is_numeric(width_str) {
+        // A value >u16::MAX will not parse but might still be a number
+        return Err(SizeError::OutOfRange("width"));
+    }
+
+    Err(SizeError::Other("file not found"))
 }
 
 fn get_writer(file: fs::File, content: &str) -> Result<io::BufWriter<fs::File>, &'static str> {
     let mut writer = io::BufWriter::new(file);
 
     // To make cheating a little bit harder, leave the file empty while the game is running
-    // so that the user can't cheat by looking at the file
+    // so that the user can't see the solution by looking at the file
 
     // This will happen immediately
     util::clear_file(&mut writer)?;
@@ -64,12 +85,15 @@ fn get_writer(file: fs::File, content: &str) -> Result<io::BufWriter<fs::File>, 
     Ok(writer)
 }
 
-fn parse_string(string: String) -> Result<Option<Arg>, &'static str> {
+fn parse_strings(
+    first_string: String,
+    second_string: Option<String>,
+) -> Result<Option<Arg>, Cow<'static, str>> {
     // Check for a file first so that filenames consisting of numbers can be accepted too
     let mut open_options = fs::OpenOptions::new();
     open_options.read(true).write(true);
 
-    match open_options.open(&string) {
+    match open_options.open(&first_string) {
         Ok(mut file) => {
             fn valid_extension(str: &str) -> bool {
                 let path = std::path::Path::new(str);
@@ -80,8 +104,8 @@ fn parse_string(string: String) -> Result<Option<Arg>, &'static str> {
                 }
             }
 
-            if !valid_extension(&string) {
-                return Err("filename extension must be \"yaya\"");
+            if !valid_extension(&first_string) {
+                return Err("filename extension must be \"yaya\"".into());
             }
 
             let content = util::read_file_content(&mut file).map_err(|_| "file reading error")?;
@@ -89,30 +113,38 @@ fn parse_string(string: String) -> Result<Option<Arg>, &'static str> {
             match get_writer(file, &content) {
                 Ok(writer) => Ok(Some(Arg::File {
                     writer,
-                    name: string,
+                    name: first_string,
                     content,
                 })),
-                Err(err) => Err(err),
+                Err(err) => Err(err.into()),
             }
         }
         Err(err) => match err.kind() {
             io::ErrorKind::NotFound => {
-                if string == "--help" || string == "-h" {
-                    return Ok(Some(Arg::Help));
+                if first_string == "--help" || first_string == "-h" {
+                    Ok(Some(Arg::Help))
                 } else {
-                    match parse_size(&string) {
+                    let result = if let Some(second_string) = second_string {
+                        parse_size(&first_string, &second_string)
+                    } else {
+                        parse_squared_size(&first_string)
+                    };
+
+                    match result {
                         Ok(size) => Ok(size),
-                        Err(SizeError::OutOfRange) => Err("grid size must be in range 1 to 100"),
-                        Err(SizeError::Other(message)) => Err(message),
+                        Err(SizeError::OutOfRange(thing)) => {
+                            Err(format!("grid {} must be in range 1 to 100", thing).into())
+                        }
+                        Err(SizeError::Other(message)) => Err(message.into()),
                     }
                 }
             }
-            _ => Err("file opening error"),
+            _ => Err("file opening error".into()),
         },
     }
 }
 
-pub fn parse() -> Result<Option<Arg>, &'static str> {
+pub fn parse() -> Result<Option<Arg>, Cow<'static, str>> {
     // See https://github.com/rust-lang/rust/pull/84551#discussion_r620728070
     // on why it's better to use `env::args_os` than `env::args`.
     let mut args = env::args_os();
@@ -120,10 +152,18 @@ pub fn parse() -> Result<Option<Arg>, &'static str> {
     args.next(); // This is usually the program name
 
     if let Some(arg) = args.next() {
-        if let Ok(string) = arg.into_string() {
-            parse_string(string)
+        if let Ok(first_string) = arg.into_string() {
+            if let Some(arg) = args.next() {
+                if let Ok(second_string) = arg.into_string() {
+                    parse_strings(first_string, Some(second_string))
+                } else {
+                    Err("second argument is not valid UTF-8".into())
+                }
+            } else {
+                parse_strings(first_string, None)
+            }
         } else {
-            Err("argument is not valid UTF-8")
+            Err("first argument is not valid UTF-8".into())
         }
     } else {
         Ok(None)

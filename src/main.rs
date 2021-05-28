@@ -137,7 +137,7 @@ fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.reset_colors();
 }
 
-fn get_grid(arg: &Result<Option<args::Arg>, &'static str>) -> Result<Grid, Cow<'static, str>> {
+fn get_grid(arg: &Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, Cow<'static, str>> {
     match arg {
         Ok(arg) => match arg {
             Some(args::Arg::File {
@@ -167,7 +167,7 @@ fn get_grid(arg: &Result<Option<args::Arg>, &'static str>) -> Result<Grid, Cow<'
                 Ok(Grid::random(grid_size))
             }
         },
-        Err(err) => Err((*err).into()),
+        Err(err) => Err(err.clone()),
     }
 }
 

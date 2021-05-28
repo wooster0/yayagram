@@ -1,10 +1,8 @@
 use itertools::Itertools;
 use terminal::util::{Color, Size};
 pub mod builder;
-
 #[cfg(debug_assertions)]
 pub mod debug;
-
 mod random;
 use crate::undo_redo_buffer::UndoRedoBuffer;
 
