@@ -25,6 +25,12 @@ pub enum Cell {
     Crossed,
 }
 
+impl Default for Cell {
+    fn default() -> Self {
+        Cell::Empty
+    }
+}
+
 impl From<bool> for Cell {
     fn from(bool: bool) -> Self {
         if bool {
@@ -82,7 +88,7 @@ fn get_index(width: u16, x: u16, y: u16) -> usize {
     y as usize * width as usize + x as usize
 }
 
-pub fn get_horizontal_clues(
+fn get_horizontal_clues(
     cells: &[Cell],
     width: u16,
     y: u16,
@@ -94,13 +100,14 @@ pub fn get_horizontal_clues(
         .map(|(count, _)| count as Clue)
 }
 
-pub fn get_vertical_clues(
+fn get_vertical_clues(
     cells: &[Cell],
+    width: u16,
     height: u16,
     x: u16,
 ) -> impl Iterator<Item = Clue> + '_ + Clone {
     (0..height)
-        .map(move |y| cells[get_index(height, x, y)] == Cell::Filled)
+        .map(move |y| cells[get_index(width, x, y)] == Cell::Filled)
         .dedup_with_count()
         .filter(|(_, filled)| *filled)
         .map(|(count, _)| count as Clue)
@@ -109,10 +116,6 @@ pub fn get_vertical_clues(
 impl Grid {
     /// Creates a new grid. `cells` must have a length of `size.width * size.height`.
     pub fn new(size: Size, mut cells: Vec<Cell>) -> Self {
-        assert_eq!(
-            size.width, size.height,
-            "width != height. currently non-squared grids don't work well"
-        );
         assert_eq!(cells.len(), (size.width as usize * size.height as usize));
 
         let mut horizontal_clues_solutions = Vec::<Clues>::new();
@@ -130,7 +133,7 @@ impl Grid {
         let mut vertical_clues_solutions = Vec::<Clues>::new();
         for x in 0..size.width {
             let vertical_clues_solution: Clues =
-                get_vertical_clues(&cells, size.height, x).collect();
+                get_vertical_clues(&cells, size.width, size.height, x).collect();
             vertical_clues_solutions.push(vertical_clues_solution);
         }
         let max_clues_height = vertical_clues_solutions
@@ -223,7 +226,7 @@ impl Grid {
     }
 
     pub fn get_vertical_clues(&self, x: u16) -> impl Iterator<Item = Clue> + '_ + Clone {
-        get_vertical_clues(&self.cells, self.size.width, x)
+        get_vertical_clues(&self.cells, self.size.width, self.size.height, x)
     }
 }
 
@@ -232,7 +235,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_solutions() {
+    fn test_squared_grid() {
         let grid = Grid::from_lines(&[
             "1 1 111 1 ",
             " 1 11 111 ",
@@ -276,6 +279,44 @@ mod tests {
                 vec![2, 2],
                 vec![3]
             ]
+        );
+    }
+
+    #[test]
+    fn test_non_squared_grid() {
+        #[rustfmt::skip]
+            let grid = Grid::from_lines(&[
+                " 111",
+                " 1 1",
+                "11 1",
+                "1 1 ",
+                "1  1",
+                "  1 ",
+                "    ",
+                "    ",
+                "    ",
+                "    ",
+            ]);
+
+        assert_eq!(
+            grid.horizontal_clues_solutions,
+            [
+                vec![3],
+                vec![1, 1],
+                vec![2, 1],
+                vec![1, 1],
+                vec![1, 1],
+                vec![1],
+                vec![],
+                vec![],
+                vec![],
+                vec![]
+            ]
+        );
+
+        assert_eq!(
+            grid.vertical_clues_solutions,
+            [vec![3], vec![3], vec![1, 1, 1], vec![3, 1]]
         );
     }
 }

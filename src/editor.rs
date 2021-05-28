@@ -233,13 +233,6 @@ fn deserialize(str: &str) -> Result<(Size, Vec<Cell>), LoadError> {
         line_number: None,
     })?;
 
-    if width != height {
-        return Err(LoadError {
-            message: "malformed data",
-            line_number: None,
-        });
-    }
-
     Ok((Size::new(width, height), cells))
 }
 
