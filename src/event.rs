@@ -229,6 +229,7 @@ pub fn handle_key(
                 State::Continue
             }
         }
+        KeyEvent::Char(' ', None) => State::Ruler,
         KeyEvent::Esc => State::Exit,
         _ => State::Continue,
     }
@@ -340,7 +341,13 @@ pub enum State {
     Continue,
     Solved(Duration),
     Alert(&'static str),
+    Ruler,
     Exit,
+}
+
+struct Ruler {
+    // a good line algorithm lib is needed
+// then maybe you can use that lib to make cell filling smoother too (it can prevent gaps between the filled cells when you move your cursor too quickly)
 }
 
 pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
@@ -384,7 +391,6 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
 
         match state {
             State::Continue => continue,
-            State::Solved(_) | State::Exit => return state,
             State::Alert(new_notification) => {
                 // Draw a new notification. Notifications are cleared after some time.
 
@@ -396,6 +402,11 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 notification_clear_delay = 75;
                 terminal.flush();
             }
+            State::Ruler => {
+                // https://old.reddit.com/r/nonograms/comments/nlixfe/any_other_nonogram_apps_especially_for_pcweb_that/
+                panic!();
+            }
+            State::Solved(_) | State::Exit => return state,
         }
     }
 
