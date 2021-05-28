@@ -35,12 +35,6 @@ yayagram
 - `S`: save the edited grid as a file locally.
 - `Esc`: exit.
 
-## Maybed
-
-The blue "maybed" cell kind can be placed on the grid with middle-click and is supposed to make "what if?" reasoning and trying out things easier,
-as an alternative to using crossed out or filled cells which might be confusing.
-It can help you imagine theoretical situations better.
-
 ## Editor
 
 Press `Tab` to toggle the editor and start placing the cells for your grid.
@@ -51,6 +45,12 @@ Note that in the same session it will always write the grid to the same file aga
 On Windows you can drag `.yaya` grid files onto the `.exe` to play the grid.
 
 Note that while playing a `.yaya` grid, the file will be empty for the duration of the play before the content will be written back.
+
+## img2yaya
+
+Ran out of `.yaya` files? No ideas for new grids? Don't want to play random grids?
+
+Check out @AaronErhardt's amazing [**img2yaya**](https://github.com/AaronErhardt/img2yaya) to convert images to playable `.yaya` files!
 
 ## Command line arguments
 
@@ -64,6 +64,12 @@ yayagram example.yaya # a custom grid
 ```
 
 `--help` and `-h` are also supported.
+
+## Maybed
+
+The blue "maybed" cell kind can be placed on the grid with middle-click and is supposed to make "what if?" reasoning and trying out things easier,
+as an alternative to using crossed out or filled cells which might be confusing.
+It can help you imagine theoretical situations better.
 
 ## Other Tips
 
