@@ -16,9 +16,13 @@ use terminal::{
 // Things that could be implemented but might not be worth it:
 // -A main menu
 // -An interactive tutorial
-// -Currently whole clue rows are grayed out once all cells for those clues have been solved.
+// -Currently whole clue rows are grayed out once all cells for those clues have been solved
 //  Make them gray out individually. (Maybe itertools' `pad_using` is helpful)
-// -Make the builder be able to build non-squared grids. Currently it doesn't work when width != height.
+// -Make the builder be able to build non-squared grids. Currently it doesn't work when width != height
+// -Ability to change grid size and load grids (with F5?) within the game without the command line
+// -Ability to save records to a file and determine new records with that
+// -A ruler/measurer (with shift?)
+// -Ability to continue after solving the puzzle/ability to play it again
 
 fn main() {
     let code = match run() {
