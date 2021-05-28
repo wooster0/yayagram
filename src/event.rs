@@ -404,7 +404,6 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
             }
             State::Ruler => {
                 // https://old.reddit.com/r/nonograms/comments/nlixfe/any_other_nonogram_apps_especially_for_pcweb_that/
-                panic!();
             }
             State::Solved(_) | State::Exit => return state,
         }
