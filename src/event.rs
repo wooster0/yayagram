@@ -257,14 +257,15 @@ fn handle_key(
                         get_cell_point_from_cursor_point(some_measurement_point, builder);
                     let end_point = get_cell_point_from_cursor_point(hovered_cell_point, builder);
 
-                    for (index, point) in util::get_line_points(start_point, end_point).enumerate()
-                    {
-                        let cell = builder.grid.get_mut_cell(point.x, point.y);
+                    let line_points: Vec<Point> =
+                        util::get_line_points(start_point, end_point).collect();
 
-                        if let Cell::Empty | Cell::Measured(_) = cell {
-                            *cell = Cell::Measured(Some(index + 1));
-                        }
-                    }
+                    set_measured_cells(&mut builder.grid, &line_points);
+
+                    builder
+                        .grid
+                        .undo_redo_buffer
+                        .push(undo_redo_buffer::Operation::Measure(line_points));
 
                     // Measured cells cannot solve the grid
                     let _all_clues_solved = builder.draw(terminal);
@@ -295,6 +296,16 @@ fn handle_key(
         }
         KeyEvent::Esc => State::Exit,
         _ => State::Continue,
+    }
+}
+
+pub fn set_measured_cells(grid: &mut Grid, line_points: &[Point]) {
+    for (index, point) in line_points.iter().enumerate() {
+        let cell = grid.get_mut_cell(point.x, point.y);
+
+        if let Cell::Empty | Cell::Measured(_) = cell {
+            *cell = Cell::Measured(Some(index + 1));
+        }
     }
 }
 

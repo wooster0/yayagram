@@ -4,6 +4,7 @@ use terminal::util::Point;
 #[derive(Clone, Debug)]
 pub enum Operation {
     SetCell { point: Point, cell: Cell },
+    Measure(Vec<Point>),
     Clear,
 }
 
@@ -55,8 +56,11 @@ impl Grid {
         {
             match operation {
                 Operation::SetCell { point, cell } => {
-                    let mut_cell = self.get_mut_cell(point.x, point.y);
-                    *mut_cell = *cell;
+                    let grid_cell = self.get_mut_cell(point.x, point.y);
+                    *grid_cell = *cell;
+                }
+                Operation::Measure(line_points) => {
+                    crate::event::set_measured_cells(self, line_points);
                 }
                 Operation::Clear => {
                     self.cells.fill_with(Default::default);
