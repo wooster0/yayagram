@@ -11,7 +11,9 @@ fn random_cells(size: u32) -> Vec<Cell> {
     let distribution = Bernoulli::new(0.75).unwrap();
 
     for _ in 0..size {
-        cells.push(Cell::from(distribution.sample(&mut small_rng)));
+        let filled = distribution.sample(&mut small_rng);
+
+        cells.push(Cell::from(filled));
     }
 
     cells
