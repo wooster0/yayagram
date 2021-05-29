@@ -1,11 +1,7 @@
 //! Parses the arguments to the program, if present.
 
 use crate::util;
-use std::{
-    borrow::Cow,
-    env, fs,
-    io::{self, Write},
-};
+use std::{borrow::Cow, env, fs, io};
 use terminal::util::Size;
 
 /// The maximum grid size must not have more than 2 digits
@@ -16,7 +12,6 @@ const MAX_GRID_SIZE: u16 = 99;
 /// The values that can be created out of the arguments.
 pub enum Arg {
     File {
-        writer: io::BufWriter<fs::File>,
         name: String,
         content: String,
     },
@@ -71,25 +66,6 @@ fn parse_size(width_str: &str, height_str: &str) -> Result<Option<Arg>, SizeErro
     Err(SizeError::Other("file not found"))
 }
 
-fn get_writer(file: fs::File, content: &str) -> Result<io::BufWriter<fs::File>, &'static str> {
-    let mut writer = io::BufWriter::new(file);
-
-    // To make cheating a little bit harder, leave the file empty while the game is running
-    // so that the user can't see the solution by looking at the file
-
-    // This will happen immediately
-    util::clear_file(&mut writer)?;
-
-    // But this will not.
-    // The content will only be written back once the writer is flushed which will happen when it is dropped.
-    // It's to be dropped at the end of the program. This is handled in `main`.
-    writer
-        .write_all(content.as_bytes())
-        .map_err(|_| "file writing failed")?;
-
-    Ok(writer)
-}
-
 fn parse_strings(
     first_string: String,
     second_string: Option<String>,
@@ -115,14 +91,10 @@ fn parse_strings(
 
             let content = util::read_file_content(&mut file).map_err(|_| "file reading error")?;
 
-            match get_writer(file, &content) {
-                Ok(writer) => Ok(Some(Arg::File {
-                    writer,
-                    name: first_string,
-                    content,
-                })),
-                Err(err) => Err(err.into()),
-            }
+            Ok(Some(Arg::File {
+                name: first_string,
+                content,
+            }))
         }
         Err(err) => match err.kind() {
             io::ErrorKind::NotFound => {

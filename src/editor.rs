@@ -32,7 +32,7 @@ impl Editor {
             Ok(())
         }
 
-        let mut help: [Option<&str>; 3] = [None; 3];
+        let mut help: [Option<&str>; 4] = [None; 4];
 
         draw_dash_line(writer, grid.size.width)?;
 
@@ -47,16 +47,16 @@ impl Editor {
                             "1111"
                         }
                         Cell::Crossed => {
-                            help[2] = Some("X: crossed");
+                            help[1] = Some("X: crossed");
                             "XXXX"
                         }
                         Cell::Maybed => {
-                            help[1] = Some("?: maybed");
+                            help[2] = Some("?: maybed");
                             "????"
                         }
                         Cell::Measured(_) => {
                             // R because it resembles 尺 which is a unit of measure.
-                            help[1] = Some("R: measured");
+                            help[3] = Some("R: measured");
                             "RRRR"
                         }
                     };
@@ -78,7 +78,7 @@ impl Editor {
     }
 
     #[allow(unstable_name_collisions)] // in the future `intersperse` will be in the std
-    fn write_help(writer: &mut io::BufWriter<fs::File>, help: [Option<&str>; 3]) -> io::Result<()> {
+    fn write_help(writer: &mut io::BufWriter<fs::File>, help: [Option<&str>; 4]) -> io::Result<()> {
         use itertools::Itertools;
 
         for part in help.iter().filter_map(|part| *part).intersperse(", ") {
@@ -125,24 +125,32 @@ impl Editor {
 
         let mut writer = match writer {
             Some(mut writer) => {
+                // We saved this grid previously so we already have a writer
+                // but does the file for it still exist?
                 if !Path::new(&self.filename).exists() {
-                    writer = match self.new_writer(builder) {
+                    match self.new_writer(builder) {
+                        Ok(writer) => (writer),
                         Err(err) => {
                             return Err(err);
                         }
-                        Ok(writer) => (writer),
-                    };
-                } else if util::clear_file(&mut writer).is_err() {
-                    return Err("Clear failed");
+                    }
+                } else {
+                    // The file still exists so we will overwrite it
+
+                    util::clear_file(&mut writer)?;
+
+                    writer
                 }
-                writer
             }
-            None => match self.new_writer(builder) {
-                Err(err) => {
-                    return Err(err);
+            None => {
+                // This is the first time we are saving the grid
+                match self.new_writer(builder) {
+                    Ok(writer) => (writer),
+                    Err(err) => {
+                        return Err(err);
+                    }
                 }
-                Ok(writer) => (writer),
-            },
+            }
         };
 
         if Self::serialize(&builder.grid, &mut writer).is_err() {

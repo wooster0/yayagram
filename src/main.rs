@@ -7,7 +7,7 @@ mod util;
 
 use event::State;
 use grid::{builder::Builder, Grid};
-use std::{borrow::Cow, fs, io, io::Write, process, sync, time::Duration};
+use std::{borrow::Cow, process, time::Duration};
 use terminal::{
     util::{Color, Point, Size},
     Terminal,
@@ -54,31 +54,8 @@ fn run() -> Result<(), Cow<'static, str>> {
     let grid = match get_grid(&arg) {
         Ok(grid) => grid,
         Err(err) => {
-            drop(arg);
             return Err(err);
         }
-    };
-
-    // It's important to flush the writer only right before program end
-    // because it has content written to it that should only be flushed at end.
-    // See also: `crate::args::get_writer`
-    let writer_arc = if let Ok(Some(args::Arg::File {
-        writer,
-        name: _,
-        content: _,
-    })) = arg
-    {
-        let writer_arc = sync::Arc::new(sync::Mutex::new(writer));
-
-        let mut ctrlc_writer = writer_arc.clone();
-        ctrlc::set_handler(move || {
-            write_grid_back(&mut ctrlc_writer);
-        })
-        .unwrap();
-
-        Some(writer_arc)
-    } else {
-        None
     };
 
     match get_terminal() {
@@ -113,16 +90,7 @@ fn run() -> Result<(), Cow<'static, str>> {
         }
     }
 
-    if let Some(mut writer) = writer_arc {
-        write_grid_back(&mut writer);
-    }
-
     Ok(())
-}
-
-fn write_grid_back(writer: &mut sync::Arc<sync::Mutex<io::BufWriter<fs::File>>>) {
-    // If flushing failed there is not much we can do.
-    writer.lock().unwrap().flush().ok();
 }
 
 fn draw_help(terminal: &mut Terminal, builder: &Builder) {
@@ -138,7 +106,6 @@ fn get_grid(arg: &Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, 
     match arg {
         Ok(arg) => match arg {
             Some(args::Arg::File {
-                writer: _,
                 name: filename,
                 content,
             }) => match editor::load_grid(&content) {
