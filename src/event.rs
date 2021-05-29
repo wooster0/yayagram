@@ -269,8 +269,8 @@ fn handle_key(
                     // Measured cells cannot solve the grid
                     let _all_clues_solved = builder.draw(terminal);
 
-                    // Measured cells are only drawn on empty ones so we need to make sure
-                    // the cell we darken is actually a measured one
+                    // The cell might not be a measured cell because they are only drawn on
+                    // measured and empty cells
                     if let Cell::Measured(_) = builder.grid.get_cell(end_point.x, end_point.y) {
                         // Overdraw the hovered cell with a dark color
                         draw_dark_cell_color(
