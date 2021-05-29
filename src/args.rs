@@ -11,10 +11,7 @@ const MAX_GRID_SIZE: u16 = 99;
 
 /// The values that can be created out of the arguments.
 pub enum Arg {
-    File {
-        name: String,
-        content: String,
-    },
+    File { name: String, content: String },
     GridSize(Size),
     Help,
 }
