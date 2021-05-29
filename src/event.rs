@@ -4,7 +4,7 @@ use crate::{
         builder::{Builder, Cursor},
         Cell, Grid,
     },
-    undo_redo_buffer, TEXT_LINE_COUNT,
+    undo_redo_buffer, util, TEXT_LINE_COUNT,
 };
 use std::{
     thread,
@@ -28,7 +28,7 @@ fn draw_dark_cell_color(terminal: &mut Terminal, mut cursor_point: Point, grid: 
     terminal.reset_colors();
 }
 
-fn get_cell_point_by_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
+fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
     Point {
         x: (cursor_point.x - builder.cursor.point.x) / 2,
         y: cursor_point.y - builder.cursor.point.y,
@@ -36,13 +36,14 @@ fn get_cell_point_by_cursor_point(cursor_point: Point, builder: &Builder) -> Poi
 }
 
 /// Handles the event and returns a `bool` determing whether execution should be aborted.
-pub fn handle_mouse(
+fn handle_mouse(
     terminal: &mut Terminal,
     event: MouseEvent,
     builder: &mut Builder,
     plot_mode: &mut Option<Cell>,
     editor_toggled: bool,
     starting_time: &mut Option<Instant>,
+    hovered_cell_point: &mut Option<Point>,
 ) -> State {
     match event {
         MouseEvent {
@@ -54,9 +55,11 @@ pub fn handle_mouse(
             point,
         } => {
             if builder.contains(point) {
+                *hovered_cell_point = Some(point);
+
                 let starting_time = starting_time.get_or_insert(Instant::now());
 
-                let cell_point = get_cell_point_by_cursor_point(point, builder);
+                let cell_point = get_cell_point_from_cursor_point(point, builder);
                 let cell = builder.grid.get_mut_cell(cell_point.x, cell_point.y);
 
                 if let Some(plot_mode) = *plot_mode {
@@ -81,7 +84,7 @@ pub fn handle_mouse(
                         MouseButton::Right => Cell::Crossed,
                     };
                     if *cell == new_plot_mode {
-                        new_plot_mode = Cell::Empty;
+                        new_plot_mode = Cell::default();
                     }
                     *plot_mode = Some(new_plot_mode);
                     *cell = new_plot_mode;
@@ -125,7 +128,9 @@ pub fn handle_mouse(
             let _all_clues_solved = builder.draw(terminal);
 
             if builder.contains(point) {
-                let cell_point = get_cell_point_by_cursor_point(point, builder);
+                *hovered_cell_point = Some(point);
+
+                let cell_point = get_cell_point_from_cursor_point(point, builder);
                 let cell = builder.grid.get_cell(cell_point.x, cell_point.y);
                 draw_dark_cell_color(terminal, point, &builder.grid, cell);
             }
@@ -138,6 +143,7 @@ pub fn handle_mouse(
     State::Continue
 }
 
+/// Reconstructs the clues associated with the given `cell_point`.
 fn rebuild_clues(terminal: &mut Terminal, builder: &mut Builder, cell_point: Point) {
     builder.clear_clues(terminal);
     builder.grid.horizontal_clues_solutions[cell_point.y as usize] =
@@ -147,7 +153,8 @@ fn rebuild_clues(terminal: &mut Terminal, builder: &mut Builder, cell_point: Poi
 }
 
 /// Handles the event and returns a `State`.
-pub fn handle(
+fn handle(
+    // TODO: this function has too many arguments and should be refactored
     terminal: &mut Terminal,
     event: Event,
     builder: &mut Builder,
@@ -155,6 +162,8 @@ pub fn handle(
     editor: &mut Editor,
     last_notification: Option<&'static str>,
     starting_time: &mut Option<Instant>,
+    hovered_cell_point: &mut Option<Point>,
+    measurement_point: &mut Option<Point>,
 ) -> State {
     match event {
         Event::Mouse(mouse_event) => handle_mouse(
@@ -164,18 +173,28 @@ pub fn handle(
             plot_mode,
             editor.toggled,
             starting_time,
+            hovered_cell_point,
         ),
-        Event::Key(key_event) => handle_key(terminal, key_event, builder, editor),
+        Event::Key(key_event) => handle_key(
+            terminal,
+            key_event,
+            builder,
+            editor,
+            *hovered_cell_point,
+            measurement_point,
+        ),
         Event::Resize => handle_window_resize(terminal, builder, last_notification),
     }
 }
 
 /// This handles all key input for actions like undo, redo, reset and so on.
-pub fn handle_key(
+fn handle_key(
     terminal: &mut Terminal,
     key_event: KeyEvent,
     builder: &mut Builder,
     editor: &mut Editor,
+    hovered_cell_point: Option<Point>,
+    measurement_point: &mut Option<Point>,
 ) -> State {
     match key_event {
         KeyEvent::Char('r', None) | KeyEvent::Char('R', None) => {
@@ -229,7 +248,51 @@ pub fn handle_key(
                 State::Continue
             }
         }
-        KeyEvent::Char(' ', None) => State::Ruler,
+        KeyEvent::Char('m', None) | KeyEvent::Char('M', None) => {
+            if let Some(hovered_cell_point) = hovered_cell_point {
+                if let Some(some_measurement_point) = *measurement_point {
+                    // The points we have are screen points so now we convert them to values that we can use
+                    // to index the grid.
+                    let start_point =
+                        get_cell_point_from_cursor_point(some_measurement_point, builder);
+                    let end_point = get_cell_point_from_cursor_point(hovered_cell_point, builder);
+
+                    for (index, point) in util::get_line_points(start_point, end_point).enumerate()
+                    {
+                        let cell = builder.grid.get_mut_cell(point.x, point.y);
+
+                        if let Cell::Empty | Cell::Measured(_) = cell {
+                            *cell = Cell::Measured(Some(index + 1));
+                        }
+                    }
+
+                    // Measured cells cannot solve the grid
+                    let _all_clues_solved = builder.draw(terminal);
+
+                    // Measured cells are only drawn on empty ones so we need to make sure
+                    // the cell we darken is actually a measured one
+                    if let Cell::Measured(_) = builder.grid.get_cell(end_point.x, end_point.y) {
+                        // Overdraw the hovered cell with a dark color
+                        draw_dark_cell_color(
+                            terminal,
+                            hovered_cell_point,
+                            &builder.grid,
+                            Cell::Measured(None),
+                        );
+                    }
+
+                    *measurement_point = None;
+
+                    State::ClearAlert
+                } else {
+                    *measurement_point = Some(hovered_cell_point);
+
+                    State::Alert("Set second measurement point")
+                }
+            } else {
+                State::Continue
+            }
+        }
         KeyEvent::Esc => State::Exit,
         _ => State::Continue,
     }
@@ -324,7 +387,7 @@ pub fn await_key(terminal: &mut Terminal) {
     }
 }
 
-pub fn await_window_resize(terminal: &mut Terminal) -> State {
+fn await_window_resize(terminal: &mut Terminal) -> State {
     loop {
         let event = terminal.read_event();
         match event {
@@ -338,16 +401,16 @@ pub fn await_window_resize(terminal: &mut Terminal) -> State {
 
 #[must_use]
 pub enum State {
+    /// Execution is to be continued normally.
     Continue,
+    /// The grid has been solved.
     Solved(Duration),
+    /// Display an alert.
     Alert(&'static str),
-    Ruler,
+    /// Clear the alert if present.
+    ClearAlert,
+    /// Exit the program.
     Exit,
-}
-
-struct Ruler {
-    // a good line algorithm lib is needed
-// then maybe you can use that lib to make cell filling smoother too (it can prevent gaps between the filled cells when you move your cursor too quickly)
 }
 
 pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
@@ -358,6 +421,11 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
     let mut notification_clear_delay = 0_usize;
 
     let mut starting_time: Option<Instant> = None;
+
+    let mut hovered_cell_point: Option<Point> = None;
+    let mut measurement_point: Option<Point> = None;
+
+    // TODO: refactor above variables into one big struct and/or multiple structs
 
     while let Some(event) = terminal.read_event() {
         // The order of statements in this loop matters
@@ -380,6 +448,8 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
             &mut editor,
             notification,
             &mut starting_time,
+            &mut hovered_cell_point,
+            &mut measurement_point,
         );
 
         #[cfg(debug_assertions)]
@@ -402,8 +472,11 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 notification_clear_delay = 75;
                 terminal.flush();
             }
-            State::Ruler => {
-                // https://old.reddit.com/r/nonograms/comments/nlixfe/any_other_nonogram_apps_especially_for_pcweb_that/
+            State::ClearAlert => {
+                if let Some(notification_to_clear) = notification {
+                    clear_notification(terminal, builder, notification_to_clear.len());
+                    notification = None;
+                }
             }
             State::Solved(_) | State::Exit => return state,
         }

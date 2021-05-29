@@ -1,9 +1,8 @@
-use {
-    super::{Cell, Grid},
-    terminal::{
-        util::{Color, Point},
-        Terminal,
-    },
+use super::{Cell, Grid};
+use std::borrow::Cow;
+use terminal::{
+    util::{Color, Point},
+    Terminal,
 };
 
 #[derive(Clone, PartialEq, Debug)]
@@ -209,20 +208,35 @@ impl Builder {
         {
             let previous_cursor_x = self.cursor.point.x;
             for (x, cell) in cells.iter().enumerate() {
-                let cell_color = match cell {
+                let (cell_color, content): (Color, Cow<'static, str>) = match cell {
                     Cell::Empty => {
                         let x_reached_point = x / SEPARATING_POINT as usize % 2 == 0;
                         let y_reached_point = y / SEPARATING_POINT as usize % 2 == 0;
-                        if x_reached_point ^ y_reached_point {
+                        let cell_color = if x_reached_point ^ y_reached_point {
                             Color::Byte(236)
                         } else {
                             Color::Byte(238)
-                        }
+                        };
+
+                        (cell_color, "  ".into())
                     }
-                    _ => cell.get_color(),
+                    Cell::Measured(index) => {
+                        let cell_color = cell.get_color();
+
+                        let content = if let Some(index) = index {
+                            terminal.set_foreground_color(Color::Black);
+                            format!("{:>2}", index).into()
+                        } else {
+                            "  ".into()
+                        };
+
+                        (cell_color, content)
+                    }
+                    _ => (cell.get_color(), "  ".into()),
                 };
+
                 terminal.set_background_color(cell_color);
-                terminal.write("  ");
+                terminal.write(&content);
                 terminal.reset_colors();
 
                 self.cursor.point.x += 2;

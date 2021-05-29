@@ -2,6 +2,19 @@ use std::{
     fs,
     io::{self, Read, Seek},
 };
+use terminal::util::Point;
+
+/// Returns an iterator over the points from `start_point` to `point2`.
+pub fn get_line_points(start_point: Point, end_point: Point) -> impl Iterator<Item = Point> {
+    line_drawing::Bresenham::new(
+        (start_point.x as i16, start_point.y as i16),
+        (end_point.x as i16, end_point.y as i16),
+    )
+    .map(|(x, y)| Point {
+        x: x as u16,
+        y: y as u16,
+    })
+}
 
 /// Erases all of the writer's file's contents.
 pub fn clear_file(writer: &mut io::BufWriter<fs::File>) -> Result<(), &'static str> {

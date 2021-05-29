@@ -20,7 +20,6 @@ use terminal::{
 //  Make them gray out individually. (Maybe itertools' `pad_using` is helpful)
 // -Ability to change grid size and load grids (with F5?) within the game without the command line
 // -Ability to save records to a file and determine new records with that
-// -A ruler/measurer (with shift?)
 // -Ability to continue after solving the puzzle/ability to play it again
 
 fn main() {
@@ -128,12 +127,10 @@ fn write_grid_back(writer: &mut sync::Arc<sync::Mutex<io::BufWriter<fs::File>>>)
 
 fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
-    draw_text(
-        terminal,
-        &builder,
-        "Q: Undo, E: Redo, R: Reset",
-        builder.cursor.point.y + builder.grid.size.height,
-    );
+    let mut y = builder.cursor.point.y + builder.grid.size.height;
+    draw_text(terminal, &builder, "Q: Undo, E: Redo, R: Reset", y);
+    y += 1;
+    draw_text(terminal, &builder, "M: Set Measurement Point", y);
     terminal.reset_colors();
 }
 

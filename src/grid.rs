@@ -21,6 +21,10 @@ pub enum Cell {
     Maybed,
     /// Used to mark cells that are certainly empty.
     Crossed,
+    /// Used for indicating cells that were measured using the measurement tool.
+    ///
+    /// When this cell is saved, the index is not preserved.
+    Measured(Option<usize>),
 }
 
 impl Default for Cell {
@@ -30,12 +34,8 @@ impl Default for Cell {
 }
 
 impl From<bool> for Cell {
-    fn from(bool: bool) -> Self {
-        if bool {
-            Cell::Filled
-        } else {
-            Cell::Empty
-        }
+    fn from(filled: bool) -> Self {
+        filled.then(|| Cell::Filled).unwrap_or_default()
     }
 }
 
@@ -46,6 +46,7 @@ impl Cell {
             Cell::Filled => Color::White,
             Cell::Maybed => Color::Blue,
             Cell::Crossed => Color::Red,
+            Cell::Measured(_) => Color::Green,
         }
     }
 
@@ -55,6 +56,7 @@ impl Cell {
             Cell::Filled => Color::Gray,
             Cell::Maybed => Color::DarkBlue,
             Cell::Crossed => Color::DarkRed,
+            Cell::Measured(_) => Color::DarkGreen,
         }
     }
 }

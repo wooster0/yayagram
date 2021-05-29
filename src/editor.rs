@@ -54,6 +54,11 @@ impl Editor {
                             help[1] = Some("?: maybed");
                             "????"
                         }
+                        Cell::Measured(_) => {
+                            // R because it resembles 尺 which is a unit of measure.
+                            help[1] = Some("R: measured");
+                            "RRRR"
+                        }
                     };
                     writer.write_all(cell_half.as_bytes())?;
                 }
@@ -194,9 +199,10 @@ fn deserialize(str: &str) -> Result<(Size, Vec<Cell>), LoadError> {
                 '1' => Cell::Filled,
                 'X' => Cell::Crossed,
                 '?' => Cell::Maybed,
+                'R' => Cell::Measured(None),
                 _ => {
                     return Err(LoadError {
-                        message: "expected ' ', '1', 'X' or '?' at start of line",
+                        message: "expected ' ', '1', 'X', '?' or 'R'",
                         line_number: Some(index),
                     })
                 }

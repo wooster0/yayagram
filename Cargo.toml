@@ -16,6 +16,7 @@ categories = ["command-line-utilities", "games"]
 terminal = { package = "tanmatsu", version = "0.2.5" }
 rand = { version = "0.8.3", features = ["small_rng"] }
 itertools = "0.10.0"
+line_drawing = "0.8.0"
 
 # The following branch has a patch that isn't merged into the main repo yet which handles SIGHUP,
 # which is sent on Linux and macOS when the terminal is terminated with the X button for instance.
@@ -27,5 +28,4 @@ ctrlc = { git = "https://github.com/r00ster91/rust-ctrlc", branch = "patch-1", f
 # [profile.release]
 # opt-level = "z"
 # lto = true
-# panic = "unwind"
 # codegen-units = 1

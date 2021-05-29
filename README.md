@@ -20,6 +20,7 @@ yayagram
 * Helpful features like undo, redo and reset that are just a button press away.
 * [Create your own grids](#Editor) for others to play.
 * A new kind of cell: [maybed](#Maybed).
+* A measurement tool to let you enjoy even the biggest of grids.
 * Intuitive to play.
 
 # Controls
@@ -31,6 +32,7 @@ yayagram
 - `R`: reset the grid.
 - `Q` or left arrow key: undo a cell placement or a grid reset.
 - `E` or right arrow key: redo a cell placement or a grid reset.
+- `M`: Set measurement point.
 - `Tab`: toggle the [editor](#Editor).
 - `S`: save the edited grid as a file locally.
 - `Esc`: exit.
