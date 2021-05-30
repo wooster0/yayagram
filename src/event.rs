@@ -342,9 +342,9 @@ pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State 
         (within_width, within_height) => {
             terminal.set_cursor(Point::default());
             if !within_width {
-                terminal.write("Please increase window width or decrease text size");
+                terminal.write("Please increase window width or decrease text size (Ctrl and -)");
             } else if !within_height {
-                terminal.write("Please increase window height or decrease text size");
+                terminal.write("Please increase window height or decrease text size (Ctrl and -)");
             } else {
                 unreachable!();
             }
