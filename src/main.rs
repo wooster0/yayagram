@@ -148,9 +148,6 @@ fn get_terminal() -> Result<Terminal, &'static str> {
     }
 }
 
-/// One hour in seconds.
-const HOUR: u64 = 60 * 60;
-
 /// The amount of text lines drawn above the grid.
 const TEXT_LINE_COUNT: u16 = 2;
 
@@ -162,6 +159,9 @@ pub fn draw_text(terminal: &mut Terminal, builder: &Builder, text: &str, y: u16)
     });
     terminal.write(text);
 }
+
+/// One hour in seconds.
+const HOUR: u64 = 60 * 60;
 
 /// The screen that appears when the grid was solved.
 fn solved_screen(
@@ -181,14 +181,7 @@ fn solved_screen(
         if total_elapsed_seconds > HOUR * 99 {
             "That took too long".into()
         } else {
-            let elapsed_seconds = total_elapsed_seconds % 60;
-            let elapsed_minutes = total_elapsed_seconds / 60;
-            let elapsed_hours = elapsed_minutes / 60;
-            format!(
-                "Solved in {:02}:{:02}:{:02}",
-                elapsed_hours, elapsed_minutes, elapsed_seconds
-            )
-            .into()
+            format!("Solved in {}", format_seconds(total_elapsed_seconds)).into()
         }
     };
     terminal.set_foreground_color(Color::White);
@@ -198,4 +191,22 @@ fn solved_screen(
     terminal.flush();
 
     event::await_key(terminal);
+}
+
+/// Formats the given seconds to an hour, minute and second format.
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(format_seconds(60 * 70 + 5), "01:10:05");
+/// assert_eq!(format_seconds(45 * 60 + 15), "00:45:15");
+/// assert_eq!(format_seconds(60 * 60 * 99), "99:00:00");
+/// assert_eq!(format_seconds(60 * 80), "01:20:00");
+/// assert_eq!(format_seconds(60 * 60 + 60 * 5 + 30), "01:05:30");
+/// ```
+fn format_seconds(total_seconds: u64) -> String {
+    let seconds = total_seconds % 60;
+    let minutes = total_seconds / 60 % 60;
+    let hours = total_seconds / HOUR;
+    format!("{:02}:{:02}:{:02}", hours, minutes, seconds)
 }
