@@ -16,43 +16,40 @@ yayagram
 # Features
 
 * Runs in the terminal!
-* Cross-platform: runs on Linux, Windows and [probably macOS](#macOS).
+* Cross-platform: runs on Linux, Windows and macOS.
 * Helpful features like undo, redo and reset that are just a button press away.
 * [Create your own grids](#Editor) for others to play.
 * A new kind of cell: [maybed](#Maybed).
-* A measurement tool to let you enjoy even the biggest of grids.
+* A [measurement tool](#Measurement-tool) to let you enjoy even the biggest of grids.
 * Intuitive to play.
 
-# Controls
+## Controls
 
 - Mouse movement: select a cell.
 - Left-click: fill a cell.
 - Middle-click: [maybe a cell](#Maybed).
 - Right-click: cross out a cell.
 - `R`: reset the grid.
-- `Q` or left arrow key: undo a cell placement or a grid reset.
-- `E` or right arrow key: redo a cell placement or a grid reset.
-- `M`: Set measurement point.
+- `Q`: undo cell placements or a grid reset.
+- `E`: redo cell placements or a grid reset.
+- `X`: set [measurement point](#Measurement-tool).
 - `Tab`: toggle the [editor](#Editor).
-- `S`: save the edited grid as a file locally.
+- `Enter`: save the [edited](#Editor) grid as a file locally.
 - `Esc`: exit.
 
 ## Editor
 
 Press `Tab` to toggle the editor and start placing the cells for your grid.
 You can make use of all cell kinds.
-To export your grid, press `S` to save while in editor mode. This will create a new `.yaya` grid file.
+To export your grid, press `Enter` to save while in editor mode. This will create a new `.yaya` grid file.
 Note that in the same session it will always write the grid to the same file again unless renamed.
 
 On Windows you can drag `.yaya` grid files onto the `.exe` to play the grid.
-
-Note that while playing a `.yaya` grid, the file will be empty for the duration of the play before the content will be written back.
+On Linux and macOS the `.yaya` file is passed via the command line.
 
 ## img2yaya
 
-Ran out of `.yaya` files? No ideas for new grids? Don't want to play random grids?
-
-Check out @AaronErhardt's amazing [**img2yaya**](https://github.com/AaronErhardt/img2yaya) to convert images to playable `.yaya` files!
+As an alternative to the editor you can generate `.yaya` grids using [**@AaronErhardt**](https://github.com/AaronErhardt)'s amazing [**img2yaya**](https://github.com/AaronErhardt/img2yaya) to convert images to playable `.yaya` files!
 
 ## Command line arguments
 
@@ -66,6 +63,16 @@ yayagram example.yaya # a custom grid
 ```
 
 `--help` and `-h` are also supported.
+
+## Measurement tool
+
+Particularly on bigger grids it can sometimes become hard to count all the cells.
+For this you can use the measurement tool. Simply press `X` to set your first point and then `X` again to set your second point.
+You will then be able to see the distance between those two points with the measured cells that appear.
+Measured cells never overwrite cell kinds other than empty cells and its own.
+
+If you save a grid that contains measured cells, their distance indices won't be saved
+and the measured cells will only appear as green when that grid is loaded.
 
 ## Maybed
 
@@ -145,12 +152,3 @@ Now you can try to apply some of what you learned on a small grid like 3x3 or 5x
 `yayagram 3` or `yayagram 5` respectively.
 
 You can also load the above grid into the game by passing this file as a command line argument to the binary: [example.yaya](example.yaya).
-
-## macOS
-
-This game has not been tested on macOS yet. If you can test it, please confirm that:
-
-* If you load a `.yaya` grid file and finished playing it, the data is still present after you either closed the terminal with X or if you quit with `Esc`.
-* You are able to load a `.yaya` grid file by dragging it into the executable.
-
-If that's the case or if any of it is not the case, please let me know.
