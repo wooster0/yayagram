@@ -193,7 +193,6 @@ fn handle_key(
     measurement_point: &mut Option<Point>,
 ) -> State {
     match key_event {
-        // TODO: maybe make S be Enter and use WASD for this too?
         KeyEvent::Char('a', None) | KeyEvent::Char('A', None) | KeyEvent::Left => {
             // No grid mutation happened
             let _all_clues_solved = builder.draw(terminal);
