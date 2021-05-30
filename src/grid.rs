@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use terminal::util::{Color, Size};
+use terminal::util::{Color, Point, Size};
 pub mod builder;
 #[cfg(debug_assertions)]
 pub mod debug;
@@ -84,8 +84,8 @@ pub struct Grid {
     pub undo_redo_buffer: UndoRedoBuffer,
 }
 
-fn get_index(width: u16, x: u16, y: u16) -> usize {
-    y as usize * width as usize + x as usize
+fn get_index(width: u16, point: Point) -> usize {
+    point.y as usize * width as usize + point.x as usize
 }
 
 fn get_horizontal_clues(
@@ -94,7 +94,7 @@ fn get_horizontal_clues(
     y: u16,
 ) -> impl Iterator<Item = Clue> + '_ + Clone {
     (0..width)
-        .map(move |x| cells[get_index(width, x, y)] == Cell::Filled)
+        .map(move |x| cells[get_index(width, Point { x, y })] == Cell::Filled)
         .dedup_with_count()
         .filter(|(_, filled)| *filled)
         .map(|(count, _)| count as Clue)
@@ -107,7 +107,7 @@ fn get_vertical_clues(
     x: u16,
 ) -> impl Iterator<Item = Clue> + '_ + Clone {
     (0..height)
-        .map(move |y| cells[get_index(width, x, y)] == Cell::Filled)
+        .map(move |y| cells[get_index(width, Point { x, y })] == Cell::Filled)
         .dedup_with_count()
         .filter(|(_, filled)| *filled)
         .map(|(count, _)| count as Clue)
@@ -162,26 +162,26 @@ impl Grid {
         }
     }
 
-    fn cell_panic(x: u16, y: u16, index: usize) -> ! {
+    fn cell_panic(point: Point, index: usize) -> ! {
         panic!(
-            "cell access at ({}, {}) with index {} is out of bounds",
-            x, y, index
+            "cell access at {} with index {} is out of bounds",
+            point, index
         );
     }
 
-    pub fn get_cell(&self, x: u16, y: u16) -> Cell {
-        let index = get_index(self.size.width, x, y);
+    pub fn get_cell(&self, point: Point) -> Cell {
+        let index = get_index(self.size.width, point);
         *self
             .cells
             .get(index)
-            .unwrap_or_else(|| Self::cell_panic(x, y, index))
+            .unwrap_or_else(|| Self::cell_panic(point, index))
     }
 
-    pub fn get_mut_cell(&mut self, x: u16, y: u16) -> &mut Cell {
-        let index = get_index(self.size.width, x, y);
+    pub fn get_mut_cell(&mut self, point: Point) -> &mut Cell {
+        let index = get_index(self.size.width, point);
         self.cells
             .get_mut(index)
-            .unwrap_or_else(|| Self::cell_panic(x, y, index))
+            .unwrap_or_else(|| Self::cell_panic(point, index))
     }
 
     pub fn get_horizontal_clues(&self, y: u16) -> impl Iterator<Item = Clue> + '_ + Clone {

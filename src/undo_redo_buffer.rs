@@ -56,7 +56,7 @@ impl Grid {
         {
             match operation {
                 Operation::SetCell { point, cell } => {
-                    let grid_cell = self.get_mut_cell(point.x, point.y);
+                    let grid_cell = self.get_mut_cell(*point);
                     *grid_cell = *cell;
                 }
                 Operation::Measure(line_points) => {

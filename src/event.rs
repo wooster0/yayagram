@@ -60,7 +60,7 @@ fn handle_mouse(
                 let starting_time = starting_time.get_or_insert(Instant::now());
 
                 let cell_point = get_cell_point_from_cursor_point(point, builder);
-                let cell = builder.grid.get_mut_cell(cell_point.x, cell_point.y);
+                let cell = builder.grid.get_mut_cell(cell_point);
 
                 if let Some(plot_mode) = *plot_mode {
                     if *cell == plot_mode {
@@ -131,7 +131,7 @@ fn handle_mouse(
                 *hovered_cell_point = Some(point);
 
                 let cell_point = get_cell_point_from_cursor_point(point, builder);
-                let cell = builder.grid.get_cell(cell_point.x, cell_point.y);
+                let cell = builder.grid.get_cell(cell_point);
                 draw_dark_cell_color(terminal, point, &builder.grid, cell);
             }
         }
@@ -272,7 +272,7 @@ fn handle_key(
 
                     // The cell might not be a measured cell because they are only drawn on
                     // measured and empty cells
-                    if let Cell::Measured(_) = builder.grid.get_cell(end_point.x, end_point.y) {
+                    if let Cell::Measured(_) = builder.grid.get_cell(end_point) {
                         // Overdraw the hovered cell with a dark color
                         draw_dark_cell_color(
                             terminal,
@@ -301,7 +301,7 @@ fn handle_key(
 
 pub fn set_measured_cells(grid: &mut Grid, line_points: &[Point]) {
     for (index, point) in line_points.iter().enumerate() {
-        let cell = grid.get_mut_cell(point.x, point.y);
+        let cell = grid.get_mut_cell(*point);
 
         if let Cell::Empty | Cell::Measured(_) = cell {
             *cell = Cell::Measured(Some(index + 1));
