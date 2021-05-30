@@ -162,43 +162,6 @@ impl Grid {
         }
     }
 
-    /// Creates a new grid from the given line of strings.
-    /// Each 1 represents a filled cell.
-    /// Each space represents an empty cell.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// let lines = [
-    ///    "111 1",
-    ///    "11111",
-    ///    "1 111"
-    /// ]
-    /// let grid = Grid::from_lines(lines);
-    /// ```
-    /// It would look like this when solved:
-    /// ```text
-    /// ██████  ██
-    /// ██████████
-    /// ██  ██████
-    /// ```
-    pub fn from_lines(lines: &[&str]) -> Grid {
-        let width = lines.iter().map(|line| line.len()).max().unwrap();
-        let height = lines.len();
-        let size = Size::new(width as u16, height as u16);
-        let mut cells = Vec::<Cell>::with_capacity(size.product() as usize);
-        for line in lines {
-            for char in line.chars() {
-                cells.push(match char {
-                    '1' => Cell::Filled,
-                    ' ' => Cell::Empty,
-                    _ => panic!("the strings must only contain '1' or ' '"),
-                });
-            }
-        }
-        Grid::new(size, cells)
-    }
-
     fn cell_panic(x: u16, y: u16, index: usize) -> ! {
         panic!(
             "cell access at ({}, {}) with index {} is out of bounds",
@@ -234,6 +197,38 @@ impl Grid {
 mod tests {
     use super::*;
 
+    impl Grid {
+        /// Creates a new grid from the given line of strings.
+        /// A `1` represents a filled cell, a ` ` represents an empty cell.
+        ///
+        /// # Examples
+        ///
+        /// ```
+        /// let lines = [
+        ///    "111 1",
+        ///    "11111",
+        ///    "1 111"
+        /// ]
+        /// let grid = Grid::from_lines(lines);
+        /// ```
+        fn from_lines(lines: &[&str]) -> Grid {
+            let width = lines.iter().map(|line| line.len()).max().unwrap();
+            let height = lines.len();
+            let size = Size::new(width as u16, height as u16);
+            let mut cells = Vec::<Cell>::with_capacity(size.product() as usize);
+            for line in lines {
+                for char in line.chars() {
+                    cells.push(match char {
+                        '1' => Cell::Filled,
+                        ' ' => Cell::Empty,
+                        _ => panic!("the strings must only contain '1' or ' '"),
+                    });
+                }
+            }
+            Grid::new(size, cells)
+        }
+    }
+
     #[test]
     fn test_squared_grid() {
         let grid = Grid::from_lines(&[
@@ -242,11 +237,6 @@ mod tests {
             "1111 11  1",
             "1 11 1  11",
             "1  111  11",
-            "          ",
-            "          ",
-            "          ",
-            "          ",
-            "          ",
         ]);
 
         assert_eq!(
@@ -257,11 +247,6 @@ mod tests {
                 vec![4, 2, 1],
                 vec![1, 2, 1, 2],
                 vec![1, 3, 2],
-                vec![],
-                vec![],
-                vec![],
-                vec![],
-                vec![]
             ]
         );
 
@@ -292,10 +277,6 @@ mod tests {
                 "1 1 ",
                 "1  1",
                 "  1 ",
-                "    ",
-                "    ",
-                "    ",
-                "    ",
             ]);
 
         assert_eq!(
@@ -307,10 +288,6 @@ mod tests {
                 vec![1, 1],
                 vec![1, 1],
                 vec![1],
-                vec![],
-                vec![],
-                vec![],
-                vec![]
             ]
         );
 
