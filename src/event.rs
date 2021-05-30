@@ -197,7 +197,89 @@ fn handle_key(
     measurement_point: &mut Option<Point>,
 ) -> State {
     match key_event {
-        KeyEvent::Char('q', None) | KeyEvent::Char('Q', None) | KeyEvent::Left(None) => {
+        // TODO: maybe make S be Enter and use WASD for this too?
+        KeyEvent::Left => {
+            // No grid mutation happened
+            let _all_clues_solved = builder.draw(terminal);
+
+            if let Some(hovered_cell_point) = hovered_cell_point {
+                for x in builder.cursor.point.x..hovered_cell_point.x {
+                    let point = Point {
+                        x,
+                        ..hovered_cell_point
+                    };
+
+                    let cell_point = get_cell_point_from_cursor_point(point, builder);
+                    let cell = builder.grid.get_cell(cell_point);
+
+                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
+                }
+            }
+
+            State::Continue
+        }
+        KeyEvent::Right => {
+            // No grid mutation happened
+            let _all_clues_solved = builder.draw(terminal);
+
+            if let Some(hovered_cell_point) = hovered_cell_point {
+                for x in hovered_cell_point.x..builder.cursor.point.x + builder.grid.size.width * 2
+                {
+                    let point = Point {
+                        x,
+                        ..hovered_cell_point
+                    };
+
+                    let cell_point = get_cell_point_from_cursor_point(point, builder);
+                    let cell = builder.grid.get_cell(cell_point);
+
+                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
+                }
+            }
+
+            State::Continue
+        }
+        KeyEvent::Up => {
+            // No grid mutation happened
+            let _all_clues_solved = builder.draw(terminal);
+
+            if let Some(hovered_cell_point) = hovered_cell_point {
+                for y in builder.cursor.point.y..=hovered_cell_point.y {
+                    let point = Point {
+                        y,
+                        ..hovered_cell_point
+                    };
+
+                    let cell_point = get_cell_point_from_cursor_point(point, builder);
+                    let cell = builder.grid.get_cell(cell_point);
+
+                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
+                }
+            }
+
+            State::Continue
+        }
+        KeyEvent::Down => {
+            // No grid mutation happened
+            let _all_clues_solved = builder.draw(terminal);
+
+            if let Some(hovered_cell_point) = hovered_cell_point {
+                for y in hovered_cell_point.y..builder.cursor.point.y + builder.grid.size.height {
+                    let point = Point {
+                        y,
+                        ..hovered_cell_point
+                    };
+
+                    let cell_point = get_cell_point_from_cursor_point(point, builder);
+                    let cell = builder.grid.get_cell(cell_point);
+
+                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
+                }
+            }
+
+            State::Continue
+        }
+        KeyEvent::Char('q', None) | KeyEvent::Char('Q', None) => {
             if builder.grid.undo_last_cell() {
                 // It would've already been solved before
                 let _all_clues_solved = builder.draw(terminal);
@@ -205,7 +287,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('e', None) | KeyEvent::Char('E', None) | KeyEvent::Right(None) => {
+        KeyEvent::Char('e', None) | KeyEvent::Char('E', None) => {
             if builder.grid.redo_last_cell() {
                 // It would've already been solved before
                 let _all_clues_solved = builder.draw(terminal);
