@@ -197,18 +197,6 @@ fn handle_key(
     measurement_point: &mut Option<Point>,
 ) -> State {
     match key_event {
-        KeyEvent::Char('r', None) | KeyEvent::Char('R', None) => {
-            builder.grid.cells.fill_with(Default::default);
-            builder
-                .grid
-                .undo_redo_buffer
-                .push(undo_redo_buffer::Operation::Clear);
-
-            // It would've already been solved from the start
-            let _all_clues_solved = builder.draw(terminal);
-
-            State::Continue
-        }
         KeyEvent::Char('q', None) | KeyEvent::Char('Q', None) | KeyEvent::Left(None) => {
             if builder.grid.undo_last_cell() {
                 // It would've already been solved before
@@ -225,28 +213,17 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Tab => {
-            editor.toggle();
+        KeyEvent::Char('r', None) | KeyEvent::Char('R', None) => {
+            builder.grid.cells.fill_with(Default::default);
+            builder
+                .grid
+                .undo_redo_buffer
+                .push(undo_redo_buffer::Operation::Clear);
 
-            if editor.toggled {
-                // TODO: maybe this info should be shown all the time (make it part of window title?)
-                State::Alert("Editor enabled")
-            } else {
-                State::Alert("Editor disabled")
-            }
-        }
-        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) | KeyEvent::Enter
-            if editor.toggled =>
-        {
-            if let Err(err) = editor.save_grid(&builder) {
-                State::Alert(err)
-            } else {
-                set_title(
-                    terminal,
-                    &format!("yayagram - Grid saved as {}", editor.filename),
-                );
-                State::Continue
-            }
+            // It would've already been solved from the start
+            let _all_clues_solved = builder.draw(terminal);
+
+            State::Continue
         }
         KeyEvent::Char('m', None) | KeyEvent::Char('M', None) => {
             if let Some(hovered_cell_point) = hovered_cell_point {
@@ -291,6 +268,29 @@ fn handle_key(
                     State::Alert("Set second measurement point")
                 }
             } else {
+                State::Continue
+            }
+        }
+        KeyEvent::Tab => {
+            editor.toggle();
+
+            if editor.toggled {
+                // TODO: maybe this info should be shown all the time (make it part of window title?)
+                State::Alert("Editor enabled")
+            } else {
+                State::Alert("Editor disabled")
+            }
+        }
+        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) | KeyEvent::Enter
+            if editor.toggled =>
+        {
+            if let Err(err) = editor.save_grid(&builder) {
+                State::Alert(err)
+            } else {
+                set_title(
+                    terminal,
+                    &format!("yayagram - Grid saved as {}", editor.filename),
+                );
                 State::Continue
             }
         }
