@@ -72,8 +72,6 @@ fn handle_mouse(
                         // Overdraw this hovered cell with a dark color
                         draw_dark_cell_color(terminal, point, &builder.grid, cell);
 
-                        terminal.flush(); // TODO: this can most likely be removed
-
                         return State::Continue;
                     }
                     *cell = plot_mode;
@@ -114,8 +112,6 @@ fn handle_mouse(
 
                 // Overdraw this hovered cell with a dark color
                 draw_dark_cell_color(terminal, point, &builder.grid, cell);
-
-                terminal.flush(); // TODO: this can most likely be removed
             } else {
                 // `plot_mode` won't be reset
             }
