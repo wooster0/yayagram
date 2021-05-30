@@ -281,9 +281,7 @@ fn handle_key(
                 State::Alert("Editor disabled")
             }
         }
-        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) | KeyEvent::Enter
-            if editor.toggled =>
-        {
+        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) if editor.toggled => {
             if let Err(err) = editor.save_grid(&builder) {
                 State::Alert(err)
             } else {
