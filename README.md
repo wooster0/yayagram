@@ -13,6 +13,8 @@ cargo install yayagram
 yayagram
 ```
 
+Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagram/releases).
+
 # Features
 
 * Runs in the terminal!
@@ -63,7 +65,7 @@ yayagram 5 15 # a random 5x15 grid
 yayagram example.yaya # a custom grid
 ```
 
-`--help` and `-h` are also supported.
+`--help`, `-h` and `--version`, `-V` are also supported.
 
 ## Measurement tool
 

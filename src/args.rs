@@ -14,6 +14,7 @@ pub enum Arg {
     File { name: String, content: String },
     GridSize(Size),
     Help,
+    Version,
 }
 
 enum SizeError {
@@ -97,6 +98,8 @@ fn parse_strings(
             io::ErrorKind::NotFound => {
                 if first_string == "--help" || first_string == "-h" {
                     Ok(Some(Arg::Help))
+                } else if first_string == "--version" || first_string == "-V" {
+                    Ok(Some(Arg::Version))
                 } else {
                     let result = if let Some(second_string) = second_string {
                         parse_size(&first_string, &second_string)

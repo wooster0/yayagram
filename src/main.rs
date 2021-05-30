@@ -36,26 +36,33 @@ fn main() {
 
 const HELP: &[&str] = &[
     "Play nonograms/picross in your terminal.",
-    "As an argument you can specify either a number for the grid's size or a path to a `.yaya` grid file.",
-    "For more information see <https://github.com/r00ster91/yayagram/blob/main/README.md>",
+    "For the arguments please check <https://github.com/r00ster91/yayagram#command-line-arguments>.",
 ];
 
 fn run() -> Result<(), Cow<'static, str>> {
     let arg = args::parse();
 
-    if let Ok(Some(args::Arg::Help)) = arg {
-        for line in HELP {
-            println!("{}", line);
-        }
+    let grid = match arg {
+        Ok(Some(args::Arg::Help)) => {
+            for line in HELP {
+                println!("{}", line);
+            }
 
-        return Ok(());
-    }
-
-    let grid = match get_grid(&arg) {
-        Ok(grid) => grid,
-        Err(err) => {
-            return Err(err);
+            return Ok(());
         }
+        Ok(Some(args::Arg::Version)) => {
+            let version = env!("CARGO_PKG_VERSION");
+
+            println!("{}", version);
+
+            return Ok(());
+        }
+        arg => match get_grid(arg) {
+            Ok(grid) => grid,
+            Err(err) => {
+                return Err(err);
+            }
+        },
     };
 
     match get_terminal() {
@@ -102,7 +109,7 @@ fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.reset_colors();
 }
 
-fn get_grid(arg: &Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, Cow<'static, str>> {
+fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, Cow<'static, str>> {
     match arg {
         Ok(arg) => match arg {
             Some(args::Arg::File {
