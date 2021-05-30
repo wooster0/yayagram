@@ -295,9 +295,9 @@ checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 
 [[package]]
 name = "tanmatsu"
-version = "0.2.5"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6349f0e63a0ef5313533b8b6050f71e8038032c9f2a6450fcd6bf52c9f0692df"
+checksum = "00eb9094cb43a61ecee6bc909f018b99add4336c5cf95e335e6564c24698c8a1"
 dependencies = [
  "crossterm",
  "termion",
@@ -345,7 +345,7 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "yayagram"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "itertools",
  "line_drawing",
