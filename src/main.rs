@@ -98,7 +98,7 @@ fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     let mut y = builder.cursor.point.y + builder.grid.size.height;
     draw_text(terminal, &builder, "Q: Undo, E: Redo, R: Reset", y);
     y += 1;
-    draw_text(terminal, &builder, "M: Measurement Point", y);
+    draw_text(terminal, &builder, "X: Measurement Point", y);
     terminal.reset_colors();
 }
 
