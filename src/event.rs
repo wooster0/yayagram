@@ -518,62 +518,62 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
 
     // TODO: refactor above variables into one big struct and/or multiple structs
 
-    while let Some(event) = terminal.read_event() {
-        // The order of statements in this loop matters
+    loop {
+        if let Some(event) = terminal.read_event() {
+            // The order of statements matters
 
-        if notification_clear_delay != 0 {
-            notification_clear_delay -= 1;
-            if notification_clear_delay == 0 {
-                if let Some(notification_to_clear) = notification {
-                    clear_notification(terminal, builder, notification_to_clear.len());
-                    notification = None;
+            if notification_clear_delay != 0 {
+                notification_clear_delay -= 1;
+                if notification_clear_delay == 0 {
+                    if let Some(notification_to_clear) = notification {
+                        clear_notification(terminal, builder, notification_to_clear.len());
+                        notification = None;
+                    }
                 }
             }
-        }
 
-        let state = handle(
-            terminal,
-            event,
-            builder,
-            &mut plot_mode,
-            &mut editor,
-            notification,
-            &mut starting_time,
-            &mut hovered_cell_point,
-            &mut measurement_point,
-        );
+            let state = handle(
+                terminal,
+                event,
+                builder,
+                &mut plot_mode,
+                &mut editor,
+                notification,
+                &mut starting_time,
+                &mut hovered_cell_point,
+                &mut measurement_point,
+            );
 
-        #[cfg(debug_assertions)]
-        {
-            crate::grid::debug::display(terminal, builder);
-        }
-
-        terminal.flush();
-
-        match state {
-            State::Continue => continue,
-            State::Alert(new_notification) => {
-                // Draw a new notification. Notifications are cleared after some time.
-
-                if let Some(previous_notification) = notification {
-                    clear_notification(terminal, builder, previous_notification.len());
-                }
-                draw_notification(terminal, builder, new_notification);
-                notification = Some(new_notification);
-                notification_clear_delay = 75;
-                terminal.flush();
+            #[cfg(debug_assertions)]
+            {
+                crate::grid::debug::display(terminal, builder);
             }
-            State::ClearAlert => {
-                if let Some(notification_to_clear) = notification {
-                    clear_notification(terminal, builder, notification_to_clear.len());
-                    notification = None;
+
+            terminal.flush();
+
+            match state {
+                State::Continue => continue,
+                State::Alert(new_notification) => {
+                    // Draw a new notification. Notifications are cleared after some time.
+
+                    if let Some(previous_notification) = notification {
+                        clear_notification(terminal, builder, previous_notification.len());
+                    }
+                    draw_notification(terminal, builder, new_notification);
+                    notification = Some(new_notification);
+                    notification_clear_delay = 75;
+                    terminal.flush();
                 }
+                State::ClearAlert => {
+                    if let Some(notification_to_clear) = notification {
+                        clear_notification(terminal, builder, notification_to_clear.len());
+                        notification = None;
+                    }
+                }
+                State::Solved(_) | State::Exit => break state,
             }
-            State::Solved(_) | State::Exit => return state,
         }
     }
-
-    unreachable!();
 }
 
 const fn get_notification_y(builder: &Builder) -> u16 {
