@@ -72,7 +72,7 @@ fn handle_mouse(
                         // Overdraw this hovered cell with a dark color
                         draw_dark_cell_color(terminal, point, &builder.grid, cell);
 
-                        terminal.flush();
+                        terminal.flush(); // TODO: this can most likely be removed
 
                         return State::Continue;
                     }
@@ -115,7 +115,7 @@ fn handle_mouse(
                 // Overdraw this hovered cell with a dark color
                 draw_dark_cell_color(terminal, point, &builder.grid, cell);
 
-                terminal.flush();
+                terminal.flush(); // TODO: this can most likely be removed
             } else {
                 // `plot_mode` won't be reset
             }
@@ -198,7 +198,7 @@ fn handle_key(
 ) -> State {
     match key_event {
         // TODO: maybe make S be Enter and use WASD for this too?
-        KeyEvent::Left => {
+        KeyEvent::Char('a', None) | KeyEvent::Char('A', None) | KeyEvent::Left => {
             // No grid mutation happened
             let _all_clues_solved = builder.draw(terminal);
 
@@ -218,7 +218,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Right => {
+        KeyEvent::Char('d', None) | KeyEvent::Char('D', None) | KeyEvent::Right => {
             // No grid mutation happened
             let _all_clues_solved = builder.draw(terminal);
 
@@ -239,7 +239,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Up => {
+        KeyEvent::Char('w', None) | KeyEvent::Char('W', None) | KeyEvent::Up => {
             // No grid mutation happened
             let _all_clues_solved = builder.draw(terminal);
 
@@ -259,7 +259,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Down => {
+        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) | KeyEvent::Down => {
             // No grid mutation happened
             let _all_clues_solved = builder.draw(terminal);
 
@@ -307,7 +307,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('m', None) | KeyEvent::Char('M', None) => {
+        KeyEvent::Char('x', None) | KeyEvent::Char('X', None) => {
             if let Some(hovered_cell_point) = hovered_cell_point {
                 if let Some(some_measurement_point) = *measurement_point {
                     // The points we have are screen points so now we convert them to values that we can use
@@ -363,7 +363,7 @@ fn handle_key(
                 State::Alert("Editor disabled")
             }
         }
-        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) if editor.toggled => {
+        KeyEvent::Enter if editor.toggled => {
             if let Err(err) = editor.save_grid(&builder) {
                 State::Alert(err)
             } else {
