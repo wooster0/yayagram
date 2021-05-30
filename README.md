@@ -33,6 +33,7 @@ yayagram
 - `Q`: undo cell placements or a grid reset.
 - `E`: redo cell placements or a grid reset.
 - `X`: set [measurement point](#Measurement-tool).
+- `W`, `A`, `S`, `D` and arrow keys: darken the cells in that direction.
 - `Tab`: toggle the [editor](#Editor).
 - `Enter`: save the [edited](#Editor) grid as a file locally.
 - `Esc`: exit.
