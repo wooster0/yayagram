@@ -12,20 +12,86 @@ use std::{
 };
 use terminal::{
     event::{Event, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
-    util::Point,
+    util::{Color, Point},
     Terminal,
 };
 
-fn draw_dark_cell_color(terminal: &mut Terminal, mut cursor_point: Point, grid: &Grid, cell: Cell) {
-    let center_x = Cursor::centered(terminal, grid).point.x;
-    if (cursor_point.x - center_x) % 2 != 0 {
-        cursor_point.x -= 1;
+fn draw_dark_cell_color(
+    terminal: &mut Terminal,
+    builder: &Builder,
+    cursor_point: Point,
+    cell: Cell,
+    hovered_cell_point: Point,
+) {
+    fn draw_color(terminal: &mut Terminal, mut cursor_point: Point, grid: &Grid, color: Color) {
+        let center_x = Cursor::centered(terminal, grid).point.x;
+        if (cursor_point.x - center_x) % 2 != 0 {
+            cursor_point.x -= 1;
+        }
+        terminal.set_cursor(cursor_point);
+        terminal.set_background_color(color);
+        terminal.write("  ");
     }
-    terminal.set_cursor(cursor_point);
 
-    terminal.set_background_color(cell.get_dark_color());
-    terminal.write("  ");
+    draw_color(
+        terminal,
+        cursor_point,
+        &builder.grid,
+        cell.get_darkest_color(),
+    );
+
+    // From the left of the grid to where the pointer is
+    for x in builder.cursor.point.x..=hovered_cell_point.x - 2 {
+        let point = Point {
+            x,
+            ..hovered_cell_point
+        };
+
+        let cell_point = get_cell_point_from_cursor_point(point, builder);
+        let cell = builder.grid.get_cell(cell_point);
+
+        draw_color(terminal, point, &builder.grid, cell.get_dark_color());
+    }
+    // From the pointer to the right of the grid
+    for x in hovered_cell_point.x + 2..builder.cursor.point.x + builder.grid.size.width * 2 {
+        let point = Point {
+            x,
+            ..hovered_cell_point
+        };
+
+        let cell_point = get_cell_point_from_cursor_point(point, builder);
+        let cell = builder.grid.get_cell(cell_point);
+
+        draw_color(terminal, point, &builder.grid, cell.get_dark_color());
+    }
+    // From the top of the grid to where the pointer is
+    for y in builder.cursor.point.y..hovered_cell_point.y {
+        let point = Point {
+            y,
+            ..hovered_cell_point
+        };
+
+        let cell_point = get_cell_point_from_cursor_point(point, builder);
+        let cell = builder.grid.get_cell(cell_point);
+
+        draw_color(terminal, point, &builder.grid, cell.get_dark_color());
+    }
+
+    for y in hovered_cell_point.y + 1..builder.cursor.point.y + builder.grid.size.height {
+        let point = Point {
+            y,
+            ..hovered_cell_point
+        };
+
+        let cell_point = get_cell_point_from_cursor_point(point, builder);
+        let cell = builder.grid.get_cell(cell_point);
+
+        draw_color(terminal, point, &builder.grid, cell.get_dark_color());
+    }
+
     terminal.reset_colors();
+
+    // TODO: Q and E could be A and D instead and Enter could potentially be changed back to S
 }
 
 fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
@@ -56,6 +122,7 @@ fn handle_mouse(
         } => {
             if builder.contains(point) {
                 *hovered_cell_point = Some(point);
+                let some_hovered_cell_point = point;
 
                 let starting_time = starting_time.get_or_insert(Instant::now());
 
@@ -70,7 +137,13 @@ fn handle_mouse(
                         let _all_clues_solved = builder.draw(terminal);
 
                         // Overdraw this hovered cell with a dark color
-                        draw_dark_cell_color(terminal, point, &builder.grid, cell);
+                        draw_dark_cell_color(
+                            terminal,
+                            &builder,
+                            point,
+                            cell,
+                            some_hovered_cell_point,
+                        );
 
                         return State::Continue;
                     }
@@ -111,7 +184,7 @@ fn handle_mouse(
                 }
 
                 // Overdraw this hovered cell with a dark color
-                draw_dark_cell_color(terminal, point, &builder.grid, cell);
+                draw_dark_cell_color(terminal, &builder, point, cell, some_hovered_cell_point);
             } else {
                 // `plot_mode` won't be reset
             }
@@ -125,10 +198,11 @@ fn handle_mouse(
 
             if builder.contains(point) {
                 *hovered_cell_point = Some(point);
+                let some_hovered_cell_point = point;
 
                 let cell_point = get_cell_point_from_cursor_point(point, builder);
                 let cell = builder.grid.get_cell(cell_point);
-                draw_dark_cell_color(terminal, point, &builder.grid, cell);
+                draw_dark_cell_color(terminal, &builder, point, cell, some_hovered_cell_point);
             }
         }
         _ => {
@@ -193,87 +267,6 @@ fn handle_key(
     measurement_point: &mut Option<Point>,
 ) -> State {
     match key_event {
-        KeyEvent::Char('a', None) | KeyEvent::Char('A', None) | KeyEvent::Left => {
-            // No grid mutation happened
-            let _all_clues_solved = builder.draw(terminal);
-
-            if let Some(hovered_cell_point) = hovered_cell_point {
-                for x in builder.cursor.point.x..hovered_cell_point.x {
-                    let point = Point {
-                        x,
-                        ..hovered_cell_point
-                    };
-
-                    let cell_point = get_cell_point_from_cursor_point(point, builder);
-                    let cell = builder.grid.get_cell(cell_point);
-
-                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
-                }
-            }
-
-            State::Continue
-        }
-        KeyEvent::Char('d', None) | KeyEvent::Char('D', None) | KeyEvent::Right => {
-            // No grid mutation happened
-            let _all_clues_solved = builder.draw(terminal);
-
-            if let Some(hovered_cell_point) = hovered_cell_point {
-                for x in hovered_cell_point.x..builder.cursor.point.x + builder.grid.size.width * 2
-                {
-                    let point = Point {
-                        x,
-                        ..hovered_cell_point
-                    };
-
-                    let cell_point = get_cell_point_from_cursor_point(point, builder);
-                    let cell = builder.grid.get_cell(cell_point);
-
-                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
-                }
-            }
-
-            State::Continue
-        }
-        KeyEvent::Char('w', None) | KeyEvent::Char('W', None) | KeyEvent::Up => {
-            // No grid mutation happened
-            let _all_clues_solved = builder.draw(terminal);
-
-            if let Some(hovered_cell_point) = hovered_cell_point {
-                for y in builder.cursor.point.y..=hovered_cell_point.y {
-                    let point = Point {
-                        y,
-                        ..hovered_cell_point
-                    };
-
-                    let cell_point = get_cell_point_from_cursor_point(point, builder);
-                    let cell = builder.grid.get_cell(cell_point);
-
-                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
-                }
-            }
-
-            State::Continue
-        }
-        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) | KeyEvent::Down => {
-            // No grid mutation happened
-            let _all_clues_solved = builder.draw(terminal);
-
-            if let Some(hovered_cell_point) = hovered_cell_point {
-                for y in hovered_cell_point.y..builder.cursor.point.y + builder.grid.size.height {
-                    let point = Point {
-                        y,
-                        ..hovered_cell_point
-                    };
-
-                    let cell_point = get_cell_point_from_cursor_point(point, builder);
-                    let cell = builder.grid.get_cell(cell_point);
-
-                    draw_dark_cell_color(terminal, point, &builder.grid, cell);
-                }
-            }
-
-            State::Continue
-        }
         KeyEvent::Char('q', None) | KeyEvent::Char('Q', None) => {
             if builder.grid.undo_last_cell() {
                 // It would've already been solved before
@@ -330,9 +323,10 @@ fn handle_key(
                         // Overdraw the hovered cell with a dark color
                         draw_dark_cell_color(
                             terminal,
+                            &builder,
                             hovered_cell_point,
-                            &builder.grid,
                             Cell::Measured(None),
+                            hovered_cell_point,
                         );
                     }
 
