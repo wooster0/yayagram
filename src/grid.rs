@@ -88,11 +88,7 @@ fn get_index(width: u16, point: Point) -> usize {
     point.y as usize * width as usize + point.x as usize
 }
 
-fn get_horizontal_clues(
-    cells: &[Cell],
-    width: u16,
-    y: u16,
-) -> impl Iterator<Item = Clue> + '_ + Clone {
+fn get_horizontal_clues(cells: &[Cell], width: u16, y: u16) -> impl Iterator<Item = Clue> + '_ {
     (0..width)
         .map(move |x| cells[get_index(width, Point { x, y })] == Cell::Filled)
         .dedup_with_count()
@@ -105,7 +101,7 @@ fn get_vertical_clues(
     width: u16,
     height: u16,
     x: u16,
-) -> impl Iterator<Item = Clue> + '_ + Clone {
+) -> impl Iterator<Item = Clue> + '_ {
     (0..height)
         .map(move |y| cells[get_index(width, Point { x, y })] == Cell::Filled)
         .dedup_with_count()
@@ -184,11 +180,11 @@ impl Grid {
             .unwrap_or_else(|| Self::cell_panic(point, index))
     }
 
-    pub fn get_horizontal_clues(&self, y: u16) -> impl Iterator<Item = Clue> + '_ + Clone {
+    pub fn get_horizontal_clues(&self, y: u16) -> impl Iterator<Item = Clue> + '_ {
         get_horizontal_clues(&self.cells, self.size.width, y)
     }
 
-    pub fn get_vertical_clues(&self, x: u16) -> impl Iterator<Item = Clue> + '_ + Clone {
+    pub fn get_vertical_clues(&self, x: u16) -> impl Iterator<Item = Clue> + '_ {
         get_vertical_clues(&self.cells, self.size.width, self.size.height, x)
     }
 }
