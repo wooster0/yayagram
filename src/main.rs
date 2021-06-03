@@ -131,7 +131,7 @@ fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, C
             },
             arg => {
                 let grid_size = if let Some(args::Arg::GridSize(size)) = arg {
-                    size.clone()
+                    size
                 } else {
                     Size::new(5, 5)
                 };
