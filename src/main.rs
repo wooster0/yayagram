@@ -67,7 +67,7 @@ fn run() -> Result<(), Cow<'static, str>> {
 
     match get_terminal() {
         Ok(mut terminal) => {
-            if let State::Continue = event::await_fitting_window_size(&mut terminal, &grid) {
+            if let State::Continue = event::input::await_fitting_window_size(&mut terminal, &grid) {
                 let mut builder = Builder::new(&terminal, grid);
 
                 let all_clues_solved = builder.draw(&mut terminal);
@@ -197,7 +197,7 @@ fn solved_screen(
 
     terminal.flush();
 
-    event::await_key(terminal);
+    event::input::await_key(terminal);
 }
 
 /// Formats the given seconds to an hour, minute and second format.
