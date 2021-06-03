@@ -91,8 +91,6 @@ fn draw_dark_cell_color(
     }
 
     terminal.reset_colors();
-
-    // TODO: Q and E could be A and D instead and Enter could potentially be changed back to S
 }
 
 fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {

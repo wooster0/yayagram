@@ -205,7 +205,7 @@ fn handle_key(
     measurement_point: &mut Option<Point>,
 ) -> State {
     match key_event {
-        KeyEvent::Char('q', None) | KeyEvent::Char('Q', None) => {
+        KeyEvent::Char('a', None) | KeyEvent::Char('A', None) => {
             if builder.grid.undo_last_cell() {
                 // It would've already been solved before
                 let _all_clues_solved = builder.draw(terminal);
@@ -213,7 +213,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('e', None) | KeyEvent::Char('E', None) => {
+        KeyEvent::Char('d', None) | KeyEvent::Char('D', None) => {
             if builder.grid.redo_last_cell() {
                 // It would've already been solved before
                 let _all_clues_solved = builder.draw(terminal);
@@ -221,7 +221,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('r', None) | KeyEvent::Char('R', None) => {
+        KeyEvent::Char('c', None) | KeyEvent::Char('C', None) => {
             builder.grid.clear();
             builder
                 .grid
@@ -291,7 +291,7 @@ fn handle_key(
                 State::Alert("Editor disabled")
             }
         }
-        KeyEvent::Enter if editor.toggled => {
+        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) if editor.toggled => {
             if let Err(err) = editor.save_grid(&builder) {
                 State::Alert(err)
             } else {

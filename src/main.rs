@@ -103,7 +103,7 @@ fn run() -> Result<(), Cow<'static, str>> {
 fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
     let mut y = builder.cursor.point.y + builder.grid.size.height;
-    draw_text(terminal, &builder, "Q: Undo, E: Redo, R: Reset", y);
+    draw_text(terminal, &builder, "A: Undo, D: Redo, C: Clear", y);
     y += 1;
     draw_text(terminal, &builder, "X: Measurement Point", y);
     terminal.reset_colors();

@@ -20,7 +20,7 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 
 * Runs in the terminal!
 * Cross-platform: runs on Linux, Windows and macOS.
-* Helpful features like undo, redo and reset that are just a button press away.
+* Helpful features like undo, redo and clear that are just a button press away.
 * [Create your own grids](#Editor) for others to play.
 * A new kind of cell: [maybed](#Maybed).
 * A [measurement tool](#Measurement-tool) to let you enjoy even the biggest of grids.
@@ -32,13 +32,12 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 - Left-click: fill a cell.
 - Middle-click: [maybe a cell](#Maybed).
 - Right-click: cross out a cell.
-- `R`: reset the grid.
-- `Q`: undo cell placements or a grid reset.
-- `E`: redo cell placements or a grid reset.
+- `C`: clear the grid.
+- `A`: undo cell placements or a grid clear.
+- `D`: redo cell placements or a grid clear.
 - `X`: set [measurement point](#Measurement-tool).
-- `W`, `A`, `S`, `D` and arrow keys: darken the cells in that direction.
 - `Tab`: toggle the [editor](#Editor).
-- `Enter`: save the [edited](#Editor) grid as a file locally.
+- `S`: save the [edited](#Editor) grid as a file locally.
 - `Esc`: exit.
 
 ## Editor
@@ -90,7 +89,7 @@ It can help you imagine theoretical situations better.
 - Don't forget to cross out cells that you are sure won't be filled.
   This helps immensely at ruling out possibilities.
 - Be careful about accidentally pasting in your clipboard data. Some terminals paste with the press of a mouse button.
-  If the data contains an "r" for instance, the grid will be reset. This can be undone using `Q` of course, but it may be confusing.
+  If the data contains an "c" for instance, the grid will be cleared. This can be undone using `A` of course, but it may be confusing.
 
 ## Example
 
