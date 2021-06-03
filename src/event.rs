@@ -114,6 +114,8 @@ pub enum State {
     Alert(&'static str),
     /// Clear the alert if present.
     ClearAlert,
+    /// The next cell placement will flood-fill.
+    Fill,
     /// Exit the program.
     Exit,
 }
@@ -129,6 +131,8 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
 
     let mut hovered_cell_point: Option<Point> = None;
     let mut measurement_point: Option<Point> = None;
+
+    let mut fill = false;
 
     // TODO: refactor above variables into one big struct and/or multiple structs
 
@@ -156,6 +160,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 &mut starting_time,
                 &mut hovered_cell_point,
                 &mut measurement_point,
+                &mut fill,
             );
 
             #[cfg(debug_assertions)]
@@ -183,6 +188,13 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                         notification::clear(terminal, builder, notification_to_clear.len());
                         notification = None;
                     }
+                }
+                State::Fill => {
+                    let new_notification = "Set place to fill";
+                    notification::draw(terminal, builder, new_notification);
+                    notification = Some(new_notification);
+                    notification_clear_delay = 0;
+                    fill = true;
                 }
                 State::Solved(_) | State::Exit => break state,
             }

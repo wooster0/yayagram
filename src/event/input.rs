@@ -23,6 +23,7 @@ fn handle_mouse(
     editor_toggled: bool,
     starting_time: &mut Option<Instant>,
     hovered_cell_point: &mut Option<Point>,
+    fill: &mut bool,
 ) -> State {
     match event {
         MouseEvent {
@@ -40,6 +41,7 @@ fn handle_mouse(
                 let starting_time = starting_time.get_or_insert(Instant::now());
 
                 let cell_point = super::get_cell_point_from_cursor_point(point, builder);
+
                 let cell = builder.grid.get_mut_cell(cell_point);
 
                 if let Some(plot_mode) = *plot_mode {
@@ -63,6 +65,36 @@ fn handle_mouse(
                         new_plot_mode = Cell::default();
                     }
                     *plot_mode = Some(new_plot_mode);
+
+                    if *fill {
+                        let cell = *cell;
+                        crate::grid::tools::fill::fill(
+                            &mut builder.grid,
+                            cell_point,
+                            cell,
+                            new_plot_mode,
+                        );
+
+                        builder
+                            .grid
+                            .undo_redo_buffer
+                            .push(undo_redo_buffer::Operation::Fill {
+                                point: cell_point,
+                                first_cell: cell,
+                                fill_cell: new_plot_mode,
+                            });
+
+                        *fill = false;
+
+                        let all_clues_solved = builder.draw(terminal);
+
+                        if all_clues_solved {
+                            return State::Solved(starting_time.elapsed());
+                        } else {
+                            return State::ClearAlert;
+                        }
+                    }
+
                     *cell = new_plot_mode;
                 }
                 let cell = *cell;
@@ -129,6 +161,7 @@ pub fn handle(
     starting_time: &mut Option<Instant>,
     hovered_cell_point: &mut Option<Point>,
     measurement_point: &mut Option<Point>,
+    fill: &mut bool,
 ) -> State {
     match event {
         Event::Mouse(mouse_event) => handle_mouse(
@@ -139,6 +172,7 @@ pub fn handle(
             editor.toggled,
             starting_time,
             hovered_cell_point,
+            fill,
         ),
         Event::Key(key_event) => handle_key(
             terminal,
@@ -212,6 +246,7 @@ fn handle_key(
 
             State::Continue
         }
+        KeyEvent::Char('f', None) | KeyEvent::Char('F', None) => State::Fill,
         KeyEvent::Char('x', None) | KeyEvent::Char('X', None) => {
             if let Some(hovered_cell_point) = hovered_cell_point {
                 if let Some(some_measurement_point) = *measurement_point {

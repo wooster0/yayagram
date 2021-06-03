@@ -4,6 +4,7 @@ pub mod builder;
 #[cfg(debug_assertions)]
 pub mod debug;
 mod random;
+pub mod tools;
 use crate::undo_redo_buffer::UndoRedoBuffer;
 
 #[derive(Debug, Clone, Copy, PartialEq)]

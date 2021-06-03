@@ -3,9 +3,17 @@ use terminal::util::Point;
 
 #[derive(Clone, Debug)]
 pub enum Operation {
-    SetCell { point: Point, cell: Cell },
+    SetCell {
+        point: Point,
+        cell: Cell,
+    },
     Measure(Vec<Point>),
     Clear,
+    Fill {
+        point: Point,
+        first_cell: Cell,
+        fill_cell: Cell,
+    },
 }
 
 #[derive(Default, Debug)]
@@ -62,6 +70,11 @@ impl Grid {
                 Operation::Measure(line_points) => {
                     crate::event::set_measured_cells(self, line_points);
                 }
+                Operation::Fill {
+                    point,
+                    first_cell,
+                    fill_cell,
+                } => crate::grid::tools::fill::fill(self, *point, *first_cell, *fill_cell),
                 Operation::Clear => {
                     self.clear();
                 }
