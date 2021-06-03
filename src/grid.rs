@@ -45,7 +45,7 @@ impl Cell {
         }
     }
 
-    pub fn get_dark_color(&self) -> Color {
+    pub fn get_highlighted_color(&self) -> Color {
         match self {
             Cell::Empty => Color::DarkGray,
             Cell::Filled => Color::Gray,

@@ -47,8 +47,8 @@ fn handle_mouse(
                         // No grid mutation happened
                         let _all_clues_solved = builder.draw(terminal);
 
-                        // Overdraw this hovered cell with a dark color
-                        super::draw_dark_cell_color(terminal, &builder, some_hovered_cell_point);
+                        // We know that this point is hovered
+                        super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
 
                         return State::Continue;
                     }
@@ -88,8 +88,8 @@ fn handle_mouse(
                     }
                 }
 
-                // Overdraw this hovered cell with a dark color
-                super::draw_dark_cell_color(terminal, &builder, some_hovered_cell_point);
+                // We know that this point is hovered
+                super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
             } else {
                 // `plot_mode` won't be reset
             }
@@ -105,7 +105,8 @@ fn handle_mouse(
                 *hovered_cell_point = Some(point);
                 let some_hovered_cell_point = point;
 
-                super::draw_dark_cell_color(terminal, &builder, some_hovered_cell_point);
+                // We know that this point is hovered
+                super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
             }
         }
         _ => {
@@ -235,7 +236,7 @@ fn handle_key(
                     let _all_clues_solved = builder.draw(terminal);
 
                     // We know that this point is hovered
-                    super::draw_dark_cell_color(terminal, &builder, hovered_cell_point);
+                    super::draw_highlighted_cells(terminal, &builder, hovered_cell_point);
 
                     *measurement_point = None;
 

@@ -11,8 +11,8 @@ use std::{
 };
 use terminal::{util::Point, Terminal};
 
-fn draw_dark_cell_color(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
-    fn darken_cell(terminal: &mut Terminal, mut cursor_point: Point, builder: &Builder) {
+fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
+    fn highlight_cell(terminal: &mut Terminal, mut cursor_point: Point, builder: &Builder) {
         let center_x = builder.cursor.point.x;
         if (cursor_point.x - center_x) % 2 != 0 {
             cursor_point.x -= 1;
@@ -20,7 +20,7 @@ fn draw_dark_cell_color(terminal: &mut Terminal, builder: &Builder, hovered_cell
         terminal.set_cursor(cursor_point);
         let cell_point = get_cell_point_from_cursor_point(cursor_point, builder);
         let cell = builder.grid.get_cell(cell_point);
-        terminal.set_background_color(cell.get_dark_color());
+        terminal.set_background_color(cell.get_highlighted_color());
         terminal.write("  ");
     }
 
@@ -31,7 +31,7 @@ fn draw_dark_cell_color(terminal: &mut Terminal, builder: &Builder, hovered_cell
             ..hovered_cell_point
         };
 
-        darken_cell(terminal, point, builder);
+        highlight_cell(terminal, point, builder);
     }
     // From the pointer to the right of the grid
     for x in hovered_cell_point.x + 2..builder.cursor.point.x + builder.grid.size.width * 2 {
@@ -40,7 +40,7 @@ fn draw_dark_cell_color(terminal: &mut Terminal, builder: &Builder, hovered_cell
             ..hovered_cell_point
         };
 
-        darken_cell(terminal, point, builder);
+        highlight_cell(terminal, point, builder);
     }
     // From the top of the grid to the pointer
     for y in builder.cursor.point.y..hovered_cell_point.y {
@@ -49,7 +49,7 @@ fn draw_dark_cell_color(terminal: &mut Terminal, builder: &Builder, hovered_cell
             ..hovered_cell_point
         };
 
-        darken_cell(terminal, point, builder);
+        highlight_cell(terminal, point, builder);
     }
     // From the pointer to the bottom of the grid
     for y in hovered_cell_point.y + 1..builder.cursor.point.y + builder.grid.size.height {
@@ -58,7 +58,7 @@ fn draw_dark_cell_color(terminal: &mut Terminal, builder: &Builder, hovered_cell
             ..hovered_cell_point
         };
 
-        darken_cell(terminal, point, builder);
+        highlight_cell(terminal, point, builder);
     }
 
     terminal.reset_colors();
