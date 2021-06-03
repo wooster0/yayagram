@@ -4,6 +4,24 @@ Only versions published to the [registry](https://crates.io/crates/yayagram/vers
 
 <!--Order: Added, Changed, Fixed, Removed-->
 
+## 0.6.0 (2021-06-03)
+
+### Added
+
+* Add version querying using `--version` and `-V`.
+
+### Changed
+
+* Cells are highlighted by default in all directions.
+* The grid is cleared, using key `C` instead of `R`.
+* Actions are undone using key `A` instead of `Q`.
+* Actions are undone using key `D` instead of `E`.
+* Saving is done using key `S` instead of `Enter`.
+
+### Removed
+
+* Removed highlighting of cells in direction indicated using `W`, `A`, `S`, `D` or the arrow keys
+
 ## 0.5.0 (2021-05-30)
 
 ### Added

@@ -1,6 +1,6 @@
 [package]
 name = "yayagram"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["r00ster91 <r00ster91@protonmail.com>"]
 edition = "2018"
 description = "Play nonograms/picross in your terminal"
