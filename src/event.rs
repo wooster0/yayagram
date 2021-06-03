@@ -64,7 +64,7 @@ fn draw_dark_cell_color(terminal: &mut Terminal, builder: &Builder, hovered_cell
     terminal.reset_colors();
 }
 
-fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
+const fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
     Point {
         x: (cursor_point.x - builder.cursor.point.x) / 2,
         y: cursor_point.y - builder.cursor.point.y,
