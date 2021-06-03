@@ -1,6 +1,7 @@
 # yayagram - Play nonograms/picross in your terminal
 
 **yayagram** is a puzzle game in which you fill out a grid with cells based on logic and number clues.
+
 The game goes by many names: nonogram, picross, paint by numbers, griddlers, pic-a-pix, hanjie and others.
 
 ![Showcase](showcase.png)
@@ -89,7 +90,7 @@ It can help you imagine theoretical situations better.
 - Don't forget to cross out cells that you are sure won't be filled.
   This helps immensely at ruling out possibilities.
 - Be careful about accidentally pasting in your clipboard data. Some terminals paste with the press of a mouse button.
-  If the data contains an "c" for instance, the grid will be cleared. This can be undone using `A` of course, but it may be confusing.
+  If the data contains a `'c'` for instance, the grid will be cleared. This clear can be undone using the `A` key of course, but it may be confusing.
 
 ## Example
 
