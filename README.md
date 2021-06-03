@@ -89,6 +89,8 @@ It can help you imagine theoretical situations better.
 - Try to avoid guesssing and play it safe! Guessing can come back later to bite you. Guessing is `unsafe`.
 - Don't forget to cross out cells that you are sure won't be filled.
   This helps immensely at ruling out possibilities.
+- Be careful about accidentally pasting in your clipboard data. Some terminals paste with the press of a mouse button.
+  If the data contains an "r" for instance, the grid will be reset. This can be undone using `Q` of course, but it may be confusing.
 
 ## Example
 

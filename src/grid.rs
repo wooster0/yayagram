@@ -13,11 +13,6 @@ pub enum Cell {
     /// Used to mark filled cells.
     Filled,
     /// Used to mark cells that may be filled. Useful for doing "what if" reasoning.
-    ///
-    /// NOTE: in VS Code's terminal there's some weird bug that can only be reproduced sometimes
-    ///       where you set this cell with the middle mouse wheel and it somehow clears the whole grid.
-    ///       I believe the terminal takes a middle click as both a middle click and an R key press, causing the grid to be reset.
-    ///       Maybe report this?
     Maybed,
     /// Used to mark cells that are certainly empty.
     Crossed,
