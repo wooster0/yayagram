@@ -50,7 +50,7 @@ impl Grid {
     }
 
     fn rebuild(&mut self) {
-        self.cells.fill_with(Default::default);
+        self.clear();
 
         for operation in self.undo_redo_buffer.buffer.clone()[..self.undo_redo_buffer.index].iter()
         {
@@ -63,7 +63,7 @@ impl Grid {
                     crate::event::set_measured_cells(self, line_points);
                 }
                 Operation::Clear => {
-                    self.cells.fill_with(Default::default);
+                    self.clear();
                 }
             }
         }

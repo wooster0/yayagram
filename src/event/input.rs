@@ -222,7 +222,7 @@ fn handle_key(
             State::Continue
         }
         KeyEvent::Char('r', None) | KeyEvent::Char('R', None) => {
-            builder.grid.cells.fill_with(Default::default);
+            builder.grid.clear();
             builder
                 .grid
                 .undo_redo_buffer

@@ -187,6 +187,10 @@ impl Grid {
     pub fn get_vertical_clues(&self, x: u16) -> impl Iterator<Item = Clue> + '_ {
         get_vertical_clues(&self.cells, self.size.width, self.size.height, x)
     }
+
+    pub fn clear(&mut self) {
+        self.cells.fill_with(Default::default);
+    }
 }
 
 #[cfg(test)]
