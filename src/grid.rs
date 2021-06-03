@@ -54,11 +54,6 @@ impl Cell {
             Cell::Measured(_) => Color::DarkGreen,
         }
     }
-
-    pub fn get_darkest_color(&self) -> Color {
-        // TODO
-        self.get_dark_color()
-    }
 }
 
 /// A single clue specifying how many cells there are in a row at some point.
