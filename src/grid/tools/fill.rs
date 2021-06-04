@@ -4,7 +4,11 @@ use terminal::util::Point;
 pub fn fill(grid: &mut Grid, point: Point, first_cell: Cell, fill_cell: Cell) {
     let cell = grid.get_mut_cell(point);
 
-    if *cell == first_cell {
+    // We want to fill multiple measured cells as one, regardless of the index
+    let measured_cell =
+        matches!(*cell, Cell::Measured(_)) && matches!(first_cell, Cell::Measured(_));
+
+    if *cell == first_cell || measured_cell {
         *cell = fill_cell;
     } else {
         return;
