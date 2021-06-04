@@ -31,7 +31,7 @@ impl Builder {
         Self { grid, point }
     }
 
-    /// Checks whether the point is within the grid.
+    /// Checks whether the point is within the grid on the screen.
     pub fn contains(&self, point: Point) -> bool {
         (self.point.y..self.point.y + self.grid.size.height).contains(&point.y)
             && (self.point.x..self.point.x + self.grid.size.width * 2).contains(&point.x)
@@ -54,7 +54,7 @@ impl Builder {
                 all_solved = false;
             }
 
-            let previous_cursor_y = self.point.y;
+            let previous_point_y = self.point.y;
             for clue in vertical_clues_solution.iter().rev() {
                 self.point.y -= 1;
                 terminal.set_cursor(self.point);
@@ -63,7 +63,7 @@ impl Builder {
             // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.point.y = previous_cursor_y;
+            self.point.y = previous_point_y;
             self.point.x += 2;
         }
 
@@ -73,7 +73,7 @@ impl Builder {
     fn clear_top_clues(&mut self, terminal: &mut Terminal) {
         let mut highlighted = true;
         for vertical_clues_solution in self.grid.vertical_clues_solutions.iter() {
-            let previous_cursor_y = self.point.y;
+            let previous_point_y = self.point.y;
 
             for _ in vertical_clues_solution.iter().rev() {
                 self.point.y -= 1;
@@ -82,7 +82,7 @@ impl Builder {
             }
             highlighted = !highlighted;
 
-            self.point.y = previous_cursor_y;
+            self.point.y = previous_point_y;
             self.point.x += 2;
         }
     }
@@ -108,7 +108,7 @@ impl Builder {
                 all_solved = false;
             }
 
-            let previous_cursor_x = self.point.x;
+            let previous_point_x = self.point.x;
             for clue in horizontal_clues_solution.iter().rev() {
                 terminal.write(&format!("{:>2}", clue));
                 terminal.move_cursor_left(4);
@@ -117,7 +117,7 @@ impl Builder {
             // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.point.x = previous_cursor_x;
+            self.point.x = previous_point_x;
             self.point.y += 1;
             terminal.set_cursor(self.point);
         }
@@ -130,7 +130,7 @@ impl Builder {
         self.point.x -= 2;
         let mut highlighted = true;
         for horizontal_clues_solution in self.grid.horizontal_clues_solutions.iter() {
-            let previous_cursor_x = self.point.x;
+            let previous_point_x = self.point.x;
             for _ in horizontal_clues_solution.iter().rev() {
                 terminal.write("  ");
                 terminal.move_cursor_left(4);
@@ -138,7 +138,7 @@ impl Builder {
             }
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.point.x = previous_cursor_x;
+            self.point.x = previous_point_x;
             self.point.y += 1;
             terminal.set_cursor(self.point);
         }
@@ -148,15 +148,15 @@ impl Builder {
     fn draw_clues(&mut self, terminal: &mut Terminal) -> bool {
         terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.point;
+        let previous_point_point = self.point;
         let all_top_clues_solved = self.draw_top_clues(terminal);
-        self.point = previous_cursor_point;
+        self.point = previous_point_point;
 
         terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.point;
+        let previous_point_point = self.point;
         let all_left_clues_solved = self.draw_left_clues(terminal);
-        self.point = previous_cursor_point;
+        self.point = previous_point_point;
 
         terminal.set_cursor(self.point);
 
@@ -166,28 +166,28 @@ impl Builder {
     pub fn clear_clues(&mut self, terminal: &mut Terminal) {
         terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.point;
+        let previous_point_point = self.point;
         self.clear_top_clues(terminal);
-        self.point = previous_cursor_point;
+        self.point = previous_point_point;
 
         terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.point;
+        let previous_point_point = self.point;
         self.clear_left_clues(terminal);
-        self.point = previous_cursor_point;
+        self.point = previous_point_point;
 
         terminal.set_cursor(self.point);
     }
 
     fn draw_cells(&mut self, terminal: &mut Terminal) {
-        let previous_cursor_y = self.point.y;
+        let previous_point_y = self.point.y;
         for (y, cells) in self
             .grid
             .cells
             .chunks(self.grid.size.width as usize)
             .enumerate()
         {
-            let previous_cursor_x = self.point.x;
+            let previous_point_x = self.point.x;
             for (x, cell) in cells.iter().enumerate() {
                 let point = Point {
                     x: x as u16,
@@ -197,11 +197,11 @@ impl Builder {
                 terminal.reset_colors();
                 self.point.x += 2;
             }
-            self.point.x = previous_cursor_x;
+            self.point.x = previous_point_x;
             self.point.y += 1;
             terminal.set_cursor(self.point);
         }
-        self.point.y = previous_cursor_y;
+        self.point.y = previous_point_y;
     }
 
     /// Draws the clues and the cells while also returning whether all the drawn clues were solved ones.
@@ -228,9 +228,9 @@ mod tests {
         let grid = Grid::new(size.clone(), vec![Cell::Empty; size.product() as usize]);
         let mut builder = Builder::new(&terminal, grid);
 
-        let previous_cursor = builder.point;
+        let previous_point = builder.point;
         let all_clues_solved = builder.draw(&mut terminal);
         assert!(all_clues_solved);
-        assert_eq!(builder.point, previous_cursor);
+        assert_eq!(builder.point, previous_point);
     }
 }
