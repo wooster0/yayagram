@@ -26,7 +26,7 @@ impl Cursor {
         }
     }
 
-    pub fn update(&mut self, terminal: &mut Terminal) {
+    fn update(&mut self, terminal: &mut Terminal) {
         terminal.set_cursor(self.point);
     }
 }
@@ -74,6 +74,7 @@ impl Builder {
                 self.cursor.update(terminal);
                 terminal.write(&format!("{:<2}", clue));
             }
+            // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
             self.cursor.point.y = previous_cursor_y;
@@ -86,8 +87,6 @@ impl Builder {
     fn clear_top_clues(&mut self, terminal: &mut Terminal) {
         let mut highlighted = true;
         for vertical_clues_solution in self.grid.vertical_clues_solutions.iter() {
-            // NOTE (1): perhaps this temporary storing and loading (or "pushing and popping") for state preservation could be improved into a nicer API
-            //           to prevent errors like accidentally forgetting to pop/put `previous_something` back into the variable
             let previous_cursor_y = self.cursor.point.y;
 
             for _ in vertical_clues_solution.iter().rev() {
@@ -97,9 +96,7 @@ impl Builder {
             }
             highlighted = !highlighted;
 
-            // NOTE (2): this is the loading/"popping" part
             self.cursor.point.y = previous_cursor_y;
-
             self.cursor.point.x += 2;
         }
     }
@@ -131,6 +128,7 @@ impl Builder {
                 terminal.move_cursor_left(4);
                 self.cursor.point.x -= 4;
             }
+            // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
             self.cursor.point.x = previous_cursor_x;
