@@ -1,5 +1,5 @@
-pub mod input;
 mod alert;
+pub mod input;
 
 use crate::{
     editor::Editor,
@@ -20,8 +20,7 @@ fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_ce
         terminal.set_cursor(cursor_point);
         let cell_point = get_cell_point_from_cursor_point(cursor_point, builder);
         let cell = builder.grid.get_cell(cell_point);
-        terminal.set_background_color(cell.get_highlighted_color());
-        terminal.write("  ");
+        cell.draw(terminal, cell_point, true);
     }
 
     // From the left of the grid to the pointer

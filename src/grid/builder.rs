@@ -1,5 +1,4 @@
-use super::{Cell, Grid};
-use std::borrow::Cow;
+use super::Grid;
 use terminal::{
     util::{Color, Point},
     Terminal,
@@ -194,9 +193,6 @@ impl Builder {
     }
 
     fn draw_cells(&mut self, terminal: &mut Terminal) {
-        /// Every 5 cells, the color changes to make the grid and its cells easier to look at and distinguish.
-        const SEPARATING_POINT: u16 = 5;
-
         let previous_cursor_y = self.cursor.point.y;
         for (y, cells) in self
             .grid
@@ -206,37 +202,12 @@ impl Builder {
         {
             let previous_cursor_x = self.cursor.point.x;
             for (x, cell) in cells.iter().enumerate() {
-                let (cell_color, content): (Color, Cow<'static, str>) = match cell {
-                    Cell::Empty => {
-                        let x_reached_point = x / SEPARATING_POINT as usize % 2 == 0;
-                        let y_reached_point = y / SEPARATING_POINT as usize % 2 == 0;
-                        let cell_color = if x_reached_point ^ y_reached_point {
-                            Color::Byte(236)
-                        } else {
-                            Color::Byte(238)
-                        };
-
-                        (cell_color, "  ".into())
-                    }
-                    Cell::Measured(index) => {
-                        let cell_color = cell.get_color();
-
-                        let content = if let Some(index) = index {
-                            terminal.set_foreground_color(Color::Black);
-                            format!("{:>2}", index).into()
-                        } else {
-                            "  ".into()
-                        };
-
-                        (cell_color, content)
-                    }
-                    _ => (cell.get_color(), "  ".into()),
+                let point = Point {
+                    x: x as u16,
+                    y: y as u16,
                 };
-
-                terminal.set_background_color(cell_color);
-                terminal.write(&content);
+                cell.draw(terminal, point, false);
                 terminal.reset_colors();
-
                 self.cursor.point.x += 2;
             }
             self.cursor.point.x = previous_cursor_x;
@@ -260,6 +231,7 @@ impl Builder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::grid::Cell;
     use terminal::util::Size;
 
     #[test]
