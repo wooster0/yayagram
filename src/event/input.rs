@@ -157,7 +157,7 @@ pub fn handle(
     builder: &mut Builder,
     plot_mode: &mut Option<Cell>,
     editor: &mut Editor,
-    last_notification: Option<&'static str>,
+    last_alert: Option<&'static str>,
     starting_time: &mut Option<Instant>,
     hovered_cell_point: &mut Option<Point>,
     measurement_point: &mut Option<Point>,
@@ -182,14 +182,14 @@ pub fn handle(
             *hovered_cell_point,
             measurement_point,
         ),
-        Event::Resize => handle_window_resize(terminal, builder, last_notification),
+        Event::Resize => handle_window_resize(terminal, builder, last_alert),
     }
 }
 
 fn handle_window_resize(
     terminal: &mut Terminal,
     builder: &mut Builder,
-    last_notification: Option<&'static str>,
+    last_alert: Option<&'static str>,
 ) -> State {
     let state = await_fitting_window_size(terminal, &builder.grid);
 
@@ -201,8 +201,8 @@ fn handle_window_resize(
     let _all_clues_solved = builder.draw(terminal);
 
     crate::draw_help(terminal, &builder);
-    if let Some(notification) = last_notification {
-        super::notification::draw(terminal, builder, &notification);
+    if let Some(alert) = last_alert {
+        super::alert::draw(terminal, builder, &alert);
     }
 
     state

@@ -1,5 +1,5 @@
 pub mod input;
-mod notification;
+mod alert;
 
 use crate::{
     editor::Editor,
@@ -124,8 +124,8 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
     let mut plot_mode = None;
     let mut editor = Editor::default();
 
-    let mut notification: Option<&'static str> = None;
-    let mut notification_clear_delay = 0_usize;
+    let mut alert: Option<&'static str> = None;
+    let mut alert_clear_delay = 0_usize;
 
     let mut starting_time: Option<Instant> = None;
 
@@ -140,12 +140,12 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
         //terminal.deinitialize();
         if let Some(event) = terminal.read_event() {
             // The order of statements matters
-            if notification_clear_delay != 0 {
-                notification_clear_delay -= 1;
-                if notification_clear_delay == 0 {
-                    if let Some(notification_to_clear) = notification {
-                        notification::clear(terminal, builder, notification_to_clear.len());
-                        notification = None;
+            if alert_clear_delay != 0 {
+                alert_clear_delay -= 1;
+                if alert_clear_delay == 0 {
+                    if let Some(alert_to_clear) = alert {
+                        alert::clear(terminal, builder, alert_to_clear.len());
+                        alert = None;
                     }
                 }
             }
@@ -156,7 +156,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 builder,
                 &mut plot_mode,
                 &mut editor,
-                notification,
+                alert,
                 &mut starting_time,
                 &mut hovered_cell_point,
                 &mut measurement_point,
@@ -172,28 +172,28 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
 
             match state {
                 State::Continue => continue,
-                State::Alert(new_notification) => {
-                    // Draw a new notification. Notifications are cleared after some time.
+                State::Alert(new_alert) => {
+                    // Draw a new alert. Alerts are cleared after some time.
 
-                    if let Some(previous_notification) = notification {
-                        notification::clear(terminal, builder, previous_notification.len());
+                    if let Some(previous_alert) = alert {
+                        alert::clear(terminal, builder, previous_alert.len());
                     }
-                    notification::draw(terminal, builder, new_notification);
-                    notification = Some(new_notification);
-                    notification_clear_delay = 75;
+                    alert::draw(terminal, builder, new_alert);
+                    alert = Some(new_alert);
+                    alert_clear_delay = 75;
                     terminal.flush();
                 }
                 State::ClearAlert => {
-                    if let Some(notification_to_clear) = notification {
-                        notification::clear(terminal, builder, notification_to_clear.len());
-                        notification = None;
+                    if let Some(alert_to_clear) = alert {
+                        alert::clear(terminal, builder, alert_to_clear.len());
+                        alert = None;
                     }
                 }
                 State::Fill => {
-                    let new_notification = "Set place to fill";
-                    notification::draw(terminal, builder, new_notification);
-                    notification = Some(new_notification);
-                    notification_clear_delay = 0;
+                    let new_alert = "Set place to fill";
+                    alert::draw(terminal, builder, new_alert);
+                    alert = Some(new_alert);
+                    alert_clear_delay = 0;
                     fill = true;
                 }
                 State::Solved(_) | State::Exit => break state,
