@@ -102,7 +102,7 @@ fn run() -> Result<(), Cow<'static, str>> {
 
 fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
-    let mut y = builder.cursor.point.y + builder.grid.size.height;
+    let mut y = builder.point.y + builder.grid.size.height;
     draw_text(terminal, &builder, "A: Undo, D: Redo, C: Clear", y);
     y += 1;
     draw_text(terminal, &builder, "X: Measure, F: Fill", y);
@@ -161,7 +161,7 @@ const TEXT_LINE_COUNT: u16 = 2;
 /// Draws text on the screen where the x-coordinate is centered but y has to be given.
 pub fn draw_text(terminal: &mut Terminal, builder: &Builder, text: &str, y: u16) {
     terminal.set_cursor(Point {
-        x: builder.cursor.point.x + builder.grid.size.width - text.len() as u16 / 2,
+        x: builder.point.x + builder.grid.size.width - text.len() as u16 / 2,
         y,
     });
     terminal.write(text);
@@ -177,7 +177,7 @@ fn solved_screen(
     duration: Duration,
     did_nothing: bool,
 ) {
-    let y = builder.cursor.point.y - builder.grid.max_clues_size.height - 1;
+    let y = builder.point.y - builder.grid.max_clues_size.height - 1;
 
     draw_text(terminal, &builder, "Press any key to continue", y);
 

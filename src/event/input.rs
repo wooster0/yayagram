@@ -1,10 +1,7 @@
 use super::State;
 use crate::{
     editor::Editor,
-    grid::{
-        builder::{Builder, Cursor},
-        Cell, Grid,
-    },
+    grid::{builder::Builder, Cell, Grid},
     undo_redo_buffer, util, TEXT_LINE_COUNT,
 };
 use std::time::Instant;
@@ -193,7 +190,7 @@ fn handle_window_resize(
 ) -> State {
     let state = await_fitting_window_size(terminal, &builder.grid);
 
-    builder.cursor = Cursor::centered(terminal, &builder.grid);
+    builder.point = crate::grid::builder::centered_point(terminal, &builder.grid);
 
     terminal.clear();
 

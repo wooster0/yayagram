@@ -13,7 +13,7 @@ use terminal::{util::Point, Terminal};
 
 fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
     fn highlight_cell(terminal: &mut Terminal, mut cursor_point: Point, builder: &Builder) {
-        let center_x = builder.cursor.point.x;
+        let center_x = builder.point.x;
         if (cursor_point.x - center_x) % 2 != 0 {
             cursor_point.x -= 1;
         }
@@ -24,7 +24,7 @@ fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_ce
     }
 
     // From the left of the grid to the pointer
-    for x in builder.cursor.point.x..=hovered_cell_point.x - 2 {
+    for x in builder.point.x..=hovered_cell_point.x - 2 {
         let point = Point {
             x,
             ..hovered_cell_point
@@ -33,7 +33,7 @@ fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_ce
         highlight_cell(terminal, point, builder);
     }
     // From the pointer to the right of the grid
-    for x in hovered_cell_point.x + 2..builder.cursor.point.x + builder.grid.size.width * 2 {
+    for x in hovered_cell_point.x + 2..builder.point.x + builder.grid.size.width * 2 {
         let point = Point {
             x,
             ..hovered_cell_point
@@ -42,7 +42,7 @@ fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_ce
         highlight_cell(terminal, point, builder);
     }
     // From the top of the grid to the pointer
-    for y in builder.cursor.point.y..hovered_cell_point.y {
+    for y in builder.point.y..hovered_cell_point.y {
         let point = Point {
             y,
             ..hovered_cell_point
@@ -51,7 +51,7 @@ fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_ce
         highlight_cell(terminal, point, builder);
     }
     // From the pointer to the bottom of the grid
-    for y in hovered_cell_point.y + 1..builder.cursor.point.y + builder.grid.size.height {
+    for y in hovered_cell_point.y + 1..builder.point.y + builder.grid.size.height {
         let point = Point {
             y,
             ..hovered_cell_point
@@ -65,8 +65,8 @@ fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_ce
 
 const fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
     Point {
-        x: (cursor_point.x - builder.cursor.point.x) / 2,
-        y: cursor_point.y - builder.cursor.point.y,
+        x: (cursor_point.x - builder.point.x) / 2,
+        y: cursor_point.y - builder.point.y,
     }
 }
 

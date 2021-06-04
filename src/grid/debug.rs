@@ -44,8 +44,8 @@ pub fn display(terminal: &mut Terminal, builder: &mut Builder) {
     terminal.save_cursor_point();
 
     // This length ensures that the text does not touch the grid.
-    // `builder.cursor.point.x` will be the point of the first cell.
-    let max_length = (builder.cursor.point.x - builder.grid.max_clues_size.width) as usize;
+    // `builder.point.x` will be the point of the first cell.
+    let max_length = (builder.point.x - builder.grid.max_clues_size.width) as usize;
 
     let clear_spaces = &" ".repeat(unsafe { LAST_DEBUG_GRID_DISPLAY_LEN });
     draw_chunks(terminal, clear_spaces, max_length);

@@ -3,7 +3,7 @@ use terminal::Terminal;
 
 /// Gets the Y-axis of the alert which is above the grid.
 const fn get_y(builder: &Builder) -> u16 {
-    builder.cursor.point.y - builder.grid.max_clues_size.height - 1
+    builder.point.y - builder.grid.max_clues_size.height - 1
 }
 
 /// Clears the previous alert.

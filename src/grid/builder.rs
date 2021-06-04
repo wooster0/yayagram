@@ -4,46 +4,37 @@ use terminal::{
     Terminal,
 };
 
-#[derive(Clone, PartialEq, Debug)]
-pub struct Cursor {
-    pub point: Point,
-}
+/// Gets a point to the first cell of the grid which is together with its clues centered on the screen.
+pub const fn centered_point(terminal: &Terminal, grid: &Grid) -> Point {
+    let grid_width = grid.size.width; // No division because blocks are 2 characters
+    let grid_height = grid.size.height / 2;
 
-impl Cursor {
-    pub fn centered(terminal: &Terminal, grid: &Grid) -> Self {
-        let grid_width = grid.size.width; // No division because blocks are 2 characters
-        let grid_height = grid.size.height / 2;
+    let max_clues_width = grid.max_clues_size.width / 2;
+    let max_clues_height = grid.max_clues_size.height / 2;
 
-        let max_clues_width = grid.max_clues_size.width / 2;
-        let max_clues_height = grid.max_clues_size.height / 2;
-
-        Self {
-            point: Point {
-                x: terminal.size.width / 2 - grid_width + max_clues_width,
-                y: terminal.size.height / 2 - grid_height + max_clues_height,
-            },
-        }
+    Point {
+        x: terminal.size.width / 2 - grid_width + max_clues_width,
+        y: terminal.size.height / 2 - grid_height + max_clues_height,
     }
 }
 
 /// Builds and draws the grid to the screen.
 pub struct Builder {
     pub grid: Grid,
-    pub cursor: Cursor,
+    pub point: Point,
 }
 
 impl Builder {
     pub fn new(terminal: &Terminal, grid: Grid) -> Self {
-        let cursor = Cursor::centered(terminal, &grid);
+        let point = centered_point(terminal, &grid);
 
-        Self { grid, cursor }
+        Self { grid, point }
     }
 
     /// Checks whether the point is within the grid.
     pub fn contains(&self, point: Point) -> bool {
-        (self.cursor.point.y..self.cursor.point.y + self.grid.size.height).contains(&point.y)
-            && (self.cursor.point.x..self.cursor.point.x + self.grid.size.width * 2)
-                .contains(&point.x)
+        (self.point.y..self.point.y + self.grid.size.height).contains(&point.y)
+            && (self.point.x..self.point.x + self.grid.size.width * 2).contains(&point.x)
     }
 
     /// Draws the top clues while also returning whether all of them were solved ones.
@@ -63,17 +54,17 @@ impl Builder {
                 all_solved = false;
             }
 
-            let previous_cursor_y = self.cursor.point.y;
+            let previous_cursor_y = self.point.y;
             for clue in vertical_clues_solution.iter().rev() {
-                self.cursor.point.y -= 1;
-                terminal.set_cursor(self.cursor.point);
+                self.point.y -= 1;
+                terminal.set_cursor(self.point);
                 terminal.write(&format!("{:<2}", clue));
             }
             // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.cursor.point.y = previous_cursor_y;
-            self.cursor.point.x += 2;
+            self.point.y = previous_cursor_y;
+            self.point.x += 2;
         }
 
         all_solved
@@ -82,24 +73,24 @@ impl Builder {
     fn clear_top_clues(&mut self, terminal: &mut Terminal) {
         let mut highlighted = true;
         for vertical_clues_solution in self.grid.vertical_clues_solutions.iter() {
-            let previous_cursor_y = self.cursor.point.y;
+            let previous_cursor_y = self.point.y;
 
             for _ in vertical_clues_solution.iter().rev() {
-                self.cursor.point.y -= 1;
-                terminal.set_cursor(self.cursor.point);
+                self.point.y -= 1;
+                terminal.set_cursor(self.point);
                 terminal.write("  ");
             }
             highlighted = !highlighted;
 
-            self.cursor.point.y = previous_cursor_y;
-            self.cursor.point.x += 2;
+            self.point.y = previous_cursor_y;
+            self.point.x += 2;
         }
     }
 
     /// Draws the left clues while also returning whether all of them were solved ones.
     fn draw_left_clues(&mut self, terminal: &mut Terminal) -> bool {
         terminal.move_cursor_left(2);
-        self.cursor.point.x -= 2;
+        self.point.x -= 2;
         let mut highlighted = true;
         let mut all_solved = true;
         for (y, horizontal_clues_solution) in
@@ -117,18 +108,18 @@ impl Builder {
                 all_solved = false;
             }
 
-            let previous_cursor_x = self.cursor.point.x;
+            let previous_cursor_x = self.point.x;
             for clue in horizontal_clues_solution.iter().rev() {
                 terminal.write(&format!("{:>2}", clue));
                 terminal.move_cursor_left(4);
-                self.cursor.point.x -= 4;
+                self.point.x -= 4;
             }
             // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.cursor.point.x = previous_cursor_x;
-            self.cursor.point.y += 1;
-            terminal.set_cursor(self.cursor.point);
+            self.point.x = previous_cursor_x;
+            self.point.y += 1;
+            terminal.set_cursor(self.point);
         }
 
         all_solved
@@ -136,67 +127,67 @@ impl Builder {
     /// Clears the left clues, only graphically.
     fn clear_left_clues(&mut self, terminal: &mut Terminal) {
         terminal.move_cursor_left(2);
-        self.cursor.point.x -= 2;
+        self.point.x -= 2;
         let mut highlighted = true;
         for horizontal_clues_solution in self.grid.horizontal_clues_solutions.iter() {
-            let previous_cursor_x = self.cursor.point.x;
+            let previous_cursor_x = self.point.x;
             for _ in horizontal_clues_solution.iter().rev() {
                 terminal.write("  ");
                 terminal.move_cursor_left(4);
-                self.cursor.point.x -= 4;
+                self.point.x -= 4;
             }
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.cursor.point.x = previous_cursor_x;
-            self.cursor.point.y += 1;
-            terminal.set_cursor(self.cursor.point);
+            self.point.x = previous_cursor_x;
+            self.point.y += 1;
+            terminal.set_cursor(self.point);
         }
     }
 
     /// Draws all clues, the top clues and the left clues while also returning whether all the drawn clues were solved ones.
     fn draw_clues(&mut self, terminal: &mut Terminal) -> bool {
-        terminal.set_cursor(self.cursor.point);
+        terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.cursor.point;
+        let previous_cursor_point = self.point;
         let all_top_clues_solved = self.draw_top_clues(terminal);
-        self.cursor.point = previous_cursor_point;
+        self.point = previous_cursor_point;
 
-        terminal.set_cursor(self.cursor.point);
+        terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.cursor.point;
+        let previous_cursor_point = self.point;
         let all_left_clues_solved = self.draw_left_clues(terminal);
-        self.cursor.point = previous_cursor_point;
+        self.point = previous_cursor_point;
 
-        terminal.set_cursor(self.cursor.point);
+        terminal.set_cursor(self.point);
 
         all_top_clues_solved && all_left_clues_solved
     }
     /// Clears all clues, only graphically.
     pub fn clear_clues(&mut self, terminal: &mut Terminal) {
-        terminal.set_cursor(self.cursor.point);
+        terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.cursor.point;
+        let previous_cursor_point = self.point;
         self.clear_top_clues(terminal);
-        self.cursor.point = previous_cursor_point;
+        self.point = previous_cursor_point;
 
-        terminal.set_cursor(self.cursor.point);
+        terminal.set_cursor(self.point);
 
-        let previous_cursor_point = self.cursor.point;
+        let previous_cursor_point = self.point;
         self.clear_left_clues(terminal);
-        self.cursor.point = previous_cursor_point;
+        self.point = previous_cursor_point;
 
-        terminal.set_cursor(self.cursor.point);
+        terminal.set_cursor(self.point);
     }
 
     fn draw_cells(&mut self, terminal: &mut Terminal) {
-        let previous_cursor_y = self.cursor.point.y;
+        let previous_cursor_y = self.point.y;
         for (y, cells) in self
             .grid
             .cells
             .chunks(self.grid.size.width as usize)
             .enumerate()
         {
-            let previous_cursor_x = self.cursor.point.x;
+            let previous_cursor_x = self.point.x;
             for (x, cell) in cells.iter().enumerate() {
                 let point = Point {
                     x: x as u16,
@@ -204,13 +195,13 @@ impl Builder {
                 };
                 cell.draw(terminal, point, false);
                 terminal.reset_colors();
-                self.cursor.point.x += 2;
+                self.point.x += 2;
             }
-            self.cursor.point.x = previous_cursor_x;
-            self.cursor.point.y += 1;
-            terminal.set_cursor(self.cursor.point);
+            self.point.x = previous_cursor_x;
+            self.point.y += 1;
+            terminal.set_cursor(self.point);
         }
-        self.cursor.point.y = previous_cursor_y;
+        self.point.y = previous_cursor_y;
     }
 
     /// Draws the clues and the cells while also returning whether all the drawn clues were solved ones.
@@ -233,13 +224,13 @@ mod tests {
     #[test]
     fn test_draw() {
         let mut terminal = Terminal::new().unwrap();
-        let size = Size::new(5, 5);
+        let size = Size::new(10, 5);
         let grid = Grid::new(size.clone(), vec![Cell::Empty; size.product() as usize]);
         let mut builder = Builder::new(&terminal, grid);
 
-        let previous_cursor = builder.cursor.clone();
+        let previous_cursor = builder.point;
         let all_clues_solved = builder.draw(&mut terminal);
         assert!(all_clues_solved);
-        assert_eq!(builder.cursor, previous_cursor);
+        assert_eq!(builder.point, previous_cursor);
     }
 }
