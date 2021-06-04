@@ -22,7 +22,7 @@ impl Editor {
     }
 
     fn serialize(grid: &Grid, writer: &mut io::BufWriter<fs::File>) -> io::Result<()> {
-        fn draw_dash_line(writer: &mut io::BufWriter<fs::File>, width: u16) -> io::Result<()> {
+        fn write_dash_line(writer: &mut io::BufWriter<fs::File>, width: u16) -> io::Result<()> {
             writer.write_all(b"+")?;
             for _ in 0..width {
                 writer.write_all(b"----")?;
@@ -34,7 +34,7 @@ impl Editor {
 
         let mut help: [Option<&str>; 4] = [None; 4];
 
-        draw_dash_line(writer, grid.size.width)?;
+        write_dash_line(writer, grid.size.width)?;
 
         for cells in grid.cells.chunks(grid.size.width as usize) {
             for _ in 0..2 {
@@ -66,7 +66,7 @@ impl Editor {
             }
         }
 
-        draw_dash_line(writer, grid.size.width)?;
+        write_dash_line(writer, grid.size.width)?;
 
         writer.write_all(b"\n")?;
 
