@@ -24,10 +24,6 @@ impl Cursor {
             },
         }
     }
-
-    fn update(&mut self, terminal: &mut Terminal) {
-        terminal.set_cursor(self.point);
-    }
 }
 
 /// Builds and draws the grid to the screen.
@@ -70,7 +66,7 @@ impl Builder {
             let previous_cursor_y = self.cursor.point.y;
             for clue in vertical_clues_solution.iter().rev() {
                 self.cursor.point.y -= 1;
-                self.cursor.update(terminal);
+                terminal.set_cursor(self.cursor.point);
                 terminal.write(&format!("{:<2}", clue));
             }
             // We need to reset the colors because we don't always set both the background and foreground color
@@ -90,7 +86,7 @@ impl Builder {
 
             for _ in vertical_clues_solution.iter().rev() {
                 self.cursor.point.y -= 1;
-                self.cursor.update(terminal);
+                terminal.set_cursor(self.cursor.point);
                 terminal.write("  ");
             }
             highlighted = !highlighted;
@@ -132,7 +128,7 @@ impl Builder {
             highlighted = !highlighted;
             self.cursor.point.x = previous_cursor_x;
             self.cursor.point.y += 1;
-            self.cursor.update(terminal);
+            terminal.set_cursor(self.cursor.point);
         }
 
         all_solved
@@ -153,43 +149,43 @@ impl Builder {
             highlighted = !highlighted;
             self.cursor.point.x = previous_cursor_x;
             self.cursor.point.y += 1;
-            self.cursor.update(terminal);
+            terminal.set_cursor(self.cursor.point);
         }
     }
 
     /// Draws all clues, the top clues and the left clues while also returning whether all the drawn clues were solved ones.
     fn draw_clues(&mut self, terminal: &mut Terminal) -> bool {
-        self.cursor.update(terminal);
+        terminal.set_cursor(self.cursor.point);
 
         let previous_cursor_point = self.cursor.point;
         let all_top_clues_solved = self.draw_top_clues(terminal);
         self.cursor.point = previous_cursor_point;
 
-        self.cursor.update(terminal);
+        terminal.set_cursor(self.cursor.point);
 
         let previous_cursor_point = self.cursor.point;
         let all_left_clues_solved = self.draw_left_clues(terminal);
         self.cursor.point = previous_cursor_point;
 
-        self.cursor.update(terminal);
+        terminal.set_cursor(self.cursor.point);
 
         all_top_clues_solved && all_left_clues_solved
     }
     /// Clears all clues, only graphically.
     pub fn clear_clues(&mut self, terminal: &mut Terminal) {
-        self.cursor.update(terminal);
+        terminal.set_cursor(self.cursor.point);
 
         let previous_cursor_point = self.cursor.point;
         self.clear_top_clues(terminal);
         self.cursor.point = previous_cursor_point;
 
-        self.cursor.update(terminal);
+        terminal.set_cursor(self.cursor.point);
 
         let previous_cursor_point = self.cursor.point;
         self.clear_left_clues(terminal);
         self.cursor.point = previous_cursor_point;
 
-        self.cursor.update(terminal);
+        terminal.set_cursor(self.cursor.point);
     }
 
     fn draw_cells(&mut self, terminal: &mut Terminal) {
@@ -212,7 +208,7 @@ impl Builder {
             }
             self.cursor.point.x = previous_cursor_x;
             self.cursor.point.y += 1;
-            self.cursor.update(terminal);
+            terminal.set_cursor(self.cursor.point);
         }
         self.cursor.point.y = previous_cursor_y;
     }
