@@ -6,15 +6,15 @@ use terminal::{
 
 /// Gets a point to the first cell of the grid which is together with its clues centered on the screen.
 pub const fn centered_point(terminal: &Terminal, grid: &Grid) -> Point {
-    let grid_width = grid.size.width; // No division because blocks are 2 characters
-    let grid_height = grid.size.height / 2;
+    let grid_width_half = grid.size.width; // No division because blocks are 2 characters
+    let grid_height_half = grid.size.height / 2;
 
-    let max_clues_width = grid.max_clues_size.width / 2;
-    let max_clues_height = grid.max_clues_size.height / 2;
+    let max_clues_width_half = grid.max_clues_size.width / 2;
+    let max_clues_height_half = grid.max_clues_size.height / 2;
 
     Point {
-        x: terminal.size.width / 2 - grid_width + max_clues_width,
-        y: terminal.size.height / 2 - grid_height + max_clues_height,
+        x: terminal.size.width / 2 - grid_width_half + max_clues_width_half,
+        y: terminal.size.height / 2 - grid_height_half + max_clues_height_half,
     }
 }
 
