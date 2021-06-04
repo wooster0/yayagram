@@ -89,8 +89,8 @@ impl Builder {
 
     /// Draws the left clues while also returning whether all of them were solved ones.
     fn draw_left_clues(&mut self, terminal: &mut Terminal) -> bool {
-        terminal.move_cursor_left(2);
         self.point.x -= 2;
+        terminal.set_cursor(self.point);
         let mut highlighted = true;
         let mut all_solved = true;
         for (y, horizontal_clues_solution) in
@@ -126,8 +126,8 @@ impl Builder {
     }
     /// Clears the left clues, only graphically.
     fn clear_left_clues(&mut self, terminal: &mut Terminal) {
-        terminal.move_cursor_left(2);
         self.point.x -= 2;
+        terminal.set_cursor(self.point);
         let mut highlighted = true;
         for horizontal_clues_solution in self.grid.horizontal_clues_solutions.iter() {
             let previous_point_x = self.point.x;
@@ -146,37 +146,25 @@ impl Builder {
 
     /// Draws all clues, the top clues and the left clues while also returning whether all the drawn clues were solved ones.
     fn draw_clues(&mut self, terminal: &mut Terminal) -> bool {
-        terminal.set_cursor(self.point);
-
         let previous_point_point = self.point;
         let all_top_clues_solved = self.draw_top_clues(terminal);
         self.point = previous_point_point;
-
-        terminal.set_cursor(self.point);
 
         let previous_point_point = self.point;
         let all_left_clues_solved = self.draw_left_clues(terminal);
         self.point = previous_point_point;
 
-        terminal.set_cursor(self.point);
-
         all_top_clues_solved && all_left_clues_solved
     }
     /// Clears all clues, only graphically.
     pub fn clear_clues(&mut self, terminal: &mut Terminal) {
-        terminal.set_cursor(self.point);
-
         let previous_point_point = self.point;
         self.clear_top_clues(terminal);
         self.point = previous_point_point;
 
-        terminal.set_cursor(self.point);
-
         let previous_point_point = self.point;
         self.clear_left_clues(terminal);
         self.point = previous_point_point;
-
-        terminal.set_cursor(self.point);
     }
 
     fn draw_cells(&mut self, terminal: &mut Terminal) {
@@ -187,6 +175,7 @@ impl Builder {
             .chunks(self.grid.size.width as usize)
             .enumerate()
         {
+            terminal.set_cursor(self.point);
             let previous_point_x = self.point.x;
             for (x, cell) in cells.iter().enumerate() {
                 let point = Point {
@@ -199,7 +188,6 @@ impl Builder {
             }
             self.point.x = previous_point_x;
             self.point.y += 1;
-            terminal.set_cursor(self.point);
         }
         self.point.y = previous_point_y;
     }
