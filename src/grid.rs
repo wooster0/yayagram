@@ -1,11 +1,12 @@
-use itertools::Itertools;
-use terminal::util::{Color, Point, Size};
 pub mod builder;
 #[cfg(debug_assertions)]
 pub mod debug;
 mod random;
 pub mod tools;
+
 use crate::undo_redo_buffer::UndoRedoBuffer;
+use itertools::Itertools;
+use terminal::util::{Color, Point, Size};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Cell {
