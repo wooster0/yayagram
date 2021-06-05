@@ -94,13 +94,13 @@ impl Cell {
                 let x_reached_point = point.x / SEPARATION_POINT % 2 == 0;
                 let y_reached_point = point.y / SEPARATION_POINT % 2 == 0;
                 let mut background_color_byte = if x_reached_point ^ y_reached_point {
-                    236
-                } else {
                     238
+                } else {
+                    240
                 };
 
                 if highlight {
-                    background_color_byte -= 2;
+                    background_color_byte -= 3;
                 }
 
                 background_color = Color::Byte(background_color_byte);
