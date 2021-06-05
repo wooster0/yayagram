@@ -10,6 +10,7 @@ use terminal::util::Size;
 const MAX_GRID_SIZE: u16 = 99;
 
 /// The values that can be created out of the arguments.
+#[derive(Debug)]
 pub enum Arg {
     File { name: String, content: String },
     GridSize(Size),
@@ -17,6 +18,7 @@ pub enum Arg {
     Version,
 }
 
+#[derive(Debug)]
 enum SizeError {
     OutOfRange(&'static str),
     Other(&'static str),
@@ -146,5 +148,75 @@ pub fn parse() -> Result<Option<Arg>, Cow<'static, str>> {
         }
     } else {
         Ok(None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_strings() {
+        assert!(matches!(
+            parse_strings(String::from("example.yaya"), None),
+            Ok(Some(Arg::File {
+                name: _,
+                content: _
+            }))
+        ));
+    }
+
+    #[test]
+    fn test_parse_squared_size() {
+        assert!(matches!(
+            parse_squared_size("99"),
+            Ok(Some(Arg::GridSize(Size {
+                width: 99,
+                height: 99
+            })))
+        ));
+
+        assert!(!matches!(
+            parse_squared_size("100"),
+            Ok(Some(Arg::GridSize(Size {
+                width: 100,
+                height: 100
+            })))
+        ));
+
+        assert!(!matches!(
+            parse_squared_size("0"),
+            Ok(Some(Arg::GridSize(Size {
+                width: 0,
+                height: 0
+            })))
+        ));
+    }
+
+    #[test]
+    fn test_parse_size() {
+        assert!(matches!(
+            parse_size("25", "50"),
+            Ok(Some(Arg::GridSize(Size {
+                width: 25,
+                height: 50
+            })))
+        ));
+
+        assert!(!matches!(
+            parse_size("100", "99"),
+            Ok(Some(Arg::GridSize(Size {
+                width: 100,
+                height: 99
+            })))
+        ));
+
+        assert!(!matches!(
+            parse_size("0", "0"),
+            Ok(Some(Arg::GridSize(Size {
+                width: 0,
+                height: 0
+            })))
+        ));
     }
 }

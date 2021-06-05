@@ -209,16 +209,47 @@ mod tests {
     use crate::grid::Cell;
     use terminal::util::Size;
 
-    #[test]
-    fn test_draw() {
-        let mut terminal = Terminal::new().unwrap();
+    fn get_terminal_and_builder() -> (Terminal, Builder) {
         let size = Size::new(10, 5);
         let grid = Grid::new(size.clone(), vec![Cell::Empty; size.product() as usize]);
-        let mut builder = Builder::new(&terminal, grid);
+        let terminal = Terminal::new().unwrap();
+        let builder = Builder::new(&terminal, grid);
+        (terminal, builder)
+    }
+
+    #[test]
+    fn test_contains() {
+        let (_, builder) = get_terminal_and_builder();
+
+        assert!(!builder.contains(Point {
+            x: builder.point.x - 1,
+            y: builder.point.y - 1
+        }));
+        assert!(builder.contains(builder.point));
+        assert!(!builder.contains(Point {
+            x: builder.point.x + builder.grid.size.width,
+            y: builder.point.y + builder.grid.size.height
+        }));
+    }
+
+    #[test]
+    fn test_draw() {
+        let (mut terminal, mut builder) = get_terminal_and_builder();
 
         let previous_point = builder.point;
-        let all_clues_solved = builder.draw(&mut terminal);
-        assert!(all_clues_solved);
-        assert_eq!(builder.point, previous_point);
+        #[allow(unused_must_use)]
+        {
+            builder.draw(&mut terminal);
+        }
+        assert_eq!(previous_point, builder.point);
+    }
+
+    #[test]
+    fn test_clear_clues() {
+        let (mut terminal, mut builder) = get_terminal_and_builder();
+
+        let previous_point = builder.point;
+        builder.clear_clues(&mut terminal);
+        assert_eq!(previous_point, builder.point);
     }
 }

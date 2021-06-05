@@ -174,7 +174,7 @@ fn get_vertical_clues(
 impl Grid {
     /// Creates a new grid. `cells` must have a length of `size.width * size.height`.
     pub fn new(size: Size, mut cells: Vec<Cell>) -> Self {
-        assert_eq!(cells.len(), (size.width as usize * size.height as usize));
+        debug_assert_eq!(cells.len(), (size.width as usize * size.height as usize));
 
         let mut horizontal_clues_solutions = Vec::<Clues>::new();
         for y in 0..size.height {
@@ -293,6 +293,7 @@ mod tests {
 
     #[test]
     fn test_squared_grid() {
+        #[rustfmt::skip]
         let grid = Grid::from_lines(&[
             "1 1 111 1 ",
             " 1 11 111 ",
@@ -332,14 +333,14 @@ mod tests {
     #[test]
     fn test_non_squared_grid() {
         #[rustfmt::skip]
-            let grid = Grid::from_lines(&[
-                " 111",
-                " 1 1",
-                "11 1",
-                "1 1 ",
-                "1  1",
-                "  1 ",
-            ]);
+        let grid = Grid::from_lines(&[
+            " 111",
+            " 1 1",
+            "11 1",
+            "1 1 ",
+            "1  1",
+            "  1 ",
+        ]);
 
         assert_eq!(
             grid.horizontal_clues_solutions,
@@ -357,5 +358,19 @@ mod tests {
             grid.vertical_clues_solutions,
             [vec![3], vec![3], vec![1, 1, 1], vec![3, 1]]
         );
+    }
+
+    #[test]
+    fn test_clear() {
+        #[rustfmt::skip]
+        let mut grid = Grid::from_lines(&[
+            "1111",
+            "1111",
+            "1111",
+        ]);
+
+        grid.clear();
+
+        assert!(grid.cells.iter().all(|cell| *cell == Cell::Empty));
     }
 }
