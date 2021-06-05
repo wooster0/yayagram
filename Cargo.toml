@@ -24,3 +24,11 @@ line_drawing = "0.8.0"
 # opt-level = "z"
 # lto = true
 # codegen-units = 1
+
+# Very Fast build mode:
+#
+# [profile.release]
+# opt-level = 3
+# lto = true
+# panic = 'abort'
+# codegen-units = 1
