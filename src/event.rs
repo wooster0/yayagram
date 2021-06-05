@@ -13,8 +13,7 @@ use terminal::{util::Point, Terminal};
 
 fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
     fn highlight_cell(terminal: &mut Terminal, mut cursor_point: Point, builder: &Builder) {
-        let center_x = builder.point.x;
-        if (cursor_point.x - center_x) % 2 != 0 {
+        if (cursor_point.x - builder.point.x) % 2 != 0 {
             cursor_point.x -= 1;
         }
         terminal.set_cursor(cursor_point);
