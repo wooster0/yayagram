@@ -146,25 +146,25 @@ impl Builder {
 
     /// Draws all clues, the top clues and the left clues while also returning whether all the drawn clues were solved ones.
     fn draw_clues(&mut self, terminal: &mut Terminal) -> bool {
-        let previous_point_point = self.point;
+        let previous_point = self.point;
         let all_top_clues_solved = self.draw_top_clues(terminal);
-        self.point = previous_point_point;
+        self.point = previous_point;
 
-        let previous_point_point = self.point;
+        let previous_point = self.point;
         let all_left_clues_solved = self.draw_left_clues(terminal);
-        self.point = previous_point_point;
+        self.point = previous_point;
 
         all_top_clues_solved && all_left_clues_solved
     }
     /// Clears all clues, only graphically.
     pub fn clear_clues(&mut self, terminal: &mut Terminal) {
-        let previous_point_point = self.point;
+        let previous_point = self.point;
         self.clear_top_clues(terminal);
-        self.point = previous_point_point;
+        self.point = previous_point;
 
-        let previous_point_point = self.point;
+        let previous_point = self.point;
         self.clear_left_clues(terminal);
-        self.point = previous_point_point;
+        self.point = previous_point;
     }
 
     fn draw_cells(&mut self, terminal: &mut Terminal) {
