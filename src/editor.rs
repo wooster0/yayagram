@@ -41,23 +41,24 @@ impl Editor {
                 writer.write_all(b"|")?;
                 for cell in cells {
                     let cell_half = match cell {
-                        Cell::Empty => "    ",
+                        Cell::Empty => {
+                            "    " // Represents emptiness.
+                        }
                         Cell::Filled => {
                             help[0] = Some("1: filled");
-                            "1111"
+                            "1111" // Represents true, i.e. filled.
                         }
                         Cell::Crossed => {
                             help[1] = Some("X: crossed");
-                            "XXXX"
+                            "XXXX" // Looks like a cross.
                         }
                         Cell::Maybed => {
                             help[2] = Some("?: maybed");
-                            "????"
+                            "????" // Indicates the unclearness.
                         }
                         Cell::Measured(_) => {
-                            // R because it resembles 尺 which is a unit of measure.
                             help[3] = Some("R: measured");
-                            "RRRR"
+                            "RRRR" // Resembles 尺 which is a unit of measure.
                         }
                     };
                     writer.write_all(cell_half.as_bytes())?;
