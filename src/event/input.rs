@@ -43,8 +43,7 @@ fn handle_mouse(
 
                 if let Some(plot_mode) = *plot_mode {
                     if *cell == plot_mode {
-                        // No grid mutation happened
-                        let _all_clues_solved = builder.draw(terminal);
+                        builder.draw_cells(terminal);
 
                         // We know that this point is hovered
                         super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
@@ -83,7 +82,7 @@ fn handle_mouse(
 
                         *fill = false;
 
-                        let all_clues_solved = builder.draw(terminal);
+                        let all_clues_solved = builder.draw_all(terminal);
 
                         if all_clues_solved {
                             return State::Solved(starting_time.elapsed());
@@ -107,10 +106,13 @@ fn handle_mouse(
                 if editor_toggled {
                     super::rebuild_clues(terminal, builder, cell_point);
 
-                    // The solved screen shouldn't be triggered within the editor
-                    let _all_clues_solved = builder.draw(terminal);
+                    // The grid shouldn't be solved while editing it
+                    #[allow(unused_must_use)]
+                    {
+                        builder.draw_all(terminal);
+                    }
                 } else {
-                    let all_clues_solved = builder.draw(terminal);
+                    let all_clues_solved = builder.draw_all(terminal);
 
                     if all_clues_solved {
                         return State::Solved(starting_time.elapsed());
@@ -127,8 +129,7 @@ fn handle_mouse(
             kind: MouseEventKind::Move,
             point,
         } => {
-            // No grid mutation happened
-            let _all_clues_solved = builder.draw(terminal);
+            builder.draw_cells(terminal);
 
             if builder.contains(point) {
                 *hovered_cell_point = Some(point);
@@ -195,7 +196,10 @@ fn handle_window_resize(
     terminal.clear();
 
     // No grid mutation happened
-    let _all_clues_solved = builder.draw(terminal);
+    #[allow(unused_must_use)]
+    {
+        builder.draw_all(terminal);
+    }
 
     crate::draw_help(terminal, &builder);
     if let Some(alert) = last_alert {
@@ -217,16 +221,22 @@ fn handle_key(
     match key_event {
         KeyEvent::Char('a', None) | KeyEvent::Char('A', None) => {
             if builder.grid.undo_last_cell() {
-                // It would've already been solved before
-                let _all_clues_solved = builder.draw(terminal);
+                // An undo won't cause the grid to be solved at this point because otherwise it would've already been solved before when that operation was done.
+                #[allow(unused_must_use)]
+                {
+                    builder.draw_all(terminal);
+                }
             }
 
             State::Continue
         }
         KeyEvent::Char('d', None) | KeyEvent::Char('D', None) => {
             if builder.grid.redo_last_cell() {
-                // It would've already been solved before
-                let _all_clues_solved = builder.draw(terminal);
+                // A redo won't cause the grid to be solved at this point because otherwise it would've already been solved before when that operation was done.
+                #[allow(unused_must_use)]
+                {
+                    builder.draw_all(terminal);
+                }
             }
 
             State::Continue
@@ -238,8 +248,11 @@ fn handle_key(
                 .undo_redo_buffer
                 .push(undo_redo_buffer::Operation::Clear);
 
-            // It would've already been solved from the start
-            let _all_clues_solved = builder.draw(terminal);
+            // A clear won't cause the grid to be solved at this point because otherwise it would've already been solved initially when the grid was empty.
+            #[allow(unused_must_use)]
+            {
+                builder.draw_all(terminal);
+            }
 
             State::Continue
         }
@@ -264,8 +277,7 @@ fn handle_key(
                         .undo_redo_buffer
                         .push(undo_redo_buffer::Operation::Measure(line_points));
 
-                    // Measured cells cannot solve the grid
-                    let _all_clues_solved = builder.draw(terminal);
+                    builder.draw_cells(terminal);
 
                     // We know that this point is hovered
                     super::draw_highlighted_cells(terminal, &builder, hovered_cell_point);

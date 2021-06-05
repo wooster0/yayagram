@@ -169,7 +169,8 @@ impl Builder {
         self.point = previous_point;
     }
 
-    fn draw_cells(&mut self, terminal: &mut Terminal) {
+    /// Draws the cells.
+    pub fn draw_cells(&mut self, terminal: &mut Terminal) {
         let previous_point_y = self.point.y;
         for (y, cells) in self
             .grid
@@ -194,12 +195,12 @@ impl Builder {
         self.point.y = previous_point_y;
     }
 
-    /// Draws the clues and the cells while also returning whether all the drawn clues were solved ones.
+    /// Draws the clues and the cells while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
     #[must_use]
-    pub fn draw(&mut self, terminal: &mut Terminal) -> bool {
-        let all_clues_solved = self.draw_clues(terminal);
-
+    pub fn draw_all(&mut self, terminal: &mut Terminal) -> bool {
         self.draw_cells(terminal);
+
+        let all_clues_solved = self.draw_clues(terminal);
 
         all_clues_solved
     }
@@ -235,23 +236,32 @@ mod tests {
     }
 
     #[test]
-    fn test_draw() {
-        let (mut terminal, mut builder) = get_terminal_and_builder();
-
-        let previous_point = builder.point;
-        #[allow(unused_must_use)]
-        {
-            builder.draw(&mut terminal);
-        }
-        assert_eq!(previous_point, builder.point);
-    }
-
-    #[test]
     fn test_clear_clues() {
         let (mut terminal, mut builder) = get_terminal_and_builder();
 
         let previous_point = builder.point;
         builder.clear_clues(&mut terminal);
+        assert_eq!(previous_point, builder.point);
+    }
+
+    #[test]
+    fn test_draw_cells() {
+        let (mut terminal, mut builder) = get_terminal_and_builder();
+
+        let previous_point = builder.point;
+        builder.draw_cells(&mut terminal);
+        assert_eq!(previous_point, builder.point);
+    }
+
+    #[test]
+    fn test_draw_all() {
+        let (mut terminal, mut builder) = get_terminal_and_builder();
+
+        let previous_point = builder.point;
+        #[allow(unused_must_use)]
+        {
+            builder.draw_all(&mut terminal);
+        }
         assert_eq!(previous_point, builder.point);
     }
 }

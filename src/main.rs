@@ -70,7 +70,7 @@ fn run() -> Result<(), Cow<'static, str>> {
             if let State::Continue = event::input::await_fitting_window_size(&mut terminal, &grid) {
                 let mut builder = Builder::new(&terminal, grid);
 
-                let all_clues_solved = builder.draw(&mut terminal);
+                let all_clues_solved = builder.draw_all(&mut terminal);
                 draw_help(&mut terminal, &builder);
 
                 if all_clues_solved {
