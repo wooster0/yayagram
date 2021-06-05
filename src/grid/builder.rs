@@ -18,6 +18,8 @@ pub const fn centered_point(terminal: &Terminal, grid: &Grid) -> Point {
     }
 }
 
+const HIGHLIGHTED_CLUE_BACKGROUND_COLOR: Color = Color::Byte(238);
+
 /// Builds and draws the grid to the screen.
 pub struct Builder {
     pub grid: Grid,
@@ -46,7 +48,7 @@ impl Builder {
             let solved = vertical_clues.eq(vertical_clues_solution.iter().copied());
 
             if highlighted {
-                terminal.set_background_color(Color::Byte(238));
+                terminal.set_background_color(HIGHLIGHTED_CLUE_BACKGROUND_COLOR);
             }
             if solved {
                 terminal.set_foreground_color(Color::DarkGray);
@@ -100,7 +102,7 @@ impl Builder {
             let solved = horizontal_clues.eq(horizontal_clues_solution.iter().copied());
 
             if highlighted {
-                terminal.set_background_color(Color::Byte(238));
+                terminal.set_background_color(HIGHLIGHTED_CLUE_BACKGROUND_COLOR);
             }
             if solved {
                 terminal.set_foreground_color(Color::DarkGray);
