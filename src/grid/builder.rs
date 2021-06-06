@@ -170,7 +170,7 @@ impl Builder {
         self.point = previous_point;
     }
 
-    /// Draws the grid surrounded by the clues.
+    /// Draws the grid.
     pub fn draw_grid(&mut self, terminal: &mut Terminal) {
         let previous_point_y = self.point.y;
         for (y, row) in self
@@ -202,7 +202,7 @@ impl Builder {
     ///       Maybe exclusively for cases where the window size does not suffice.
     ///
     /// NOTE: Perhaps at some point, if stabilized, `array_chunks` can be used to implement this.
-    fn draw_picture(&mut self, terminal: &mut Terminal) {
+    pub fn draw_picture(&mut self, terminal: &mut Terminal) {
         fn draw_half_block(terminal: &mut Terminal) {
             terminal.write("▄");
         }
@@ -237,17 +237,12 @@ impl Builder {
         self.point = previous_point;
     }
 
-    /// Draws the grid as well as the picture.
-    pub fn draw_grid_and_picture(&mut self, terminal: &mut Terminal) {
+    /// Draws the grid, the picture and the clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
+    #[must_use]
+    pub fn draw_all(&mut self, terminal: &mut Terminal) -> bool {
         self.draw_picture(terminal);
 
         self.draw_grid(terminal);
-    }
-
-    /// Draws the clues and all cells while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
-    #[must_use]
-    pub fn draw_all(&mut self, terminal: &mut Terminal) -> bool {
-        self.draw_grid_and_picture(terminal);
 
         self.draw_clues(terminal)
     }
@@ -301,11 +296,11 @@ mod tests {
     }
 
     #[test]
-    fn test_draw_grid_and_picture() {
+    fn test_draw_picture() {
         let (mut terminal, mut builder) = get_terminal_and_builder();
 
         let previous_point = builder.point;
-        builder.draw_grid_and_picture(&mut terminal);
+        builder.draw_picture(&mut terminal);
         assert_eq!(previous_point, builder.point);
     }
 

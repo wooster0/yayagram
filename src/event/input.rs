@@ -277,7 +277,8 @@ fn handle_key(
                         .undo_redo_buffer
                         .push(undo_redo_buffer::Operation::Measure(line_points));
 
-                    builder.draw_grid_and_picture(terminal);
+                    builder.draw_picture(terminal);
+                    builder.draw_grid(terminal);
 
                     // We know that this point is hovered
                     super::draw_highlighted_cells(terminal, &builder, hovered_cell_point);

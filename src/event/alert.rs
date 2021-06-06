@@ -7,8 +7,11 @@ const fn get_y(builder: &Builder) -> u16 {
 }
 
 /// Clears the previous alert.
-pub fn clear(terminal: &mut Terminal, builder: &Builder, alert_len: usize) {
+pub fn clear(terminal: &mut Terminal, builder: &mut Builder, alert_len: usize) {
     crate::draw_text(terminal, &builder, &" ".repeat(alert_len), get_y(&builder));
+    // This redraws the picture because it was previously overdrawn by the alert.
+    // TODO: this is rather ugly. Perhaps alerts should be shown somewhere else
+    builder.draw_picture(terminal);
 }
 
 /// Draws a alert above the grid.
