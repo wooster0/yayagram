@@ -204,7 +204,7 @@ impl Builder {
     /// NOTE: Perhaps at some point, if stabilized, `array_chunks` can be used to implement this.
     fn draw_picture(&mut self, terminal: &mut Terminal) {
         fn draw_half_block(terminal: &mut Terminal) {
-            terminal.write("▀");
+            terminal.write("▄");
         }
 
         let previous_point = self.point;
@@ -218,10 +218,8 @@ impl Builder {
             let uneven_chunk = chunks.next().unwrap();
 
             terminal.set_cursor(self.point);
-
-            terminal.set_foreground_color(Color::default());
             for cell in uneven_chunk {
-                terminal.set_background_color(cell.get_color());
+                terminal.set_foreground_color(cell.get_color());
                 draw_half_block(terminal);
             }
         }
@@ -230,8 +228,8 @@ impl Builder {
             self.point.y += 1;
             terminal.set_cursor(self.point);
             for (first_cell, second_cell) in first_row.iter().zip(second_row) {
-                terminal.set_foreground_color(first_cell.get_color());
-                terminal.set_background_color(second_cell.get_color());
+                terminal.set_background_color(first_cell.get_color());
+                terminal.set_foreground_color(second_cell.get_color());
                 draw_half_block(terminal);
             }
         }
