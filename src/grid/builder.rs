@@ -1,4 +1,5 @@
 use super::Grid;
+use itertools::Itertools;
 use terminal::{
     util::{Color, Point},
     Terminal,
@@ -146,7 +147,7 @@ impl Builder {
         }
     }
 
-    /// Draws all clues, the top clues and the left clues while also returning whether all the drawn clues were solved ones.
+    /// Draws the top clues and the left clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
     fn draw_clues(&mut self, terminal: &mut Terminal) -> bool {
         let previous_point = self.point;
         let all_top_clues_solved = self.draw_top_clues(terminal);
@@ -169,10 +170,10 @@ impl Builder {
         self.point = previous_point;
     }
 
-    /// Draws the cells.
-    pub fn draw_cells(&mut self, terminal: &mut Terminal) {
+    /// Draws the grid surrounded by the clues.
+    pub fn draw_grid(&mut self, terminal: &mut Terminal) {
         let previous_point_y = self.point.y;
-        for (y, cells) in self
+        for (y, row) in self
             .grid
             .cells
             .chunks(self.grid.size.width as usize)
@@ -180,7 +181,7 @@ impl Builder {
         {
             terminal.set_cursor(self.point);
             let previous_point_x = self.point.x;
-            for (x, cell) in cells.iter().enumerate() {
+            for (x, cell) in row.iter().enumerate() {
                 let point = Point {
                     x: x as u16,
                     y: y as u16,
@@ -195,14 +196,62 @@ impl Builder {
         self.point.y = previous_point_y;
     }
 
-    /// Draws the clues and the cells while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
+    /// Draws the grid in smaller form on the top left, making it easier to see the whole picture.
+    ///
+    /// NOTE: Perhaps at some point in the future [sixel](https://en.wikipedia.org/wiki/Sixel) can be supported.
+    ///       Maybe exclusively for cases where the window size does not suffice.
+    ///
+    /// NOTE: Perhaps at some point, if stabilized, `array_chunks` can be used to implement this.
+    fn draw_picture(&mut self, terminal: &mut Terminal) {
+        fn draw_half_block(terminal: &mut Terminal) {
+            terminal.write("▀");
+        }
+
+        let previous_point = self.point;
+
+        self.point.x -= self.grid.size.width;
+        self.point.y -= (self.grid.size.height / 2) + 1;
+
+        let mut chunks = self.grid.cells.chunks(self.grid.size.width as usize);
+
+        if self.grid.size.height % 2 == 1 {
+            let uneven_chunk = chunks.next().unwrap();
+
+            terminal.set_cursor(self.point);
+
+            terminal.set_foreground_color(Color::default());
+            for cell in uneven_chunk {
+                terminal.set_background_color(cell.get_color());
+                draw_half_block(terminal);
+            }
+        }
+
+        for (first_row, second_row) in chunks.tuples() {
+            self.point.y += 1;
+            terminal.set_cursor(self.point);
+            for (first_cell, second_cell) in first_row.iter().zip(second_row) {
+                terminal.set_foreground_color(first_cell.get_color());
+                terminal.set_background_color(second_cell.get_color());
+                draw_half_block(terminal);
+            }
+        }
+
+        self.point = previous_point;
+    }
+
+    /// Draws the grid as well as the picture.
+    pub fn draw_grid_and_picture(&mut self, terminal: &mut Terminal) {
+        self.draw_picture(terminal);
+
+        self.draw_grid(terminal);
+    }
+
+    /// Draws the clues and all cells while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
     #[must_use]
     pub fn draw_all(&mut self, terminal: &mut Terminal) -> bool {
-        self.draw_cells(terminal);
+        self.draw_grid_and_picture(terminal);
 
-        let all_clues_solved = self.draw_clues(terminal);
-
-        all_clues_solved
+        self.draw_clues(terminal)
     }
 }
 
@@ -245,11 +294,20 @@ mod tests {
     }
 
     #[test]
-    fn test_draw_cells() {
+    fn test_draw_grid() {
         let (mut terminal, mut builder) = get_terminal_and_builder();
 
         let previous_point = builder.point;
-        builder.draw_cells(&mut terminal);
+        builder.draw_grid(&mut terminal);
+        assert_eq!(previous_point, builder.point);
+    }
+
+    #[test]
+    fn test_draw_grid_and_picture() {
+        let (mut terminal, mut builder) = get_terminal_and_builder();
+
+        let previous_point = builder.point;
+        builder.draw_grid_and_picture(&mut terminal);
         assert_eq!(previous_point, builder.point);
     }
 

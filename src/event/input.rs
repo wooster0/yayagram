@@ -43,7 +43,7 @@ fn handle_mouse(
 
                 if let Some(plot_mode) = *plot_mode {
                     if *cell == plot_mode {
-                        builder.draw_cells(terminal);
+                        builder.draw_grid(terminal);
 
                         // We know that this point is hovered
                         super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
@@ -129,7 +129,7 @@ fn handle_mouse(
             kind: MouseEventKind::Move,
             point,
         } => {
-            builder.draw_cells(terminal);
+            builder.draw_grid(terminal);
 
             if builder.contains(point) {
                 *hovered_cell_point = Some(point);
@@ -277,7 +277,7 @@ fn handle_key(
                         .undo_redo_buffer
                         .push(undo_redo_buffer::Operation::Measure(line_points));
 
-                    builder.draw_cells(terminal);
+                    builder.draw_grid_and_picture(terminal);
 
                     // We know that this point is hovered
                     super::draw_highlighted_cells(terminal, &builder, hovered_cell_point);

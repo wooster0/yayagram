@@ -33,7 +33,7 @@ impl From<bool> for Cell {
 }
 
 impl Cell {
-    fn get_color(&self) -> Color {
+    pub fn get_color(&self) -> Color {
         match self {
             Cell::Empty => Color::default(),
             Cell::Filled => Color::White,
