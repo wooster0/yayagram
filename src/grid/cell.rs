@@ -68,10 +68,10 @@ impl Cell {
             background_color: Color,
             content: Cow<'static, str>,
         ) {
+            terminal.set_background_color(background_color);
             if let Some(foreground_color) = foreground_color {
                 terminal.set_foreground_color(foreground_color);
             }
-            terminal.set_background_color(background_color);
             terminal.write(&content);
         }
 
