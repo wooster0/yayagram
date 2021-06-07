@@ -40,10 +40,10 @@ impl Builder {
             && (self.point.x..self.point.x + self.grid.size.width * 2).contains(&point.x)
     }
 
-    /// Draws the top clues while also returning whether all of them were solved ones.
-    fn draw_top_clues(&mut self, terminal: &mut Terminal) -> bool {
+    /// Draws the top clues while also returning the amount of solved clue rows.
+    fn draw_top_clues(&mut self, terminal: &mut Terminal) -> usize {
         let mut highlighted = true;
-        let mut all_solved = true;
+        let mut solved_rows = 0;
         for (x, vertical_clues_solution) in self.grid.vertical_clues_solutions.iter().enumerate() {
             let vertical_clues = self.grid.get_vertical_clues(x as u16);
             let solved = vertical_clues.eq(vertical_clues_solution.iter().copied());
@@ -53,8 +53,7 @@ impl Builder {
             }
             if solved {
                 terminal.set_foreground_color(Color::DarkGray);
-            } else if !vertical_clues_solution.is_empty() {
-                all_solved = false;
+                solved_rows += 1;
             }
 
             let previous_point_y = self.point.y;
@@ -70,7 +69,7 @@ impl Builder {
             self.point.x += 2;
         }
 
-        all_solved
+        solved_rows
     }
     /// Clears the top clues, only graphically.
     fn clear_top_clues(&mut self, terminal: &mut Terminal) {
@@ -90,12 +89,12 @@ impl Builder {
         }
     }
 
-    /// Draws the left clues while also returning whether all of them were solved ones.
-    fn draw_left_clues(&mut self, terminal: &mut Terminal) -> bool {
+    /// Draws the left clues while also returning the amount of solved clue rows.
+    fn draw_left_clues(&mut self, terminal: &mut Terminal) -> usize {
         self.point.x -= 2;
         terminal.set_cursor(self.point);
         let mut highlighted = true;
-        let mut all_solved = true;
+        let mut solved_rows = 0;
         for (y, horizontal_clues_solution) in
             self.grid.horizontal_clues_solutions.iter().enumerate()
         {
@@ -107,8 +106,7 @@ impl Builder {
             }
             if solved {
                 terminal.set_foreground_color(Color::DarkGray);
-            } else if !horizontal_clues_solution.is_empty() {
-                all_solved = false;
+                solved_rows += 1;
             }
 
             let previous_point_x = self.point.x;
@@ -125,7 +123,7 @@ impl Builder {
             terminal.set_cursor(self.point);
         }
 
-        all_solved
+        solved_rows
     }
     /// Clears the left clues, only graphically.
     fn clear_left_clues(&mut self, terminal: &mut Terminal) {
@@ -147,17 +145,17 @@ impl Builder {
         }
     }
 
-    /// Draws the top clues and the left clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
-    fn draw_clues(&mut self, terminal: &mut Terminal) -> bool {
+    /// Draws the top clues and the left clues while also returning the amount of solved clue rows.
+    fn draw_clues(&mut self, terminal: &mut Terminal) -> usize {
         let previous_point = self.point;
-        let all_top_clues_solved = self.draw_top_clues(terminal);
+        let solved_top_rows = self.draw_top_clues(terminal);
         self.point = previous_point;
 
         let previous_point = self.point;
-        let all_left_clues_solved = self.draw_left_clues(terminal);
+        let solved_left_rows = self.draw_left_clues(terminal);
         self.point = previous_point;
 
-        all_top_clues_solved && all_left_clues_solved
+        solved_top_rows + solved_left_rows
     }
     /// Clears all clues, only graphically.
     pub fn clear_clues(&mut self, terminal: &mut Terminal) {
@@ -210,7 +208,8 @@ impl Builder {
         let previous_point = self.point;
 
         self.point.x -= self.grid.size.width;
-        self.point.y -= (self.grid.size.height / 2) + 1;
+        self.point.y -= self.grid.size.height / 2;
+        self.point.y -= 1;
 
         let mut chunks = self.grid.cells.chunks(self.grid.size.width as usize);
 
@@ -237,6 +236,25 @@ impl Builder {
         self.point = previous_point;
     }
 
+    /// Draws the progress of solved clue rows as a percentage centered on the right.
+    fn draw_percentage(&mut self, terminal: &mut Terminal, solved_rows: usize) {
+        let previous_point = self.point;
+
+        self.point.x += self.grid.size.width * 2;
+        self.point.x += 2;
+
+        self.point.y += self.grid.size.height / 2;
+
+        terminal.set_cursor(self.point);
+        terminal.write(&format!(
+            "{}%  ",
+            (solved_rows as f64 / (self.grid.size.width + self.grid.size.height) as f64) as usize
+                * 100
+        ));
+
+        self.point = previous_point;
+    }
+
     /// Draws the grid, the picture and the clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
     #[must_use]
     pub fn draw_all(&mut self, terminal: &mut Terminal) -> bool {
@@ -244,7 +262,11 @@ impl Builder {
 
         self.draw_grid(terminal);
 
-        self.draw_clues(terminal)
+        let solved_rows = self.draw_clues(terminal);
+
+        self.draw_percentage(terminal, solved_rows);
+
+        solved_rows == (self.grid.size.width + self.grid.size.height) as usize
     }
 }
 
