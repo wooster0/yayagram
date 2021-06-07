@@ -7,7 +7,7 @@ mod util;
 
 use event::State;
 use grid::{builder::Builder, Grid};
-use std::{borrow::Cow, process, time::Duration};
+use std::{borrow::Cow, io, process, time::Duration};
 use terminal::{
     util::{Color, Point, Size},
     Terminal,
@@ -65,7 +65,8 @@ fn run() -> Result<(), Cow<'static, str>> {
         },
     };
 
-    match get_terminal() {
+    let stdout = io::stdout();
+    match get_terminal(stdout.lock()) {
         Ok(mut terminal) => {
             if let State::Continue = event::input::await_fitting_window_size(&mut terminal, &grid) {
                 let mut builder = Builder::new(&terminal, grid);
@@ -145,8 +146,8 @@ fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, C
 /// Creates a new `Terminal` instance if possible and sets the window title.
 ///
 /// This `Terminal` allows us to manipulate the terminal in all kinds of ways like setting colors or moving the cursor.
-fn get_terminal() -> Result<Terminal, &'static str> {
-    if let Ok(mut terminal) = Terminal::new() {
+fn get_terminal(stdout: io::StdoutLock) -> Result<Terminal, &'static str> {
+    if let Ok(mut terminal) = Terminal::new(stdout) {
         terminal.initialize();
         terminal.set_title("yayagram");
         Ok(terminal)

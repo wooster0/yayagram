@@ -13,10 +13,10 @@ categories = ["command-line-utilities", "games"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-terminal = { package = "tanmatsu", version = "0.3.0" }
+terminal = { package = "tanmatsu", version = "0.4.0" }
 rand = { version = "0.8.3", features = ["small_rng"] }
 itertools = "0.10.0"
-line_drawing = "0.8.0"
+line_drawing = "0.8.1"
 
 # Compact build mode:
 #
@@ -26,6 +26,8 @@ line_drawing = "0.8.0"
 # codegen-units = 1
 
 # Very Fast build mode:
+#
+# export RUSTFLAGS="-C target-cpu=native"
 #
 # [profile.release]
 # opt-level = 3

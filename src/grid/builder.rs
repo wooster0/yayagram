@@ -274,19 +274,21 @@ impl Builder {
 mod tests {
     use super::*;
     use crate::grid::Cell;
+    use std::io;
     use terminal::util::Size;
 
-    fn get_terminal_and_builder() -> (Terminal, Builder) {
+    fn get_terminal_and_builder(stdout: io::StdoutLock) -> (Terminal, Builder) {
         let size = Size::new(10, 5);
         let grid = Grid::new(size.clone(), vec![Cell::Empty; size.product() as usize]);
-        let terminal = Terminal::new().unwrap();
+        let terminal = Terminal::new(stdout).unwrap();
         let builder = Builder::new(&terminal, grid);
         (terminal, builder)
     }
 
     #[test]
     fn test_contains() {
-        let (_, builder) = get_terminal_and_builder();
+        let stdout = io::stdout();
+        let (_, builder) = get_terminal_and_builder(stdout.lock());
 
         assert!(!builder.contains(Point {
             x: builder.point.x - 1,
@@ -301,7 +303,8 @@ mod tests {
 
     #[test]
     fn test_clear_clues() {
-        let (mut terminal, mut builder) = get_terminal_and_builder();
+        let stdout = io::stdout();
+        let (mut terminal, mut builder) = get_terminal_and_builder(stdout.lock());
 
         let previous_point = builder.point;
         builder.clear_clues(&mut terminal);
@@ -310,7 +313,8 @@ mod tests {
 
     #[test]
     fn test_draw_grid() {
-        let (mut terminal, mut builder) = get_terminal_and_builder();
+        let stdout = io::stdout();
+        let (mut terminal, mut builder) = get_terminal_and_builder(stdout.lock());
 
         let previous_point = builder.point;
         builder.draw_grid(&mut terminal);
@@ -319,7 +323,8 @@ mod tests {
 
     #[test]
     fn test_draw_picture() {
-        let (mut terminal, mut builder) = get_terminal_and_builder();
+        let stdout = io::stdout();
+        let (mut terminal, mut builder) = get_terminal_and_builder(stdout.lock());
 
         let previous_point = builder.point;
         builder.draw_picture(&mut terminal);
@@ -328,7 +333,8 @@ mod tests {
 
     #[test]
     fn test_draw_all() {
-        let (mut terminal, mut builder) = get_terminal_and_builder();
+        let stdout = io::stdout();
+        let (mut terminal, mut builder) = get_terminal_and_builder(stdout.lock());
 
         let previous_point = builder.point;
         #[allow(unused_must_use)]
