@@ -6,7 +6,7 @@ use crate::{
     grid::{builder::Builder, Cell, Grid},
 };
 use std::{
-    thread,
+    borrow::Cow,
     time::{Duration, Instant},
 };
 use terminal::{util::Point, Terminal};
@@ -88,20 +88,6 @@ pub fn set_measured_cells(grid: &mut Grid, line_points: &[Point]) {
     }
 }
 
-fn set_title(terminal: &mut Terminal, title: &str) {
-    fn reset_title() {
-        thread::spawn(|| {
-            // NOTE: to be able to reuse the current `terminal`, it'd probably have to be in `RwLock` or `Mutex`?
-            thread::sleep(Duration::from_secs(3));
-            let mut terminal = Terminal::new().unwrap();
-            terminal.set_title("yayagram");
-        });
-    }
-
-    terminal.set_title(title);
-    reset_title();
-}
-
 #[must_use]
 pub enum State {
     /// Execution is to be continued normally.
@@ -109,7 +95,7 @@ pub enum State {
     /// The grid has been solved.
     Solved(Duration),
     /// Display an alert.
-    Alert(&'static str),
+    Alert(Cow<'static, str>),
     /// Clear the alert if present.
     ClearAlert,
     /// The next cell placement will flood-fill.
@@ -122,7 +108,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
     let mut plot_mode = None;
     let mut editor = Editor::default();
 
-    let mut alert: Option<&'static str> = None;
+    let mut alert: Option<Cow<'static, str>> = None;
     let mut alert_clear_delay = 0_usize;
 
     let mut starting_time: Option<Instant> = None;
@@ -154,7 +140,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 builder,
                 &mut plot_mode,
                 &mut editor,
-                alert,
+                alert.as_ref(),
                 &mut starting_time,
                 &mut hovered_cell_point,
                 &mut measurement_point,
@@ -176,7 +162,8 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                     if let Some(previous_alert) = alert {
                         alert::clear(terminal, builder, previous_alert.len());
                     }
-                    alert::draw(terminal, builder, new_alert);
+                    terminal.reset_colors();
+                    alert::draw(terminal, builder, &new_alert);
                     alert = Some(new_alert);
                     alert_clear_delay = 75;
                     terminal.flush();
@@ -190,7 +177,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 State::Fill => {
                     let new_alert = "Set place to fill";
                     alert::draw(terminal, builder, new_alert);
-                    alert = Some(new_alert);
+                    alert = Some(new_alert.into());
                     alert_clear_delay = 0;
                     fill = true;
                 }

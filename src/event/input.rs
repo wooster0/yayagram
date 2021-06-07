@@ -4,7 +4,7 @@ use crate::{
     grid::{builder::Builder, Cell, Grid},
     undo_redo_buffer, util, TEXT_LINE_COUNT,
 };
-use std::time::Instant;
+use std::{borrow::Cow, time::Instant};
 use terminal::{
     event::{Event, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     util::Point,
@@ -155,7 +155,7 @@ pub fn handle(
     builder: &mut Builder,
     plot_mode: &mut Option<Cell>,
     editor: &mut Editor,
-    last_alert: Option<&'static str>,
+    last_alert: Option<&Cow<'static, str>>,
     starting_time: &mut Option<Instant>,
     hovered_cell_point: &mut Option<Point>,
     measurement_point: &mut Option<Point>,
@@ -187,7 +187,7 @@ pub fn handle(
 fn handle_window_resize(
     terminal: &mut Terminal,
     builder: &mut Builder,
-    last_alert: Option<&'static str>,
+    last_alert: Option<&Cow<'static, str>>,
 ) -> State {
     let state = await_fitting_window_size(terminal, &builder.grid);
 
@@ -289,7 +289,7 @@ fn handle_key(
                 } else {
                     *measurement_point = Some(hovered_cell_point);
 
-                    State::Alert("Set second measurement point")
+                    State::Alert("Set second measurement point".into())
                 }
             } else {
                 State::Continue
@@ -299,21 +299,18 @@ fn handle_key(
             editor.toggle();
 
             if editor.toggled {
-                // TODO: maybe this info should be shown all the time (make it part of window title?)
-                State::Alert("Editor enabled")
+                terminal.set_title("yayagram Editor");
+                State::Alert("Editor enabled".into())
             } else {
-                State::Alert("Editor disabled")
+                terminal.set_title("yayagram");
+                State::Alert("Editor disabled".into())
             }
         }
         KeyEvent::Char('s', None) | KeyEvent::Char('S', None) if editor.toggled => {
             if let Err(err) = editor.save_grid(&builder) {
-                State::Alert(err)
+                State::Alert(err.into())
             } else {
-                super::set_title(
-                    terminal,
-                    &format!("yayagram - Grid saved as {}", editor.filename),
-                );
-                State::Continue
+                State::Alert(format!("Grid saved as {}", editor.filename).into())
             }
         }
         KeyEvent::Esc => State::Exit,

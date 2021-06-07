@@ -15,6 +15,6 @@ pub fn clear(terminal: &mut Terminal, builder: &mut Builder, alert_len: usize) {
 }
 
 /// Draws a alert above the grid.
-pub fn draw(terminal: &mut Terminal, builder: &Builder, alert: &'static str) {
+pub fn draw(terminal: &mut Terminal, builder: &Builder, alert: &str) {
     crate::draw_text(terminal, &builder, alert, get_y(&builder));
 }
