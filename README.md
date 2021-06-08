@@ -21,10 +21,10 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 
 * Runs in the terminal!
 * Cross-platform: runs on Linux, Windows and macOS.
-* Helpful features like undo, redo and clear that are just a button press away.
+* Helpful features and tools like undo, redo and clear.
 * [Create your own grids](#Editor) for others to play.
 * A new kind of cell: [maybed](#Maybed).
-* A [measurement tool](#Measurement-tool) to let you enjoy even the biggest of grids.
+* Very well suited for [big grids](#Big-grids).
 * Intuitive to play.
 
 ## Controls
@@ -36,6 +36,7 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 - `C`: clear the grid.
 - `A`: undo cell placements or a grid clear.
 - `D`: redo cell placements or a grid clear.
+- `F`: flood-fill multiple cells.
 - `X`: set [measurement point](#Measurement-tool).
 - `Tab`: toggle the [editor](#Editor).
 - `S`: save the [edited](#Editor) grid as a file locally.
@@ -53,7 +54,7 @@ On Linux and macOS the `.yaya` file is passed via the command line.
 
 ## img2yaya
 
-As an alternative to the editor you can generate `.yaya` grids using [**@AaronErhardt**](https://github.com/AaronErhardt)'s amazing [**img2yaya**](https://github.com/AaronErhardt/img2yaya) to convert images to playable `.yaya` files!
+As an alternative to the editor you can generate `.yaya` grids using [@AaronErhardt](https://github.com/AaronErhardt)'s amazing [**img2yaya**](https://github.com/AaronErhardt/img2yaya) to convert images to playable `.yaya` files!
 
 ## Command line arguments
 
@@ -83,6 +84,15 @@ and the measured cells will only appear as green when that grid is loaded.
 The blue "maybed" cell kind can be placed on the grid with middle-click and is supposed to make "what if?" reasoning and trying out things easier,
 as an alternative to using crossed out or filled cells which might be confusing.
 It can help you imagine theoretical situations better.
+
+## Big grids
+
+yayagram is very well suited for big grids, up to size 99x99. Here are the reasons:
+
+* The [measurement tool](#Measurement-tool) makes counting many cells far less error-prone and a lot easier.
+* There is a fill tool that easily lets you flood-fill multiple cells at once.
+* Cells surrounding the pointer are highlighted so that you don't lose track of the cell row you are focusing on.
+* The grid is shown in smaller form on the top left, making it easier to see the whole picture.
 
 ## Other Tips
 
