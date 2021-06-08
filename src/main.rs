@@ -103,11 +103,8 @@ fn run() -> Result<(), Cow<'static, str>> {
 
 fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
-    let mut y = builder.point.y + builder.grid.size.height;
-    y += 1; // Make way for the progress bar
-    draw_text(terminal, &builder, "A: Undo, D: Redo, C: Clear", y);
-    y += 1;
-    draw_text(terminal, &builder, "X: Measure, F: Fill", y);
+    draw_bottom_text(terminal, &builder, "A: Undo, D: Redo, C: Clear", 0);
+    draw_bottom_text(terminal, &builder, "X: Measure, F: Fill", 1);
     terminal.reset_colors();
 }
 
@@ -160,11 +157,30 @@ fn get_terminal(stdout: io::StdoutLock) -> Result<Terminal, &'static str> {
 /// The amount of text lines drawn above the grid.
 const TEXT_LINE_COUNT: u16 = 2;
 
-/// Draws text on the screen where the x-coordinate is centered but y has to be given.
-pub fn draw_text(terminal: &mut Terminal, builder: &Builder, text: &str, y: u16) {
+/// Draws centered text on the top.
+pub fn draw_top_text(terminal: &mut Terminal, builder: &Builder, text: &str, y_alignment: u16) {
+    let mut picture_height = builder.grid.size.height / 2;
+    if builder.grid.size.height % 2 == 1 {
+        picture_height += 1;
+    }
+
+    let y = builder.point.y - picture_height - 1;
+
     terminal.set_cursor(Point {
         x: builder.point.x + builder.grid.size.width - text.len() as u16 / 2,
-        y,
+        y: y - y_alignment,
+    });
+    terminal.write(text);
+}
+
+/// Draws centered text on the bottom.
+pub fn draw_bottom_text(terminal: &mut Terminal, builder: &Builder, text: &str, y_alignment: u16) {
+    let mut y = builder.point.y + builder.grid.size.height;
+    y += 1; // Make way for the progress bar
+
+    terminal.set_cursor(Point {
+        x: builder.point.x + builder.grid.size.width - text.len() as u16 / 2,
+        y: y + y_alignment,
     });
     terminal.write(text);
 }
@@ -179,10 +195,8 @@ fn solved_screen(
     duration: Duration,
     did_nothing: bool,
 ) {
-    let y = builder.point.y - builder.grid.max_clues_size.height - 1;
-
     terminal.reset_colors();
-    draw_text(terminal, &builder, "Press any key to continue", y);
+    draw_top_text(terminal, &builder, "Press any key to continue", 0);
 
     let text: Cow<'static, str> = if did_nothing {
         "You won by doing nothing".into()
@@ -195,7 +209,7 @@ fn solved_screen(
         }
     };
     terminal.set_foreground_color(Color::White);
-    draw_text(terminal, &builder, &text, y - 1);
+    draw_top_text(terminal, &builder, &text, 1);
     terminal.reset_colors();
 
     terminal.flush();
