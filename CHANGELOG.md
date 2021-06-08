@@ -4,6 +4,23 @@ Only versions published to the [registry](https://crates.io/crates/yayagram/vers
 
 <!--Order: Added, Changed, Fixed, Removed-->
 
+## 0.7.0 (2021-06-08)
+
+### Added
+
+* Add fill tool usable with `F`.
+* Display index on measured cells when highlighted.
+* Add picture of the grid on the top left.
+* Add progress bar on the bottom indicating progress of solving the grid.
+
+### Changed
+
+* Various optimizations.
+* Adjust grid background colors.
+* "Grid saved as" message is now shown as an alert instead of in the window title.
+* Whether the editor is toggled or not is shown in the window title.
+* Adjust help text at the bottom.
+
 ## 0.6.0 (2021-06-03)
 
 ### Added

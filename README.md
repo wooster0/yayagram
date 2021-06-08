@@ -6,7 +6,7 @@ The game goes by many names: nonogram, picross, paint by numbers, griddlers, pic
 
 ![Showcase](showcase.png)
 
-*White signifies a filled cell, red signifies a crossed out cell.*
+*A randomized grid where white signifies a filled cell and red signifies a crossed out cell.*
 
 Playing it is as easy as:
 
