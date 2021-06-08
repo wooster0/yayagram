@@ -11,6 +11,17 @@ use std::{
 };
 use terminal::{util::Point, Terminal};
 
+/// Draws the coordinates of the currently hovered cell point centered on the right.
+fn _draw_coordinates(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
+    let mut point = builder.point;
+    point.x += builder.grid.size.width * 2 + 2;
+    point.y += builder.grid.size.height / 2;
+    point.y -= 1;
+    terminal.set_cursor(point);
+    let cell_point = get_cell_point_from_cursor_point(hovered_cell_point, builder);
+    terminal.write(&format!("{}, {}  ", cell_point.x + 1, cell_point.y + 1));
+}
+
 fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
     fn highlight_cell(terminal: &mut Terminal, mut cursor_point: Point, builder: &Builder) {
         if (cursor_point.x - builder.point.x) % 2 != 0 {
