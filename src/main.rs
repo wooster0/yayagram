@@ -104,6 +104,7 @@ fn run() -> Result<(), Cow<'static, str>> {
 fn draw_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
     let mut y = builder.point.y + builder.grid.size.height;
+    y += 1; // Make way for the progress bar
     draw_text(terminal, &builder, "A: Undo, D: Redo, C: Clear", y);
     y += 1;
     draw_text(terminal, &builder, "X: Measure, F: Fill", y);
@@ -180,6 +181,7 @@ fn solved_screen(
 ) {
     let y = builder.point.y - builder.grid.max_clues_size.height - 1;
 
+    terminal.reset_colors();
     draw_text(terminal, &builder, "Press any key to continue", y);
 
     let text: Cow<'static, str> = if did_nothing {

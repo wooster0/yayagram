@@ -194,6 +194,10 @@ impl Builder {
         self.point.y = previous_point_y;
     }
 
+    fn draw_half_block(terminal: &mut Terminal) {
+        terminal.write("▄");
+    }
+
     /// Draws the grid in smaller form on the top left, making it easier to see the whole picture.
     ///
     /// NOTE: Perhaps at some point in the future [sixel](https://en.wikipedia.org/wiki/Sixel) can be supported.
@@ -201,10 +205,6 @@ impl Builder {
     ///
     /// NOTE: Perhaps at some point, if stabilized, `array_chunks` can be used to implement this.
     pub fn draw_picture(&mut self, terminal: &mut Terminal) {
-        fn draw_half_block(terminal: &mut Terminal) {
-            terminal.write("▄");
-        }
-
         let previous_point = self.point;
 
         self.point.x -= self.grid.size.width;
@@ -219,7 +219,7 @@ impl Builder {
             terminal.set_cursor(self.point);
             for cell in uneven_chunk {
                 terminal.set_foreground_color(cell.get_color());
-                draw_half_block(terminal);
+                Self::draw_half_block(terminal);
             }
         }
 
@@ -229,30 +229,39 @@ impl Builder {
             for (first_cell, second_cell) in first_row.iter().zip(second_row) {
                 terminal.set_background_color(first_cell.get_color());
                 terminal.set_foreground_color(second_cell.get_color());
-                draw_half_block(terminal);
+                Self::draw_half_block(terminal);
             }
         }
 
         self.point = previous_point;
     }
 
-    /// Draws the progress of solved clue rows as a percentage centered on the right.
-    fn draw_percentage(&mut self, terminal: &mut Terminal, solved_rows: usize) {
-        let previous_point = self.point;
+    /// Draws the progress of solved clue rows as a bar at the bottom.
+    fn draw_progress_bar(&mut self, terminal: &mut Terminal, solved_rows: usize) {
+        let previous_point_y = self.point.y;
 
-        self.point.x += self.grid.size.width * 2;
-        self.point.x += 2;
-
-        self.point.y += self.grid.size.height / 2;
+        self.point.y += self.grid.size.height;
 
         terminal.set_cursor(self.point);
-        terminal.write(&format!(
-            "{}%  ",
-            (solved_rows as f64 / (self.grid.size.width + self.grid.size.height) as f64) as usize
-                * 100
-        ));
 
-        self.point = previous_point;
+        let grid_width = self.grid.size.width * 2;
+        let width = ((solved_rows as f64 / (self.grid.size.width + self.grid.size.height) as f64)
+            * grid_width as f64) as u16;
+
+        terminal.set_foreground_color(Color::Gray);
+        for _ in 0..width {
+            Self::draw_half_block(terminal);
+        }
+
+        let rest = grid_width - width;
+        if rest > 0 {
+            terminal.set_foreground_color(Color::DarkGray);
+            for _ in 0..rest {
+                Self::draw_half_block(terminal);
+            }
+        }
+
+        self.point.y = previous_point_y;
     }
 
     /// Draws the grid, the picture and the clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
@@ -264,7 +273,7 @@ impl Builder {
 
         let solved_rows = self.draw_clues(terminal);
 
-        self.draw_percentage(terminal, solved_rows);
+        self.draw_progress_bar(terminal, solved_rows);
 
         solved_rows == (self.grid.size.width + self.grid.size.height) as usize
     }
