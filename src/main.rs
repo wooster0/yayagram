@@ -72,7 +72,7 @@ fn run() -> Result<(), Cow<'static, str>> {
                 let mut builder = Builder::new(&terminal, grid);
 
                 let all_clues_solved = builder.draw_all(&mut terminal);
-                draw_help(&mut terminal, &builder);
+                draw_basic_controls_help(&mut terminal, &builder);
 
                 if all_clues_solved {
                     solved_screen(&mut terminal, &builder, Duration::from_nanos(0), true);
@@ -101,10 +101,13 @@ fn run() -> Result<(), Cow<'static, str>> {
     Ok(())
 }
 
-fn draw_help(terminal: &mut Terminal, builder: &Builder) {
+pub const BASIC_CONTROLS_HELP: &[&str] = &["A: Undo, D: Redo, C: Clear", "X: Measure, F: Fill"];
+
+fn draw_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
-    draw_bottom_text(terminal, &builder, "A: Undo, D: Redo, C: Clear", 0);
-    draw_bottom_text(terminal, &builder, "X: Measure, F: Fill", 1);
+    for (index, text) in BASIC_CONTROLS_HELP.iter().enumerate() {
+        draw_bottom_text(terminal, &builder, text, index as u16);
+    }
     terminal.reset_colors();
 }
 
@@ -154,16 +157,17 @@ fn get_terminal(stdout: io::StdoutLock) -> Result<Terminal, &'static str> {
     }
 }
 
-/// The amount of text lines drawn above the grid.
-const TEXT_LINE_COUNT: u16 = 2;
+pub const fn get_picture_height(grid: &Grid) -> u16 {
+    let mut picture_height = grid.size.height / 2;
+    if grid.size.height % 2 == 1 {
+        picture_height += 1;
+    }
+    picture_height
+}
 
 /// Draws centered text on the top.
 pub fn draw_top_text(terminal: &mut Terminal, builder: &Builder, text: &str, y_alignment: u16) {
-    let mut picture_height = builder.grid.size.height / 2;
-    if builder.grid.size.height % 2 == 1 {
-        picture_height += 1;
-    }
-
+    let picture_height = get_picture_height(&builder.grid);
     let y = builder.point.y - picture_height - 1;
 
     terminal.set_cursor(Point {

@@ -2,7 +2,7 @@ use super::State;
 use crate::{
     editor::Editor,
     grid::{builder::Builder, Cell, Grid},
-    undo_redo_buffer, util, TEXT_LINE_COUNT,
+    undo_redo_buffer, util,
 };
 use std::{borrow::Cow, time::Instant};
 use terminal::{
@@ -201,7 +201,7 @@ fn handle_window_resize(
         builder.draw_all(terminal);
     }
 
-    crate::draw_help(terminal, &builder);
+    crate::draw_basic_controls_help(terminal, &builder);
     if let Some(alert) = last_alert {
         super::alert::draw(terminal, builder, &alert);
     }
@@ -318,13 +318,22 @@ fn handle_key(
     }
 }
 
+const PROGRESS_BAR_HEIGHT: u16 = 1;
+const TOP_TEXT_HEIGHT: u16 = 2;
+const BOTTOM_TEXT_HEIGHT: u16 = 2;
+
 pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State {
-    fn terminal_height_is_within_grid_height(grid: &Grid, terminal: &Terminal) -> bool {
-        terminal.size.height >= grid.size.height + grid.max_clues_size.height + TEXT_LINE_COUNT * 2
+    const fn terminal_height_is_within_grid_height(grid: &Grid, terminal: &Terminal) -> bool {
+        terminal.size.height
+            >= grid.size.height
+                + crate::get_picture_height(grid)
+                + PROGRESS_BAR_HEIGHT
+                + TOP_TEXT_HEIGHT
+                + BOTTOM_TEXT_HEIGHT
     }
 
-    fn terminal_width_is_within_grid_width(grid: &Grid, terminal: &Terminal) -> bool {
-        terminal.size.width >= grid.size.width + grid.max_clues_size.width
+    const fn terminal_width_is_within_grid_width(grid: &Grid, terminal: &Terminal) -> bool {
+        terminal.size.width >= grid.size.width * 2 + grid.max_clues_size.width
     }
 
     let mut state = State::Continue;
