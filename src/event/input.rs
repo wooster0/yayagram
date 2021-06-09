@@ -41,7 +41,7 @@ fn handle_mouse(
 
                 let cell = builder.grid.get_mut_cell(cell_point);
 
-                if let Some(plot_mode) = *plot_mode {
+                *cell = if let Some(plot_mode) = *plot_mode {
                     if *cell == plot_mode {
                         builder.draw_grid(terminal);
 
@@ -50,7 +50,8 @@ fn handle_mouse(
 
                         return State::Continue;
                     }
-                    *cell = plot_mode;
+
+                    plot_mode
                 } else {
                     let mut new_plot_mode = match mouse_button {
                         MouseButton::Left => Cell::Filled,
@@ -91,8 +92,8 @@ fn handle_mouse(
                         }
                     }
 
-                    *cell = new_plot_mode;
-                }
+                    new_plot_mode
+                };
                 let cell = *cell;
 
                 builder

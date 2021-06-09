@@ -42,6 +42,8 @@ impl Builder {
 
     /// Draws the top clues while also returning the amount of solved clue rows.
     fn draw_top_clues(&mut self, terminal: &mut Terminal) -> usize {
+        let previous_point = self.point;
+
         let mut highlighted = true;
         let mut solved_rows = 0;
         for (x, vertical_clues_solution) in self.grid.vertical_clues_solutions.iter().enumerate() {
@@ -69,10 +71,14 @@ impl Builder {
             self.point.x += 2;
         }
 
+        self.point = previous_point;
+
         solved_rows
     }
     /// Clears the top clues, only graphically.
     fn clear_top_clues(&mut self, terminal: &mut Terminal) {
+        let previous_point = self.point;
+
         let mut highlighted = true;
         for vertical_clues_solution in self.grid.vertical_clues_solutions.iter() {
             let previous_point_y = self.point.y;
@@ -87,17 +93,21 @@ impl Builder {
             self.point.y = previous_point_y;
             self.point.x += 2;
         }
+
+        self.point = previous_point;
     }
 
     /// Draws the left clues while also returning the amount of solved clue rows.
     fn draw_left_clues(&mut self, terminal: &mut Terminal) -> usize {
+        let previous_point = self.point;
+
         self.point.x -= 2;
-        terminal.set_cursor(self.point);
         let mut highlighted = true;
         let mut solved_rows = 0;
         for (y, horizontal_clues_solution) in
             self.grid.horizontal_clues_solutions.iter().enumerate()
         {
+            terminal.set_cursor(self.point);
             let horizontal_clues = self.grid.get_horizontal_clues(y as u16);
             let solved = horizontal_clues.eq(horizontal_clues_solution.iter().copied());
 
@@ -109,63 +119,53 @@ impl Builder {
                 solved_rows += 1;
             }
 
-            let previous_point_x = self.point.x;
             for clue in horizontal_clues_solution.iter().rev() {
                 terminal.write(&format!("{:>2}", clue));
                 terminal.move_cursor_left(4);
-                self.point.x -= 4;
             }
             // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.point.x = previous_point_x;
             self.point.y += 1;
-            terminal.set_cursor(self.point);
         }
+
+        self.point = previous_point;
 
         solved_rows
     }
     /// Clears the left clues, only graphically.
     fn clear_left_clues(&mut self, terminal: &mut Terminal) {
+        let previous_point = self.point;
+
         self.point.x -= 2;
-        terminal.set_cursor(self.point);
         let mut highlighted = true;
         for horizontal_clues_solution in self.grid.horizontal_clues_solutions.iter() {
-            let previous_point_x = self.point.x;
+            terminal.set_cursor(self.point);
             for _ in horizontal_clues_solution.iter().rev() {
                 terminal.write("  ");
                 terminal.move_cursor_left(4);
-                self.point.x -= 4;
             }
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.point.x = previous_point_x;
             self.point.y += 1;
-            terminal.set_cursor(self.point);
         }
+
+        self.point = previous_point;
     }
 
     /// Draws the top clues and the left clues while also returning the amount of solved clue rows.
     fn draw_clues(&mut self, terminal: &mut Terminal) -> usize {
-        let previous_point = self.point;
         let solved_top_rows = self.draw_top_clues(terminal);
-        self.point = previous_point;
 
-        let previous_point = self.point;
         let solved_left_rows = self.draw_left_clues(terminal);
-        self.point = previous_point;
 
         solved_top_rows + solved_left_rows
     }
     /// Clears all clues, only graphically.
     pub fn clear_clues(&mut self, terminal: &mut Terminal) {
-        let previous_point = self.point;
         self.clear_top_clues(terminal);
-        self.point = previous_point;
 
-        let previous_point = self.point;
         self.clear_left_clues(terminal);
-        self.point = previous_point;
     }
 
     /// Draws the grid.
@@ -238,11 +238,10 @@ impl Builder {
 
     /// Draws the progress of solved clue rows as a bar at the bottom.
     fn draw_progress_bar(&mut self, terminal: &mut Terminal, solved_rows: usize) {
-        let previous_point_y = self.point.y;
-
-        self.point.y += self.grid.size.height;
-
-        terminal.set_cursor(self.point);
+        terminal.set_cursor(Point {
+            y: self.point.y + self.grid.size.height,
+            ..self.point
+        });
 
         let grid_width = self.grid.size.width * 2;
         let width = ((solved_rows as f64 / (self.grid.size.width + self.grid.size.height) as f64)
@@ -260,8 +259,6 @@ impl Builder {
                 Self::draw_half_block(terminal);
             }
         }
-
-        self.point.y = previous_point_y;
     }
 
     /// Draws the grid, the picture and the clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
