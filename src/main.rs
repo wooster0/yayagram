@@ -144,9 +144,9 @@ fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, C
     }
 }
 
-/// Creates a new `Terminal` instance if possible and sets the window title.
+/// Creates a new initialized `Terminal` instance if possible and sets the window title.
 ///
-/// This `Terminal` allows us to manipulate the terminal in all kinds of ways like setting colors or moving the cursor.
+/// This `Terminal` is what allows manipulating the terminal in all kinds of ways such as setting colors, writing data, moving the cursor etc.
 fn get_terminal(stdout: io::StdoutLock) -> Result<Terminal, &'static str> {
     if let Ok(mut terminal) = Terminal::new(stdout) {
         terminal.initialize();
