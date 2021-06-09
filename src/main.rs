@@ -153,7 +153,7 @@ fn get_terminal(stdout: io::StdoutLock) -> Result<Terminal, &'static str> {
         terminal.set_title("yayagram");
         Ok(terminal)
     } else {
-        Err("this is not a terminal")
+        Err("This is not a terminal")
     }
 }
 

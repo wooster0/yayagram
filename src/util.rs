@@ -70,6 +70,6 @@ pub fn clear_file(writer: &mut io::BufWriter<fs::File>) -> Result<(), &'static s
 
     match inner(writer) {
         Ok(()) => Ok(()),
-        Err(_) => Err("file clear failed"),
+        Err(_) => Err("File clear failed"),
     }
 }

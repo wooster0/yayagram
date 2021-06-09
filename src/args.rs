@@ -21,7 +21,7 @@ pub enum Arg {
 #[derive(Debug)]
 enum SizeError {
     OutOfRange(&'static str),
-    Other(&'static str),
+    FileNotFound,
 }
 
 fn parse_squared_size(size_str: &str) -> Result<Option<Arg>, SizeError> {
@@ -37,7 +37,7 @@ fn parse_squared_size(size_str: &str) -> Result<Option<Arg>, SizeError> {
         // A value >u16::MAX will not parse but might still be a number
         Err(SizeError::OutOfRange("size"))
     } else {
-        Err(SizeError::Other("file not found"))
+        Err(SizeError::FileNotFound)
     }
 }
 
@@ -63,7 +63,7 @@ fn parse_size(width_str: &str, height_str: &str) -> Result<Option<Arg>, SizeErro
         return Err(SizeError::OutOfRange("width"));
     }
 
-    Err(SizeError::Other("file not found"))
+    Err(SizeError::FileNotFound)
 }
 
 fn parse_strings(
@@ -86,10 +86,10 @@ fn parse_strings(
             }
 
             if !valid_extension(&first_string) {
-                return Err("filename extension must be \"yaya\"".into());
+                return Err("Filename extension must be \"yaya\"".into());
             }
 
-            let content = util::read_file_content(&mut file).map_err(|_| "file reading error")?;
+            let content = util::read_file_content(&mut file).map_err(|_| "File reading error")?;
 
             Ok(Some(Arg::File {
                 name: first_string,
@@ -112,15 +112,15 @@ fn parse_strings(
                     match result {
                         Ok(size) => Ok(size),
                         Err(SizeError::OutOfRange(thing)) => Err(format!(
-                            "grid {} must be in range 1 to {}",
+                            "Grid {} must be in range 1 to {}",
                             thing, MAX_GRID_SIZE
                         )
                         .into()),
-                        Err(SizeError::Other(message)) => Err(message.into()),
+                        Err(SizeError::FileNotFound) => Err("File not found".into()),
                     }
                 }
             }
-            _ => Err("file opening error".into()),
+            _ => Err("File opening error".into()),
         },
     }
 }
@@ -138,13 +138,13 @@ pub fn parse() -> Result<Option<Arg>, Cow<'static, str>> {
                 if let Ok(second_string) = arg.into_string() {
                     parse_strings(first_string, Some(second_string))
                 } else {
-                    Err("second argument is not valid UTF-8".into())
+                    Err("Second argument is not valid UTF-8".into())
                 }
             } else {
                 parse_strings(first_string, None)
             }
         } else {
-            Err("first argument is not valid UTF-8".into())
+            Err("First argument is not valid UTF-8".into())
         }
     } else {
         Ok(None)
