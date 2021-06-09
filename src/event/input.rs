@@ -190,11 +190,11 @@ fn handle_window_resize(
     builder: &mut Builder,
     last_alert: Option<&Cow<'static, str>>,
 ) -> State {
+    terminal.clear();
+
     let state = await_fitting_window_size(terminal, &builder.grid);
 
     builder.point = crate::grid::builder::centered_point(terminal, &builder.grid);
-
-    terminal.clear();
 
     // No grid mutation happened
     #[allow(unused_must_use)]
@@ -346,13 +346,17 @@ pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State 
         (true, true) => state,
         (within_width, within_height) => {
             terminal.set_cursor(Point::default());
-            if !within_width {
-                terminal.write("Please increase window width or decrease text size (Ctrl and -)");
+            let length = if !within_width {
+                "width"
             } else if !within_height {
-                terminal.write("Please increase window height or decrease text size (Ctrl and -)");
+                "height"
             } else {
-                unreachable!();
-            }
+                unreachable!()
+            };
+            terminal.write(&format!(
+                "Please increase window {} or decrease text size (Ctrl and -)",
+                length
+            ));
             terminal.flush();
             loop {
                 match (
@@ -372,15 +376,6 @@ pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State 
     }
 }
 
-pub fn await_key(terminal: &mut Terminal) {
-    loop {
-        let event = terminal.read_event();
-        if let Some(Event::Key(_)) = event {
-            break;
-        }
-    }
-}
-
 fn await_window_resize(terminal: &mut Terminal) -> State {
     loop {
         let event = terminal.read_event();
@@ -389,6 +384,15 @@ fn await_window_resize(terminal: &mut Terminal) -> State {
             Some(Event::Key(_)) => break State::Continue,
             Some(Event::Resize) => break State::Continue,
             _ => {}
+        }
+    }
+}
+
+pub fn await_key(terminal: &mut Terminal) {
+    loop {
+        let event = terminal.read_event();
+        if let Some(Event::Key(_)) = event {
+            break;
         }
     }
 }
