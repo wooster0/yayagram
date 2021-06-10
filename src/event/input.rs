@@ -353,12 +353,14 @@ pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State 
             } else {
                 unreachable!()
             };
-            terminal.write(&format!(
+            let message = format!(
                 "Please increase window {} or decrease text size (Ctrl and -)",
                 length
-            ));
+            );
+            terminal.write(&message);
             terminal.flush();
-            loop {
+
+            let state = loop {
                 match (
                     terminal_width_is_within_grid_width(&grid, terminal),
                     terminal_height_is_within_grid_height(&grid, terminal),
@@ -367,11 +369,18 @@ pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State 
                     _ => {
                         state = await_window_resize(terminal);
                         if let State::Exit = state {
-                            return state;
+                            break state;
                         }
                     }
                 }
+            };
+
+            terminal.set_cursor(Point::default());
+            for _ in 0..message.len() {
+                terminal.write(" ");
             }
+
+            state
         }
     }
 }
