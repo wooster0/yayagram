@@ -4,6 +4,18 @@ Only versions published to the [registry](https://crates.io/crates/yayagram/vers
 
 <!--Order: Added, Changed, Fixed, Removed-->
 
+## 0.7.1 (2021-06-11)
+
+### Changed
+
+* Capitalize all errors.
+
+### Fixed
+
+* Fix clearing window size message.
+* Fix fill alert being colored.
+* Fix position of top text.
+
 ## 0.7.0 (2021-06-08)
 
 ### Added
