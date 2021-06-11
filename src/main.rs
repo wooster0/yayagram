@@ -157,8 +157,20 @@ fn get_terminal(stdout: io::StdoutLock) -> Result<Terminal, &'static str> {
     }
 }
 
+const PROGRESS_BAR_HEIGHT: u16 = 1;
+const TOP_TEXT_HEIGHT: u16 = 2;
+const BOTTOM_TEXT_HEIGHT: u16 = 2;
+
+pub fn total_height(grid: &Grid) -> u16 {
+    TOP_TEXT_HEIGHT
+        + std::cmp::max(crate::get_picture_height(grid), grid.max_clues_size.height)
+        + grid.size.height
+        + PROGRESS_BAR_HEIGHT
+        + BOTTOM_TEXT_HEIGHT
+}
+
 pub const fn get_picture_height(grid: &Grid) -> u16 {
-    let mut picture_height = grid.size.height / 2;
+    let mut picture_height = grid.size.height / 2; // Divide by 2 because the picture is made of half blocks
     if grid.size.height % 2 == 1 {
         picture_height += 1;
     }

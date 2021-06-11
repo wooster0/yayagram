@@ -64,10 +64,11 @@ impl Builder {
                 terminal.set_cursor(self.point);
                 terminal.write(&format!("{:<2}", clue));
             }
+            self.point.y = previous_point_y;
+
             // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
             highlighted = !highlighted;
-            self.point.y = previous_point_y;
             self.point.x += 2;
         }
 
@@ -82,15 +83,14 @@ impl Builder {
         let mut highlighted = true;
         for vertical_clues_solution in self.grid.vertical_clues_solutions.iter() {
             let previous_point_y = self.point.y;
-
             for _ in vertical_clues_solution.iter().rev() {
                 self.point.y -= 1;
                 terminal.set_cursor(self.point);
                 terminal.write("  ");
             }
-            highlighted = !highlighted;
-
             self.point.y = previous_point_y;
+
+            highlighted = !highlighted;
             self.point.x += 2;
         }
 
@@ -121,7 +121,7 @@ impl Builder {
 
             for clue in horizontal_clues_solution.iter().rev() {
                 terminal.write(&format!("{:>2}", clue));
-                terminal.move_cursor_left(4);
+                terminal.move_cursor_left_by(4);
             }
             // We need to reset the colors because we don't always set both the background and foreground color
             terminal.reset_colors();
@@ -143,7 +143,7 @@ impl Builder {
             terminal.set_cursor(self.point);
             for _ in horizontal_clues_solution.iter().rev() {
                 terminal.write("  ");
-                terminal.move_cursor_left(4);
+                terminal.move_cursor_left_by(4);
             }
             terminal.reset_colors();
             highlighted = !highlighted;

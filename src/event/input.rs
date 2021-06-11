@@ -319,22 +319,13 @@ fn handle_key(
     }
 }
 
-const PROGRESS_BAR_HEIGHT: u16 = 1;
-const TOP_TEXT_HEIGHT: u16 = 2;
-const BOTTOM_TEXT_HEIGHT: u16 = 2;
-
 pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State {
-    const fn terminal_height_is_within_grid_height(grid: &Grid, terminal: &Terminal) -> bool {
-        terminal.size.height
-            >= grid.size.height
-                + crate::get_picture_height(grid)
-                + PROGRESS_BAR_HEIGHT
-                + TOP_TEXT_HEIGHT
-                + BOTTOM_TEXT_HEIGHT
-    }
-
     const fn terminal_width_is_within_grid_width(grid: &Grid, terminal: &Terminal) -> bool {
         terminal.size.width >= grid.size.width * 2 + grid.max_clues_size.width
+    }
+
+    fn terminal_height_is_within_grid_height(grid: &Grid, terminal: &Terminal) -> bool {
+        terminal.size.height > crate::total_height(grid)
     }
 
     let mut state = State::Continue;
