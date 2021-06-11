@@ -187,6 +187,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 }
                 State::Fill => {
                     let new_alert = "Set place to fill";
+                    terminal.reset_colors();
                     alert::draw(terminal, builder, new_alert);
                     alert = Some(new_alert.into());
                     alert_clear_delay = 0;
