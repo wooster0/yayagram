@@ -167,12 +167,19 @@ pub const fn get_picture_height(grid: &Grid) -> u16 {
 
 /// Draws centered text on the top.
 pub fn draw_top_text(terminal: &mut Terminal, builder: &Builder, text: &str, y_alignment: u16) {
+    let picture_width = builder.grid.size.width;
     let picture_height = get_picture_height(&builder.grid);
-    let y = builder.point.y - picture_height - 1;
 
+    let height = if text.len() as u16 <= builder.grid.size.width * 2 + picture_width {
+        // Above the clues
+        builder.grid.max_clues_size.height
+    } else {
+        // Above the picture
+        picture_height
+    };
     terminal.set_cursor(Point {
         x: builder.point.x + builder.grid.size.width - text.len() as u16 / 2,
-        y: y - y_alignment,
+        y: ((builder.point.y - height) - 1) - y_alignment,
     });
     terminal.write(text);
 }
