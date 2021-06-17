@@ -75,7 +75,7 @@ fn run() -> Result<(), Cow<'static, str>> {
                 draw_basic_controls_help(&mut terminal, &builder);
 
                 if all_clues_solved {
-                    solved_screen(&mut terminal, &builder, Duration::from_nanos(0), true);
+                    solved_screen(&mut terminal, &builder, Duration::ZERO, true);
                 } else {
                     terminal.flush();
 

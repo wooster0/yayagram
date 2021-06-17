@@ -24,11 +24,7 @@ fn handle_mouse(
 ) -> State {
     match event {
         MouseEvent {
-            kind: MouseEventKind::Drag(mouse_button),
-            point,
-        }
-        | MouseEvent {
-            kind: MouseEventKind::Press(mouse_button),
+            kind: MouseEventKind::Drag(mouse_button) | MouseEventKind::Press(mouse_button),
             point,
         } => {
             if builder.contains(point) {
@@ -220,7 +216,7 @@ fn handle_key(
     measurement_point: &mut Option<Point>,
 ) -> State {
     match key_event {
-        KeyEvent::Char('a', None) | KeyEvent::Char('A', None) => {
+        KeyEvent::Char('a' | 'A', None) => {
             if builder.grid.undo_last_cell() {
                 // An undo won't cause the grid to be solved at this point because otherwise it would've already been solved before when that operation was done.
                 #[allow(unused_must_use)]
@@ -231,7 +227,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('d', None) | KeyEvent::Char('D', None) => {
+        KeyEvent::Char('d' | 'D', None) => {
             if builder.grid.redo_last_cell() {
                 // A redo won't cause the grid to be solved at this point because otherwise it would've already been solved before when that operation was done.
                 #[allow(unused_must_use)]
@@ -242,7 +238,7 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('c', None) | KeyEvent::Char('C', None) => {
+        KeyEvent::Char('c' | 'C', None) => {
             builder.grid.clear();
             builder
                 .grid
@@ -257,8 +253,8 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('f', None) | KeyEvent::Char('F', None) => State::Fill,
-        KeyEvent::Char('x', None) | KeyEvent::Char('X', None) => {
+        KeyEvent::Char('f' | 'F', None) => State::Fill,
+        KeyEvent::Char('x' | 'X', None) => {
             if let Some(hovered_cell_point) = hovered_cell_point {
                 if let Some(some_measurement_point) = *measurement_point {
                     // The points we have are screen points so now we convert them to values that we can use
@@ -307,7 +303,7 @@ fn handle_key(
                 State::Alert("Editor disabled".into())
             }
         }
-        KeyEvent::Char('s', None) | KeyEvent::Char('S', None) if editor.toggled => {
+        KeyEvent::Char('s' | 'S', None) if editor.toggled => {
             if let Err(err) = editor.save_grid(&builder) {
                 State::Alert(err.into())
             } else {
