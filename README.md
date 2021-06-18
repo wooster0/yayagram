@@ -8,6 +8,8 @@ The game goes by many names: nonogram, picross, paint by numbers, griddlers, pic
 
 *A randomized grid where white signifies a filled cell and red signifies a crossed out cell.*
 
+See [this example](#Example) to find out how to play.
+
 Playing it is as easy as:
 
 ```console
@@ -112,8 +114,9 @@ Here's a simple example to help you grasp the game.
 | **3** |   |   |   |
 | **2** |   |   |   |
 
-First, let's look at the clues on the very top: the first one is **2**.
-It tells us that exactly 2 (2 cells in a row) of the 3 cells below it are filled.
+This is our grid where we need to fill out these 9 empty fields with the help of the 6 clue numbers on the top and on the left.
+First, let's take a look at the 3 clues on the very top: the first one is **2**.
+It tells us that exactly 2 cells in a row of the 3 cells below it are filled.
 Through logic we can determine that this means that at least the middle cell is definitely filled:
 
 |       | 2 | 3 | 2 |
@@ -132,7 +135,7 @@ Because we only have 3 cells here (because it's a 3x3 grid), we can simply fill 
 | **3** | ◯ | ◯ |   |
 | **2** |   | ◯ |   |
 
-Next clue on the top: **2**. Again through logic we can determine that at least the cell in the middle is definitely filled:
+Next clue on the top: **2**. Again, through logic we can determine that at least the cell in the middle is definitely filled:
 
 |       | 2 | 3 | 2 |
 |-------|---|---|---|
@@ -167,4 +170,4 @@ I hope this helped you grasp the game a little bit.
 Now you can try to apply some of what you learned on a small grid like 3x3 or 5x5 by simply passing the grid size as a command line argument to the program:
 `yayagram 3` or `yayagram 5` respectively.
 
-You can also load the above grid into the game by passing this file as a command line argument to the binary: [example.yaya](example.yaya).
+You can also load the above example grid into the game by passing this file as a command line argument to the binary: [example.yaya](example.yaya).
