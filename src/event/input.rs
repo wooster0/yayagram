@@ -9,7 +9,7 @@ use crate::{
 };
 use terminal::{event::Event, Terminal};
 
-/// Handles the event and returns a `State`.
+/// Handles all input.
 pub fn handle(
     terminal: &mut Terminal,
     event: Event,

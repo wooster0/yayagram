@@ -10,7 +10,7 @@ use terminal::{
     Terminal,
 };
 
-/// This handles all key input for actions like undo, redo, reset and so on.
+/// This handles all key input.
 pub fn handle_event(
     terminal: &mut Terminal,
     key_event: KeyEvent,

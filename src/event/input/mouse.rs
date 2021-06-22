@@ -5,7 +5,7 @@ use terminal::{
     Terminal,
 };
 
-/// Handles the event and returns a `bool` determing whether execution should be aborted.
+/// This handles all mouse input.
 pub fn handle_event(
     terminal: &mut Terminal,
     event: MouseEvent,
