@@ -1,10 +1,10 @@
 use super::State;
 use crate::{
     editor::Editor,
-    grid::{builder::Builder, Cell, Grid},
+    grid::{self, builder::Builder, Cell, CellPlacement, Grid},
     undo_redo_buffer, util,
 };
-use std::{borrow::Cow, time::Instant};
+use std::borrow::Cow;
 use terminal::{
     event::{Event, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     util::Point,
@@ -16,110 +16,32 @@ fn handle_mouse(
     terminal: &mut Terminal,
     event: MouseEvent,
     builder: &mut Builder,
-    plot_mode: &mut Option<Cell>,
     editor_toggled: bool,
-    starting_time: &mut Option<Instant>,
-    hovered_cell_point: &mut Option<Point>,
-    fill: &mut bool,
+    cell_placement: &mut CellPlacement,
 ) -> State {
     match event {
         MouseEvent {
             kind: MouseEventKind::Drag(mouse_button) | MouseEventKind::Press(mouse_button),
-            point,
+            point: selected_cell_point,
         } => {
-            if builder.contains(point) {
-                *hovered_cell_point = Some(point);
-                let some_hovered_cell_point = point;
-
-                let starting_time = starting_time.get_or_insert(Instant::now());
-
-                let cell_point = super::get_cell_point_from_cursor_point(point, builder);
-
-                let cell = builder.grid.get_mut_cell(cell_point);
-
-                *cell = if let Some(plot_mode) = *plot_mode {
-                    if *cell == plot_mode {
-                        builder.draw_grid(terminal);
-
-                        // We know that this point is hovered
-                        super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
-
-                        return State::Continue;
-                    }
-
-                    plot_mode
-                } else {
-                    let mut new_plot_mode = match mouse_button {
-                        MouseButton::Left => Cell::Filled,
-                        MouseButton::Middle => Cell::Maybed,
-                        MouseButton::Right => Cell::Crossed,
-                    };
-                    if *cell == new_plot_mode {
-                        new_plot_mode = Cell::default();
-                    }
-                    *plot_mode = Some(new_plot_mode);
-
-                    if *fill {
-                        let cell = *cell;
-                        crate::grid::tools::fill::fill(
-                            &mut builder.grid,
-                            cell_point,
-                            cell,
-                            new_plot_mode,
-                        );
-
-                        builder
-                            .grid
-                            .undo_redo_buffer
-                            .push(undo_redo_buffer::Operation::Fill {
-                                point: cell_point,
-                                first_cell: cell,
-                                fill_cell: new_plot_mode,
-                            });
-
-                        *fill = false;
-
-                        let all_clues_solved = builder.draw_all(terminal);
-
-                        if all_clues_solved {
-                            return State::Solved(starting_time.elapsed());
-                        } else {
-                            return State::ClearAlert;
-                        }
-                    }
-
-                    new_plot_mode
+            if builder.contains(selected_cell_point) {
+                let cell_to_place = match mouse_button {
+                    MouseButton::Left => Cell::Filled,
+                    MouseButton::Middle => Cell::Maybed,
+                    MouseButton::Right => Cell::Crossed,
                 };
-                let cell = *cell;
 
-                builder
-                    .grid
-                    .undo_redo_buffer
-                    .push(undo_redo_buffer::Operation::SetCell {
-                        point: cell_point,
-                        cell,
-                    });
+                cell_placement.selected_cell_point = Some(selected_cell_point);
 
-                if editor_toggled {
-                    super::rebuild_clues(terminal, builder, cell_point);
-
-                    // The grid shouldn't be solved while editing it
-                    #[allow(unused_must_use)]
-                    {
-                        builder.draw_all(terminal);
-                    }
-                } else {
-                    let all_clues_solved = builder.draw_all(terminal);
-
-                    if all_clues_solved {
-                        return State::Solved(starting_time.elapsed());
-                    }
-                }
-
-                // We know that this point is hovered
-                super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
+                cell_placement.place(
+                    terminal,
+                    builder,
+                    selected_cell_point,
+                    cell_to_place,
+                    editor_toggled,
+                )
             } else {
-                // `plot_mode` won't be reset
+                State::Continue
             }
         }
         MouseEvent {
@@ -129,54 +51,39 @@ fn handle_mouse(
             builder.draw_grid(terminal);
 
             if builder.contains(point) {
-                *hovered_cell_point = Some(point);
-                let some_hovered_cell_point = point;
+                cell_placement.selected_cell_point = Some(point);
+                let some_selected_cell_point = point;
 
                 // We know that this point is hovered
-                super::draw_highlighted_cells(terminal, &builder, some_hovered_cell_point);
+                grid::draw_highlighted_cells(terminal, &builder, some_selected_cell_point);
             }
+            State::Continue
         }
         _ => {
-            *plot_mode = None;
+            cell_placement.cell = None;
+            State::Continue
         }
     }
-
-    State::Continue
 }
 
 /// Handles the event and returns a `State`.
 pub fn handle(
-    // TODO: this function has too many arguments and should be refactored
     terminal: &mut Terminal,
     event: Event,
     builder: &mut Builder,
-    plot_mode: &mut Option<Cell>,
     editor: &mut Editor,
     last_alert: Option<&Cow<'static, str>>,
-    starting_time: &mut Option<Instant>,
-    hovered_cell_point: &mut Option<Point>,
-    measurement_point: &mut Option<Point>,
-    fill: &mut bool,
+    cell_placement: &mut CellPlacement,
 ) -> State {
     match event {
         Event::Mouse(mouse_event) => handle_mouse(
             terminal,
             mouse_event,
             builder,
-            plot_mode,
             editor.toggled,
-            starting_time,
-            hovered_cell_point,
-            fill,
+            cell_placement,
         ),
-        Event::Key(key_event) => handle_key(
-            terminal,
-            key_event,
-            builder,
-            editor,
-            *hovered_cell_point,
-            measurement_point,
-        ),
+        Event::Key(key_event) => handle_key(terminal, key_event, builder, editor, cell_placement),
         Event::Resize => handle_window_resize(terminal, builder, last_alert),
     }
 }
@@ -190,7 +97,7 @@ fn handle_window_resize(
 
     let state = await_fitting_window_size(terminal, &builder.grid);
 
-    builder.point = crate::grid::builder::centered_point(terminal, &builder.grid);
+    builder.point = grid::builder::centered_point(terminal, &builder.grid);
 
     // No grid mutation happened
     #[allow(unused_must_use)]
@@ -212,8 +119,7 @@ fn handle_key(
     key_event: KeyEvent,
     builder: &mut Builder,
     editor: &mut Editor,
-    hovered_cell_point: Option<Point>,
-    measurement_point: &mut Option<Point>,
+    cell_placement: &mut CellPlacement,
 ) -> State {
     match key_event {
         KeyEvent::Char('a' | 'A', None) => {
@@ -255,14 +161,15 @@ fn handle_key(
         }
         KeyEvent::Char('f' | 'F', None) => State::Fill,
         KeyEvent::Char('x' | 'X', None) => {
-            if let Some(hovered_cell_point) = hovered_cell_point {
-                if let Some(some_measurement_point) = *measurement_point {
+            // TODO: maybe move this and other stuff to cellplacement too
+            if let Some(selected_cell_point) = cell_placement.selected_cell_point {
+                if let Some(measurement_point) = cell_placement.measurement_point {
                     // The points we have are screen points so now we convert them to values that we can use
                     // to index the grid.
                     let start_point =
-                        super::get_cell_point_from_cursor_point(some_measurement_point, builder);
+                        grid::get_cell_point_from_cursor_point(measurement_point, builder);
                     let end_point =
-                        super::get_cell_point_from_cursor_point(hovered_cell_point, builder);
+                        grid::get_cell_point_from_cursor_point(selected_cell_point, builder);
 
                     let line_points: Vec<Point> =
                         util::get_line_points(start_point, end_point).collect();
@@ -278,13 +185,13 @@ fn handle_key(
                     builder.draw_grid(terminal);
 
                     // We know that this point is hovered
-                    super::draw_highlighted_cells(terminal, &builder, hovered_cell_point);
+                    grid::draw_highlighted_cells(terminal, &builder, selected_cell_point);
 
-                    *measurement_point = None;
+                    cell_placement.measurement_point = None;
 
                     State::ClearAlert
                 } else {
-                    *measurement_point = Some(hovered_cell_point);
+                    cell_placement.measurement_point = Some(selected_cell_point);
 
                     State::Alert("Set second measurement point".into())
                 }
@@ -310,11 +217,97 @@ fn handle_key(
                 State::Alert(format!("Grid saved as {}", editor.filename).into())
             }
         }
+        KeyEvent::Char(char, None) => {
+            if let Some(selected_cell_point) = cell_placement.selected_cell_point {
+                let cell_to_place = match char {
+                    'q' | 'Q' => Cell::Filled,
+                    'w' | 'W' => Cell::Maybed,
+                    'e' | 'E' => Cell::Crossed,
+                    _ => return State::Continue,
+                };
+
+                let state = cell_placement.place(
+                    terminal,
+                    builder,
+                    selected_cell_point,
+                    cell_to_place,
+                    editor.toggled,
+                );
+
+                cell_placement.cell = None;
+
+                state
+            } else {
+                State::Continue
+            }
+        }
         KeyEvent::Esc => State::Exit,
+        KeyEvent::Up | KeyEvent::Down | KeyEvent::Left | KeyEvent::Right => {
+            let selected_cell_point = if let Some(selected_cell_point) =
+                &mut cell_placement.selected_cell_point
+            {
+                match key_event {
+                    KeyEvent::Up => {
+                        selected_cell_point.y -= 1;
+
+                        if !(builder.point.y..builder.point.y + builder.grid.size.height)
+                            .contains(&selected_cell_point.y)
+                        {
+                            selected_cell_point.y = builder.point.y + builder.grid.size.height - 1;
+                        }
+                    }
+                    KeyEvent::Down => {
+                        selected_cell_point.y += 1;
+
+                        if !(builder.point.y..builder.point.y + builder.grid.size.height)
+                            .contains(&selected_cell_point.y)
+                        {
+                            selected_cell_point.y = builder.point.y;
+                        }
+                    }
+                    KeyEvent::Left => {
+                        selected_cell_point.x -= 2;
+
+                        if !(builder.point.x..builder.point.x + builder.grid.size.width * 2)
+                            .contains(&selected_cell_point.x)
+                        {
+                            selected_cell_point.x =
+                                builder.point.x + builder.grid.size.width * 2 - 2;
+                        }
+                    }
+                    KeyEvent::Right => {
+                        selected_cell_point.x += 2;
+
+                        if !(builder.point.x..builder.point.x + builder.grid.size.width * 2)
+                            .contains(&selected_cell_point.x)
+                        {
+                            selected_cell_point.x = builder.point.x
+                        }
+                    }
+                    _ => unreachable!(),
+                }
+
+                *selected_cell_point
+            } else {
+                let grid_center = builder.get_center();
+                cell_placement.selected_cell_point = Some(grid_center);
+
+                grid_center
+            };
+
+            builder.draw_grid(terminal);
+
+            // We know that this point is hovered
+            grid::draw_highlighted_cells(terminal, &builder, selected_cell_point);
+
+            State::Continue
+        }
         _ => State::Continue,
     }
 }
 
+// TODO: move all the window stuff into input/window.rs
+// and maybe mouse and key stuff separately too?
 pub fn await_fitting_window_size(terminal: &mut Terminal, grid: &Grid) -> State {
     const fn terminal_width_is_within_grid_width(grid: &Grid, terminal: &Terminal) -> bool {
         terminal.size.width >= grid.size.width * 2 + grid.max_clues_size.width

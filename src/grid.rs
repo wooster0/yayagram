@@ -6,7 +6,7 @@ mod random;
 pub mod tools;
 
 use crate::undo_redo_buffer::UndoRedoBuffer;
-pub use cell::Cell;
+pub use cell::*;
 use itertools::Itertools;
 use terminal::util::{Point, Size};
 

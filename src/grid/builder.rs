@@ -40,6 +40,28 @@ impl Builder {
             && (self.point.x..self.point.x + self.grid.size.width * 2).contains(&point.x)
     }
 
+    pub fn get_center(&self) -> Point {
+        let mut width = self.grid.size.width;
+
+        if width % 2 == 1 {
+            width -= 1;
+        }
+
+        Point {
+            x: self.point.x + width,
+            y: self.point.y + self.grid.size.height / 2,
+        }
+    }
+
+    /// Reconstructs the clues associated with the given `cell_point`.
+    pub fn rebuild_clues(&mut self, terminal: &mut Terminal, cell_point: Point) {
+        self.clear_clues(terminal);
+        self.grid.horizontal_clues_solutions[cell_point.y as usize] =
+            self.grid.get_horizontal_clues(cell_point.y).collect();
+        self.grid.vertical_clues_solutions[cell_point.x as usize] =
+            self.grid.get_vertical_clues(cell_point.x).collect();
+    }
+
     /// Draws the top clues while also returning the amount of solved clue rows.
     fn draw_top_clues(&mut self, terminal: &mut Terminal) -> usize {
         let previous_point = self.point;

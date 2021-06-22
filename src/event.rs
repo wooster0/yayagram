@@ -3,91 +3,10 @@ pub mod input;
 
 use crate::{
     editor::Editor,
-    grid::{builder::Builder, Cell, Grid},
+    grid::{builder::Builder, Cell, CellPlacement, Grid},
 };
-use std::{
-    borrow::Cow,
-    time::{Duration, Instant},
-};
+use std::{borrow::Cow, time::Duration};
 use terminal::{util::Point, Terminal};
-
-/// Draws the coordinates of the currently hovered cell point centered on the right.
-fn _draw_coordinates(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
-    let mut point = builder.point;
-    point.x += builder.grid.size.width * 2 + 2;
-    point.y += builder.grid.size.height / 2;
-    point.y -= 1;
-    terminal.set_cursor(point);
-    let cell_point = get_cell_point_from_cursor_point(hovered_cell_point, builder);
-    terminal.write(&format!("{}, {}  ", cell_point.x + 1, cell_point.y + 1));
-}
-
-fn draw_highlighted_cells(terminal: &mut Terminal, builder: &Builder, hovered_cell_point: Point) {
-    fn highlight_cell(terminal: &mut Terminal, mut cursor_point: Point, builder: &Builder) {
-        if (cursor_point.x - builder.point.x) % 2 != 0 {
-            cursor_point.x -= 1;
-        }
-        terminal.set_cursor(cursor_point);
-        let cell_point = get_cell_point_from_cursor_point(cursor_point, builder);
-        let cell = builder.grid.get_cell(cell_point);
-        cell.draw(terminal, cell_point, true);
-    }
-
-    // From the left of the grid to the pointer
-    for x in builder.point.x..=hovered_cell_point.x - 2 {
-        let point = Point {
-            x,
-            ..hovered_cell_point
-        };
-
-        highlight_cell(terminal, point, builder);
-    }
-    // From the pointer to the right of the grid
-    for x in hovered_cell_point.x + 2..builder.point.x + builder.grid.size.width * 2 {
-        let point = Point {
-            x,
-            ..hovered_cell_point
-        };
-
-        highlight_cell(terminal, point, builder);
-    }
-    // From the top of the grid to the pointer
-    for y in builder.point.y..hovered_cell_point.y {
-        let point = Point {
-            y,
-            ..hovered_cell_point
-        };
-
-        highlight_cell(terminal, point, builder);
-    }
-    // From the pointer to the bottom of the grid
-    for y in hovered_cell_point.y + 1..builder.point.y + builder.grid.size.height {
-        let point = Point {
-            y,
-            ..hovered_cell_point
-        };
-
-        highlight_cell(terminal, point, builder);
-    }
-
-    terminal.reset_colors();
-}
-
-const fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
-    Point {
-        x: (cursor_point.x - builder.point.x) / 2,
-        y: cursor_point.y - builder.point.y,
-    }
-}
-
-/// Reconstructs the clues associated with the given `cell_point`.
-fn rebuild_clues(terminal: &mut Terminal, builder: &mut Builder, cell_point: Point) {
-    builder.clear_clues(terminal);
-    builder.grid.horizontal_clues_solutions[cell_point.y as usize] =
-        builder.grid.get_horizontal_clues(cell_point.y).collect();
-    builder.grid.vertical_clues_solutions[cell_point.x as usize] =
-        builder.grid.get_vertical_clues(cell_point.x).collect();
-}
 
 pub fn set_measured_cells(grid: &mut Grid, line_points: &[Point]) {
     for (index, point) in line_points.iter().enumerate() {
@@ -116,25 +35,18 @@ pub enum State {
 }
 
 pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
-    let mut plot_mode = None;
     let mut editor = Editor::default();
 
+    // TODO: make into one struct
     let mut alert: Option<Cow<'static, str>> = None;
     let mut alert_clear_delay = 0_usize;
 
-    let mut starting_time: Option<Instant> = None;
-
-    let mut hovered_cell_point: Option<Point> = None;
-    let mut measurement_point: Option<Point> = None;
-
-    let mut fill = false;
-
-    // TODO: refactor above variables into one big struct and/or multiple structs
+    let mut cell_placement = CellPlacement::default();
 
     loop {
-        //terminal.deinitialize();
         if let Some(event) = terminal.read_event() {
             // The order of statements matters
+
             if alert_clear_delay != 0 {
                 alert_clear_delay -= 1;
                 if alert_clear_delay == 0 {
@@ -149,13 +61,9 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 terminal,
                 event,
                 builder,
-                &mut plot_mode,
                 &mut editor,
                 alert.as_ref(),
-                &mut starting_time,
-                &mut hovered_cell_point,
-                &mut measurement_point,
-                &mut fill,
+                &mut cell_placement,
             );
 
             #[cfg(debug_assertions)]
@@ -191,7 +99,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                     alert::draw(terminal, builder, new_alert);
                     alert = Some(new_alert.into());
                     alert_clear_delay = 0;
-                    fill = true;
+                    cell_placement.fill = true;
                 }
                 State::Solved(_) | State::Exit => break state,
             }
