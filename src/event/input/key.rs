@@ -3,11 +3,10 @@ use crate::{
     editor::Editor,
     grid::CellPlacement,
     grid::{self, builder::Builder, Cell},
-    undo_redo_buffer, util,
+    undo_redo_buffer,
 };
 use terminal::{
     event::{Event, KeyEvent},
-    util::Point,
     Terminal,
 };
 
@@ -61,45 +60,7 @@ pub fn handle_event(
             cell_placement.fill = true;
             State::Alert("Set place to fill".into())
         }
-        KeyEvent::Char('x' | 'X', None) => {
-            // TODO: maybe move this and other stuff to cellplacement too
-            if let Some(selected_cell_point) = cell_placement.selected_cell_point {
-                if let Some(measurement_point) = cell_placement.measurement_point {
-                    // The points we have are screen points so now we convert them to values that we can use
-                    // to index the grid.
-                    let start_point =
-                        grid::get_cell_point_from_cursor_point(measurement_point, builder);
-                    let end_point =
-                        grid::get_cell_point_from_cursor_point(selected_cell_point, builder);
-
-                    let line_points: Vec<Point> =
-                        util::get_line_points(start_point, end_point).collect();
-
-                    grid::set_measured_cells(&mut builder.grid, &line_points);
-
-                    builder
-                        .grid
-                        .undo_redo_buffer
-                        .push(undo_redo_buffer::Operation::Measure(line_points));
-
-                    builder.draw_picture(terminal);
-                    builder.draw_grid(terminal);
-
-                    // We know that this point is hovered
-                    grid::draw_highlighted_cells(terminal, &builder, selected_cell_point);
-
-                    cell_placement.measurement_point = None;
-
-                    State::ClearAlert
-                } else {
-                    cell_placement.measurement_point = Some(selected_cell_point);
-
-                    State::Alert("Set second measurement point".into())
-                }
-            } else {
-                State::Continue
-            }
-        }
+        KeyEvent::Char('x' | 'X', None) => cell_placement.place_measured_cells(terminal, builder),
         KeyEvent::Tab => {
             editor.toggle();
 

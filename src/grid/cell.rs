@@ -1,4 +1,4 @@
-use crate::{grid::builder::Builder, undo_redo_buffer, Grid, State};
+use crate::{grid::builder::Builder, undo_redo_buffer, util, Grid, State};
 use std::{borrow::Cow, time::Instant};
 use terminal::{
     util::{Color, Point},
@@ -225,7 +225,7 @@ impl CellPlacement {
             if self.fill {
                 let cell = *grid_cell;
 
-                crate::grid::tools::fill::fill(&mut builder.grid, cell_point, cell, cell_to_place);
+                super::tools::fill::fill(&mut builder.grid, cell_point, cell, cell_to_place);
 
                 builder
                     .grid
@@ -279,5 +279,48 @@ impl CellPlacement {
         draw_highlighted_cells(terminal, &builder, selected_cell_point);
 
         State::Continue
+    }
+
+    pub fn place_measured_cells(
+        &mut self,
+        terminal: &mut Terminal,
+        builder: &mut Builder,
+    ) -> State {
+        if let Some(selected_cell_point) = self.selected_cell_point {
+            if let Some(measurement_point) = self.measurement_point {
+                // The points we have are screen points so now we convert them to values that we can use
+                // to index the grid.
+                let start_point =
+                    super::get_cell_point_from_cursor_point(measurement_point, builder);
+                let end_point =
+                    super::get_cell_point_from_cursor_point(selected_cell_point, builder);
+
+                let line_points: Vec<Point> =
+                    util::get_line_points(start_point, end_point).collect();
+
+                set_measured_cells(&mut builder.grid, &line_points);
+
+                builder
+                    .grid
+                    .undo_redo_buffer
+                    .push(undo_redo_buffer::Operation::Measure(line_points));
+
+                builder.draw_picture(terminal);
+                builder.draw_grid(terminal);
+
+                // We know that this point is hovered
+                super::draw_highlighted_cells(terminal, &builder, selected_cell_point);
+
+                self.measurement_point = None;
+
+                State::ClearAlert
+            } else {
+                self.measurement_point = Some(selected_cell_point);
+
+                State::Alert("Set second measurement point".into())
+            }
+        } else {
+            State::Continue
+        }
     }
 }
