@@ -107,7 +107,8 @@ pub const BASIC_CONTROLS_HELP: &[&str] = &["A: Undo, D: Redo, C: Clear", "X: Mea
 fn draw_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
     for (index, text) in BASIC_CONTROLS_HELP.iter().enumerate() {
-        draw_bottom_text(terminal, &builder, text, index as u16);
+        set_cursor_for_bottom_text(terminal, &builder, text.len(), index as u16);
+        terminal.write(text);
     }
     terminal.reset_colors();
 }
@@ -185,8 +186,8 @@ enum TopTextPosition {
     AbovePicture,
 }
 
-const fn get_top_text_position(builder: &Builder, text: &str) -> TopTextPosition {
-    if text.len() as u16 <= builder.grid.size.width * 2 {
+const fn get_top_text_position(builder: &Builder, text_len: usize) -> TopTextPosition {
+    if text_len as u16 <= builder.grid.size.width * 2 {
         // Above the clues
         TopTextPosition::AboveClues
     } else {
@@ -195,32 +196,40 @@ const fn get_top_text_position(builder: &Builder, text: &str) -> TopTextPosition
     }
 }
 
-/// Draws centered text on the top.
-pub fn draw_top_text(terminal: &mut Terminal, builder: &Builder, text: &str, y_alignment: u16) {
+/// Properly sets the cursor for drawing centered text on the top.
+pub fn set_cursor_for_top_text(
+    terminal: &mut Terminal,
+    builder: &Builder,
+    text_len: usize,
+    y_alignment: u16,
+) {
     let picture_height = get_picture_height(&builder.grid);
 
-    let height = match get_top_text_position(builder, text) {
+    let height = match get_top_text_position(builder, text_len) {
         TopTextPosition::AboveClues => builder.grid.max_clues_size.height,
         TopTextPosition::AbovePicture => picture_height,
     };
 
     terminal.set_cursor(Point {
-        x: builder.point.x + builder.grid.size.width - text.len() as u16 / 2,
+        x: builder.point.x + builder.grid.size.width - text_len as u16 / 2,
         y: ((builder.point.y - height) - 1) - y_alignment,
     });
-    terminal.write(text);
 }
 
-/// Draws centered text on the bottom.
-pub fn draw_bottom_text(terminal: &mut Terminal, builder: &Builder, text: &str, y_alignment: u16) {
+/// Properly sets the cursor for drawing centered text on the bottom.
+pub fn set_cursor_for_bottom_text(
+    terminal: &mut Terminal,
+    builder: &Builder,
+    text_len: usize,
+    y_alignment: u16,
+) {
     let mut y = builder.point.y + builder.grid.size.height;
     y += 1; // Make way for the progress bar
 
     terminal.set_cursor(Point {
-        x: builder.point.x + builder.grid.size.width - text.len() as u16 / 2,
+        x: builder.point.x + builder.grid.size.width - text_len as u16 / 2,
         y: y + y_alignment,
     });
-    terminal.write(text);
 }
 
 /// One hour in seconds.
@@ -239,13 +248,14 @@ fn solved_screen(
     const TEXT: &str = "Press any key to continue";
 
     let mut y_alignment =
-        if let TopTextPosition::AbovePicture = get_top_text_position(builder, TEXT) {
+        if let TopTextPosition::AbovePicture = get_top_text_position(builder, TEXT.len()) {
             1
         } else {
             0
         };
 
-    draw_top_text(terminal, &builder, TEXT, y_alignment);
+    set_cursor_for_top_text(terminal, &builder, TEXT.len(), y_alignment);
+    terminal.write(TEXT);
 
     y_alignment += 1;
 
@@ -260,7 +270,8 @@ fn solved_screen(
         }
     };
     terminal.set_foreground_color(Color::White);
-    draw_top_text(terminal, &builder, &text, y_alignment);
+    set_cursor_for_top_text(terminal, &builder, text.len(), y_alignment);
+    terminal.write(&text);
     terminal.reset_colors();
 
     terminal.flush();
