@@ -177,17 +177,32 @@ pub const fn get_picture_height(grid: &Grid) -> u16 {
     picture_height
 }
 
+enum TopTextPosition {
+    /// The top text is positioned above the clues because it fits and does not overlap with the picture.
+    AboveClues,
+    /// The top text is positioned above the picture because it does not fit below ([`AboveClues`]) and would overlap with the picture.
+    AbovePicture,
+}
+
+const fn get_top_text_position(builder: &Builder, text: &str) -> TopTextPosition {
+    if text.len() as u16 <= builder.grid.size.width * 2 {
+        // Above the clues
+        TopTextPosition::AboveClues
+    } else {
+        // Above the picture
+        TopTextPosition::AbovePicture
+    }
+}
+
 /// Draws centered text on the top.
 pub fn draw_top_text(terminal: &mut Terminal, builder: &Builder, text: &str, y_alignment: u16) {
     let picture_height = get_picture_height(&builder.grid);
 
-    let height = if text.len() as u16 <= builder.grid.size.width * 2 {
-        // Above the clues
-        builder.grid.max_clues_size.height
-    } else {
-        // Above the picture
-        picture_height
+    let height = match get_top_text_position(builder, text) {
+        TopTextPosition::AboveClues => builder.grid.max_clues_size.height,
+        TopTextPosition::AbovePicture => picture_height,
     };
+
     terminal.set_cursor(Point {
         x: builder.point.x + builder.grid.size.width - text.len() as u16 / 2,
         y: ((builder.point.y - height) - 1) - y_alignment,
@@ -218,7 +233,20 @@ fn solved_screen(
     did_nothing: bool,
 ) {
     terminal.reset_colors();
-    draw_top_text(terminal, &builder, "Press any key to continue", 0);
+
+    /// This is always longer than `text` below.
+    const TEXT: &str = "Press any key to continue";
+
+    let mut y_alignment =
+        if let TopTextPosition::AbovePicture = get_top_text_position(builder, TEXT) {
+            1
+        } else {
+            0
+        };
+
+    draw_top_text(terminal, &builder, TEXT, y_alignment);
+
+    y_alignment += 1;
 
     let text: Cow<'static, str> = if did_nothing {
         "You won by doing nothing".into()
@@ -231,7 +259,7 @@ fn solved_screen(
         }
     };
     terminal.set_foreground_color(Color::White);
-    draw_top_text(terminal, &builder, &text, 1);
+    draw_top_text(terminal, &builder, &text, y_alignment);
     terminal.reset_colors();
 
     terminal.flush();
