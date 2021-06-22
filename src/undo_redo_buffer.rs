@@ -68,7 +68,7 @@ impl Grid {
                     *grid_cell = *cell;
                 }
                 Operation::Measure(line_points) => {
-                    crate::event::set_measured_cells(self, line_points);
+                    crate::grid::set_measured_cells(self, line_points);
                 }
                 Operation::Fill {
                     point,

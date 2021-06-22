@@ -248,9 +248,9 @@ impl Builder {
         for (first_row, second_row) in chunks.tuples() {
             self.point.y += 1;
             terminal.set_cursor(self.point);
-            for (first_cell, second_cell) in first_row.iter().zip(second_row) {
-                terminal.set_background_color(first_cell.get_color());
-                terminal.set_foreground_color(second_cell.get_color());
+            for (upper_cell, lower_cell) in first_row.iter().zip(second_row) {
+                terminal.set_background_color(upper_cell.get_color());
+                terminal.set_foreground_color(lower_cell.get_color());
                 Self::draw_half_block(terminal);
             }
         }

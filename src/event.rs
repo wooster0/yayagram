@@ -3,21 +3,11 @@ pub mod input;
 
 use crate::{
     editor::Editor,
-    grid::{builder::Builder, Cell, CellPlacement, Grid},
+    grid::{builder::Builder, CellPlacement},
 };
 use alert::Alert;
 use std::{borrow::Cow, time::Duration};
-use terminal::{util::Point, Terminal};
-
-pub fn set_measured_cells(grid: &mut Grid, line_points: &[Point]) {
-    for (index, point) in line_points.iter().enumerate() {
-        let cell = grid.get_mut_cell(*point);
-
-        if let Cell::Empty | Cell::Measured(_) = cell {
-            *cell = Cell::Measured(Some(index + 1));
-        }
-    }
-}
+use terminal::Terminal;
 
 #[must_use]
 pub enum State {

@@ -1,3 +1,4 @@
+use crate::{grid::builder::Builder, undo_redo_buffer, Grid, State};
 use std::{borrow::Cow, time::Instant};
 use terminal::{
     util::{Color, Point},
@@ -121,12 +122,20 @@ pub struct CellPlacement {
     pub fill: bool,
 }
 
-use crate::{grid::builder::Builder, undo_redo_buffer, State};
-
 pub const fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Builder) -> Point {
     Point {
         x: (cursor_point.x - builder.point.x) / 2,
         y: cursor_point.y - builder.point.y,
+    }
+}
+
+pub fn set_measured_cells(grid: &mut Grid, line_points: &[Point]) {
+    for (index, point) in line_points.iter().enumerate() {
+        let cell = grid.get_mut_cell(*point);
+
+        if let Cell::Empty | Cell::Measured(_) = cell {
+            *cell = Cell::Measured(Some(index + 1));
+        }
     }
 }
 
