@@ -1,10 +1,9 @@
-use super::State;
+use super::{alert::Alert, State};
 use crate::{
     editor::Editor,
     grid::{self, builder::Builder, Cell, CellPlacement, Grid},
     undo_redo_buffer, util,
 };
-use std::borrow::Cow;
 use terminal::{
     event::{Event, KeyEvent, MouseButton, MouseEvent, MouseEventKind},
     util::Point,
@@ -72,7 +71,7 @@ pub fn handle(
     event: Event,
     builder: &mut Builder,
     editor: &mut Editor,
-    last_alert: Option<&Cow<'static, str>>,
+    last_alert: &Option<Alert>,
     cell_placement: &mut CellPlacement,
 ) -> State {
     match event {
@@ -91,7 +90,7 @@ pub fn handle(
 fn handle_window_resize(
     terminal: &mut Terminal,
     builder: &mut Builder,
-    last_alert: Option<&Cow<'static, str>>,
+    last_alert: &Option<Alert>,
 ) -> State {
     terminal.clear();
 
@@ -107,7 +106,7 @@ fn handle_window_resize(
 
     crate::draw_basic_controls_help(terminal, &builder);
     if let Some(alert) = last_alert {
-        super::alert::draw(terminal, builder, &alert);
+        alert.draw(terminal, builder);
     }
 
     state
@@ -159,7 +158,10 @@ fn handle_key(
 
             State::Continue
         }
-        KeyEvent::Char('f' | 'F', None) => State::Fill,
+        KeyEvent::Char('f' | 'F', None) => {
+            cell_placement.fill = true;
+            State::Alert("Set place to fill".into())
+        }
         KeyEvent::Char('x' | 'X', None) => {
             // TODO: maybe move this and other stuff to cellplacement too
             if let Some(selected_cell_point) = cell_placement.selected_cell_point {
@@ -241,7 +243,6 @@ fn handle_key(
                 State::Continue
             }
         }
-        KeyEvent::Esc => State::Exit,
         KeyEvent::Up | KeyEvent::Down | KeyEvent::Left | KeyEvent::Right => {
             let selected_cell_point = if let Some(selected_cell_point) =
                 &mut cell_placement.selected_cell_point
@@ -302,6 +303,7 @@ fn handle_key(
 
             State::Continue
         }
+        KeyEvent::Esc => State::Exit,
         _ => State::Continue,
     }
 }

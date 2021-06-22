@@ -1,15 +1,27 @@
 use crate::grid::builder::Builder;
+use std::borrow::Cow;
 use terminal::Terminal;
 
-/// Clears the previous alert.
-pub fn clear(terminal: &mut Terminal, builder: &mut Builder, alert_len: usize) {
-    crate::draw_top_text(terminal, &builder, &" ".repeat(alert_len), 0);
-    // This redraws the picture because it was previously overdrawn by the alert.
-    // TODO: this is rather ugly. Perhaps alerts should be shown somewhere else
-    builder.draw_picture(terminal);
+pub struct Alert {
+    pub message: Cow<'static, str>,
+    pub clear_delay: usize,
 }
 
-/// Draws an alert above the grid.
-pub fn draw(terminal: &mut Terminal, builder: &Builder, alert: &str) {
-    crate::draw_top_text(terminal, &builder, alert, 0);
+impl Alert {
+    pub fn new(message: Cow<'static, str>) -> Self {
+        Self {
+            message,
+            clear_delay: 75,
+        }
+    }
+
+    /// Clears the previous alert.
+    pub fn clear(&mut self, terminal: &mut Terminal, builder: &mut Builder) {
+        crate::draw_top_text(terminal, &builder, &" ".repeat(self.message.len()), 0);
+    }
+
+    /// Draws an alert above the grid.
+    pub fn draw(&self, terminal: &mut Terminal, builder: &Builder) {
+        crate::draw_top_text(terminal, &builder, &self.message, 0);
+    }
 }

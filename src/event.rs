@@ -5,6 +5,7 @@ use crate::{
     editor::Editor,
     grid::{builder::Builder, Cell, CellPlacement, Grid},
 };
+use alert::Alert;
 use std::{borrow::Cow, time::Duration};
 use terminal::{util::Point, Terminal};
 
@@ -28,8 +29,6 @@ pub enum State {
     Alert(Cow<'static, str>),
     /// Clear the alert if present.
     ClearAlert,
-    /// The next cell placement will flood-fill.
-    Fill,
     /// Exit the program.
     Exit,
 }
@@ -37,9 +36,7 @@ pub enum State {
 pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
     let mut editor = Editor::default();
 
-    // TODO: make into one struct
-    let mut alert: Option<Cow<'static, str>> = None;
-    let mut alert_clear_delay = 0_usize;
+    let mut alert: Option<Alert> = None;
 
     let mut cell_placement = CellPlacement::default();
 
@@ -47,12 +44,13 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
         if let Some(event) = terminal.read_event() {
             // The order of statements matters
 
-            if alert_clear_delay != 0 {
-                alert_clear_delay -= 1;
-                if alert_clear_delay == 0 {
-                    if let Some(alert_to_clear) = alert {
-                        alert::clear(terminal, builder, alert_to_clear.len());
+            if let Some(ref mut alert_to_clear) = alert {
+                if alert_to_clear.clear_delay != 0 {
+                    if alert_to_clear.clear_delay == 0 {
+                        alert_to_clear.clear(terminal, builder);
                         alert = None;
+                    } else {
+                        alert_to_clear.clear_delay -= 1;
                     }
                 }
             }
@@ -62,7 +60,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 event,
                 builder,
                 &mut editor,
-                alert.as_ref(),
+                &alert,
                 &mut cell_placement,
             );
 
@@ -75,31 +73,26 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
 
             match state {
                 State::Continue => continue,
-                State::Alert(new_alert) => {
+                State::Alert(alert_message) => {
                     // Draw a new alert. Alerts are cleared after some time.
 
-                    if let Some(previous_alert) = alert {
-                        alert::clear(terminal, builder, previous_alert.len());
+                    if let Some(mut previous_alert) = alert {
+                        previous_alert.clear(terminal, builder);
                     }
                     terminal.reset_colors();
-                    alert::draw(terminal, builder, &new_alert);
-                    alert = Some(new_alert);
-                    alert_clear_delay = 75;
+
+                    let new_alert = Alert::new(alert_message);
+
+                    new_alert.draw(terminal, builder);
                     terminal.flush();
+
+                    alert = Some(new_alert);
                 }
                 State::ClearAlert => {
-                    if let Some(alert_to_clear) = alert {
-                        alert::clear(terminal, builder, alert_to_clear.len());
+                    if let Some(mut alert_to_clear) = alert {
+                        alert_to_clear.clear(terminal, builder);
                         alert = None;
                     }
-                }
-                State::Fill => {
-                    let new_alert = "Set place to fill";
-                    terminal.reset_colors();
-                    alert::draw(terminal, builder, new_alert);
-                    alert = Some(new_alert.into());
-                    alert_clear_delay = 0;
-                    cell_placement.fill = true;
                 }
                 State::Solved(_) | State::Exit => break state,
             }

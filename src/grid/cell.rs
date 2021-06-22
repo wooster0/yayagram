@@ -117,6 +117,7 @@ pub struct CellPlacement {
     pub starting_time: Option<Instant>,
     pub selected_cell_point: Option<Point>,
     pub measurement_point: Option<Point>,
+    /// Whether the next cell placement will flood-fill.
     pub fill: bool,
 }
 
