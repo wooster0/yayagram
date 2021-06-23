@@ -4,7 +4,7 @@ use std::{
 };
 use terminal::util::Point;
 
-/// Returns an iterator over the points from `start_point` to `point2`.
+/// Returns an iterator over the points from `start_point` to `end_point`.
 pub fn get_line_points(start_point: Point, end_point: Point) -> impl Iterator<Item = Point> {
     line_drawing::Bresenham::new(
         (start_point.x as i16, start_point.y as i16),
