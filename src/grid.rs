@@ -93,7 +93,10 @@ impl Grid {
             }
         }
 
-        let max_clues_size = Size::new(max_clues_width, max_clues_height);
+        let max_clues_size = Size {
+            width: max_clues_width,
+            height: max_clues_height,
+        };
 
         let undo_redo_buffer = UndoRedoBuffer::default();
 
@@ -163,7 +166,10 @@ mod tests {
         fn from_lines(lines: &[&str]) -> Grid {
             let width = lines.iter().map(|line| line.len()).max().unwrap();
             let height = lines.len();
-            let size = Size::new(width as u16, height as u16);
+            let size = Size {
+                width: width as u16,
+                height: height as u16,
+            };
             let mut cells = Vec::<Cell>::with_capacity(size.product() as usize);
             for line in lines {
                 for char in line.chars() {

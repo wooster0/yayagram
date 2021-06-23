@@ -248,7 +248,7 @@ fn deserialize(str: &str) -> Result<(Size, Vec<Cell>), LoadError> {
         line_number: None,
     })?;
 
-    Ok((Size::new(width, height), cells))
+    Ok((Size { width, height }, cells))
 }
 
 pub fn load_grid(file_content: &str) -> Result<Grid, LoadError> {

@@ -137,7 +137,10 @@ fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, C
                 let grid_size = if let Some(args::Arg::GridSize(size)) = arg {
                     size
                 } else {
-                    Size::new(5, 5)
+                    Size {
+                        width: 5,
+                        height: 5,
+                    }
                 };
                 Ok(Grid::random(grid_size))
             }
@@ -151,8 +154,7 @@ fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, C
 /// This `Terminal` is what allows us to manipulate the terminal in all kinds of ways such as setting colors, writing data, moving the cursor etc.
 fn get_terminal(stdout: io::StdoutLock) -> Result<Terminal, &'static str> {
     if let Ok(mut terminal) = Terminal::new(stdout) {
-        terminal.initialize();
-        terminal.set_title("yayagram");
+        terminal.initialize(Some("yayagram"), true);
         Ok(terminal)
     } else {
         Err("This is not a terminal")

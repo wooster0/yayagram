@@ -306,7 +306,10 @@ mod tests {
     use terminal::util::Size;
 
     fn get_terminal_and_builder(stdout: io::StdoutLock) -> (Terminal, Builder) {
-        let size = Size::new(10, 5);
+        let size = Size {
+            width: 10,
+            height: 5,
+        };
         let grid = Grid::new(size.clone(), vec![Cell::Empty; size.product() as usize]);
         let terminal = Terminal::new(stdout).unwrap();
         let builder = Builder::new(&terminal, grid);

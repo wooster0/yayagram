@@ -1,7 +1,7 @@
 use super::{Alert, State};
 use crate::grid::{self, builder::Builder, Grid};
 use terminal::{
-    event::{Event, KeyEvent},
+    event::{Event, Key},
     util::Point,
     Terminal,
 };
@@ -92,7 +92,7 @@ pub fn await_resize(terminal: &mut Terminal) -> State {
     loop {
         let event = terminal.read_event();
         match event {
-            Some(Event::Key(KeyEvent::Esc)) => break State::Exit,
+            Some(Event::Key(Key::Esc)) => break State::Exit,
             Some(Event::Key(_)) => break State::Continue,
             Some(Event::Resize) => break State::Continue,
             _ => {}
