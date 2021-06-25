@@ -31,10 +31,12 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 
 ## Controls
 
-- Mouse movement: select a cell.
-- Left-click: fill a cell.
-- Middle-click: [maybe a cell](#Maybed).
-- Right-click: cross out a cell.
+The game is primarily played with both mouse and keyboard but can also be played exclusively with the keyboard.
+
+- Mouse movement or arrow keys: select a cell.
+- Left-click or `Q`: place a cell.
+- Middle-click or `W`: [maybe a cell](#Maybed).
+- Right-click or `E`: cross out a cell.
 - `C`: clear the grid.
 - `A`: undo cell placements or a grid clear.
 - `D`: redo cell placements or a grid clear.
