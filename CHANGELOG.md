@@ -4,6 +4,21 @@ Only versions published to the [registry](https://crates.io/crates/yayagram/vers
 
 <!--Order: Added, Changed, Fixed, Removed-->
 
+## 0.8.0 (2021-06-25)
+
+### Added
+
+* Ability to select cells with the arrow keys.
+* Ability to set cells with `Q`, `W` and `E`.
+
+### Changed
+
+* Many refactors and internal improvements.
+
+### Fixed
+
+* Fix solved screen texts sometimes overlapping.
+
 ## 0.7.1 (2021-06-11)
 
 ### Changed
