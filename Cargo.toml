@@ -1,6 +1,6 @@
 [package]
 name = "yayagram"
-version = "0.7.1"
+version = "0.8.0"
 authors = ["r00ster91 <r00ster91@protonmail.com>"]
 edition = "2018"
 description = "Play nonograms/picross in your terminal"
@@ -13,8 +13,8 @@ categories = ["command-line-utilities", "games"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-terminal = { package = "tanmatsu", version = "0.5.0" }
-rand = { version = "0.8.3", features = ["small_rng"] }
+terminal = { package="tanmatsu", version="0.6.0" }
+rand = { version="0.8.4", features=["small_rng"] }
 itertools = "0.10.1"
 line_drawing = "0.8.1"
 
