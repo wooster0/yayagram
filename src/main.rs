@@ -181,7 +181,8 @@ pub const fn get_picture_height(grid: &Grid) -> u16 {
     picture_height
 }
 
-enum TopTextPosition {
+#[derive(Clone, Copy)]
+pub enum TopTextPosition {
     /// The top text is positioned above the clues because it fits and does not overlap with the picture.
     AboveClues,
     /// The top text is positioned above the picture because it does not fit below ([`AboveClues`]) and would overlap with the picture.
@@ -204,10 +205,12 @@ pub fn set_cursor_for_top_text(
     builder: &Builder,
     text_len: usize,
     y_alignment: u16,
+    top_text_position: Option<TopTextPosition>,
 ) {
     let picture_height = get_picture_height(&builder.grid);
 
-    let height = match get_top_text_position(builder, text_len) {
+    let height = match top_text_position.unwrap_or_else(|| get_top_text_position(builder, text_len))
+    {
         TopTextPosition::AboveClues => builder.grid.max_clues_size.height,
         TopTextPosition::AbovePicture => picture_height,
     };
@@ -246,17 +249,19 @@ fn solved_screen(
 ) {
     terminal.reset_colors();
 
-    /// This is always longer than `text` below.
+    // This is always longer than `text` below.
     const TEXT: &str = "Press any key to continue";
 
-    let mut y_alignment =
-        if let TopTextPosition::AbovePicture = get_top_text_position(builder, TEXT.len()) {
-            1
-        } else {
-            0
-        };
+    let mut y_alignment = 0;
+    let top_text_position = get_top_text_position(builder, TEXT.len());
 
-    set_cursor_for_top_text(terminal, &builder, TEXT.len(), y_alignment);
+    set_cursor_for_top_text(
+        terminal,
+        &builder,
+        TEXT.len(),
+        y_alignment,
+        Some(top_text_position),
+    );
     terminal.write(TEXT);
 
     y_alignment += 1;
@@ -272,7 +277,13 @@ fn solved_screen(
         }
     };
     terminal.set_foreground_color(Color::White);
-    set_cursor_for_top_text(terminal, &builder, text.len(), y_alignment);
+    set_cursor_for_top_text(
+        terminal,
+        &builder,
+        text.len(),
+        y_alignment,
+        Some(top_text_position),
+    );
     terminal.write(&text);
     terminal.reset_colors();
 
