@@ -19,6 +19,9 @@ use terminal::{
 // -Currently whole clue rows are grayed out once all cells for those clues have been solved
 //  Make them gray out individually. (Maybe itertools' `pad_using` is helpful)
 // -Ability to change grid size and load grids (with F5?) within the game without the command line
+//  * Here's another idea to implement this: it is possible to drop files/directories onto the terminal and
+//    then most terminals will print you out the path of that item.
+//    It is however rather hard to parse out that path from normal game input (e.g. W key).
 // -Ability to save records to a file and determine new records with that
 // -Ability to continue after solving the puzzle/ability to play it again
 
