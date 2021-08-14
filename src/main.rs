@@ -7,7 +7,7 @@ mod util;
 
 use event::State;
 use grid::{builder::Builder, Grid};
-use std::{borrow::Cow, io, process, time::Duration};
+use std::{borrow::Cow, io, process, time::Duration, cmp};
 use terminal::{
     util::{Color, Point, Size},
     Terminal,
@@ -170,7 +170,7 @@ const BOTTOM_TEXT_HEIGHT: u16 = 2;
 
 pub fn total_height(grid: &Grid) -> u16 {
     TOP_TEXT_HEIGHT
-        + std::cmp::max(crate::get_picture_height(grid), grid.max_clues_size.height)
+        + cmp::max(crate::get_picture_height(grid), grid.max_clues_size.height)
         + grid.size.height
         + PROGRESS_BAR_HEIGHT
         + BOTTOM_TEXT_HEIGHT
