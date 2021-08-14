@@ -32,6 +32,27 @@ pub enum State {
     Exit,
 }
 
+fn draw_alert(
+    terminal: &mut Terminal,
+    builder: &mut Builder,
+    alert: &mut Option<Alert>,
+    message: Cow<'static, str>,
+) {
+    if let Some(ref mut current_alert) = alert {
+        terminal.reset_colors();
+        current_alert.clear(terminal, builder);
+
+        current_alert.message = message;
+        current_alert.reset_clear_delay();
+
+        current_alert.draw(terminal, builder);
+    } else {
+        let new_alert = Alert::new(message);
+        new_alert.draw(terminal, builder);
+        *alert = Some(new_alert);
+    }
+}
+
 pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
     let mut editor = Editor::default();
 
@@ -43,15 +64,12 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
         if let Some(event) = terminal.read_event() {
             // The order of statements matters
 
-            // NOTE: fix the clear delay in another commit
             if let Some(ref mut alert_to_clear) = alert {
-                if alert_to_clear.clear_delay != 0 {
-                    if alert_to_clear.clear_delay == 0 {
-                        alert_to_clear.clear(terminal, builder);
-                        alert = None;
-                    } else {
-                        alert_to_clear.clear_delay -= 1;
-                    }
+                if alert_to_clear.clear_delay == 0 {
+                    alert_to_clear.clear(terminal, builder);
+                    alert = None;
+                } else {
+                    alert_to_clear.clear_delay -= 1;
                 }
             }
 
@@ -76,17 +94,8 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 State::Alert(alert_message) => {
                     // Draw a new alert. Alerts are cleared after some time.
 
-                    if let Some(mut previous_alert) = alert {
-                        previous_alert.clear(terminal, builder);
-                    }
-                    terminal.reset_colors();
-
-                    let new_alert = Alert::new(alert_message);
-
-                    new_alert.draw(terminal, builder);
+                    draw_alert(terminal, builder, &mut alert, alert_message);
                     terminal.flush();
-
-                    alert = Some(new_alert);
                 }
                 State::ClearAlert => {
                     if let Some(mut alert_to_clear) = alert {
@@ -95,63 +104,49 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                     }
                 }
                 State::LoadGrid => {
-                    if let Some(ref mut alert_to_clear) = alert {
-                        alert_to_clear.clear(terminal, builder);
-                    }
+                    let message = format!(
+                        "Drag & drop a `.{}` grid file onto this window to load. Esc to abort",
+                        FILE_EXTENSION,
+                    )
+                    .into();
 
-                    let new_alert = Alert::new(
-                        format!(
-                            "Drop a `.{}` grid file onto this window to load. Esc to abort",
-                            FILE_EXTENSION
-                        )
-                        .into(),
-                    );
+                    draw_alert(terminal, builder, &mut alert, message);
 
-                    new_alert.draw(terminal, builder);
                     terminal.disable_mouse_capture();
+
                     terminal.flush();
-                    alert = Some(new_alert);
 
                     let mut path = String::new();
 
-                    fn grid_found(str: &str) -> bool {
-                        // In some terminals the paths start and end with apostrophes.
-                        // We simply ignore those.
-                        let path = str
-                            .strip_prefix('\'')
-                            .unwrap_or(str)
-                            .strip_suffix('\'')
-                            .unwrap_or(str);
-
-                        valid_extension(path)
-                    }
-
-                    while !(grid_found(&path)) {
+                    while !valid_extension(&path) {
                         let input = terminal.read_event();
 
                         match input {
                             Some(Event::Key(Key::Char(char))) => {
-                                path.push(char);
+                                if char == '\'' && path.is_empty() {
+                                    // In some terminals the paths start and end with apostrophes.
+                                    // We simply ignore the first one.
+                                    // `valid_extension` will then recognize the path before we push the last apostrophe.
+                                } else {
+                                    path.push(char);
+                                }
                             }
                             Some(Event::Key(Key::Esc)) => {
-                                if let Some(ref mut alert_to_clear) = alert {
-                                    alert_to_clear.clear(terminal, builder);
-                                }
-                                let new_alert = Alert::new("Aborting".into());
-                                new_alert.draw(terminal, builder);
-                                alert = Some(new_alert);
+                                draw_alert(terminal, builder, &mut alert, "Aborting".into());
+
                                 terminal.enable_mouse_capture();
                                 terminal.flush();
 
                                 continue 'main;
                             }
                             _ => {
-                                if let Some(ref mut alert_to_clear) = alert {
-                                    alert_to_clear.clear(terminal, builder);
-                                }
-                                let new_alert = Alert::new("Invalid input. Aborting".into());
-                                new_alert.draw(terminal, builder);
-                                alert = Some(new_alert);
+                                draw_alert(
+                                    terminal,
+                                    builder,
+                                    &mut alert,
+                                    "Invalid input. Aborting".into(),
+                                );
+
                                 terminal.enable_mouse_capture();
                                 terminal.flush();
 
@@ -171,20 +166,15 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                     }
 
                     if let Some(grid) = load(&path) {
-                        // Currently the new game simply runs inside of this existing game and creates the new game creates an entirely new state.
-                        // Someday we would hit a stack overflow if the user keeps loading new levels within the same session.
+                        // Currently the new game simply runs inside of this existing game and the new game creates an entirely new state.
+                        // At some point we would hit a stack overflow if the user keeps loading new levels within the same session.
 
                         terminal.clear();
                         start_game(terminal, grid);
 
                         break State::Exit;
                     } else {
-                        if let Some(ref mut alert_to_clear) = alert {
-                            alert_to_clear.clear(terminal, builder);
-                        }
-                        let new_alert = Alert::new("Loading failed".into());
-                        new_alert.draw(terminal, builder);
-                        alert = Some(new_alert);
+                        draw_alert(terminal, builder, &mut alert, "Loading failed".into());
                         terminal.flush();
                     }
                 }

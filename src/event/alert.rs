@@ -2,6 +2,8 @@ use crate::grid::builder::Builder;
 use std::borrow::Cow;
 use terminal::Terminal;
 
+const CLEAR_DELAY: usize = 75;
+
 pub struct Alert {
     pub message: Cow<'static, str>,
     pub clear_delay: usize,
@@ -11,7 +13,7 @@ impl Alert {
     pub fn new(message: Cow<'static, str>) -> Self {
         Self {
             message,
-            clear_delay: 75,
+            clear_delay: CLEAR_DELAY,
         }
     }
 
@@ -27,5 +29,9 @@ impl Alert {
     pub fn draw(&self, terminal: &mut Terminal, builder: &Builder) {
         crate::set_cursor_for_top_text(terminal, &builder, self.message.len(), 0, None);
         terminal.write(&self.message);
+    }
+
+    pub fn reset_clear_delay(&mut self) {
+        self.clear_delay = CLEAR_DELAY;
     }
 }
