@@ -44,6 +44,7 @@ The game is primarily played with both mouse and keyboard but can also be played
 - `X`: set [measurement point](#Measurement-tool).
 - `Tab`: toggle the [editor](#Editor).
 - `S`: save the [edited](#Editor) grid as a file locally.
+- `L`: load local `.yaya` grid file.
 - `Esc`: exit.
 
 ## Editor

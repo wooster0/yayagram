@@ -79,6 +79,7 @@ pub fn handle_event(
                 State::Alert(format!("Grid saved as {}", editor.filename).into())
             }
         }
+        Key::Char('l' | 'L') => State::LoadGrid,
         Key::Char(char) => {
             if let Some(selected_cell_point) = cell_placement.selected_cell_point {
                 let cell_to_place = match char {

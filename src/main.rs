@@ -18,10 +18,7 @@ use terminal::{
 // -An interactive tutorial
 // -Currently whole clue rows are grayed out once all cells for those clues have been solved
 //  Make them gray out individually. (Maybe itertools' `pad_using` is helpful)
-// -Ability to change grid size and load grids (with F5?) within the game without the command line
-//  * Here's another idea to implement this: it is possible to drop files/directories onto the terminal and
-//    then most terminals will print you out the path of that item.
-//    It is however rather hard to parse out that path from normal game input (e.g. W key).
+// -Ability to change grid size within the game without the command line
 // -Ability to save records to a file and determine new records with that
 // -Ability to continue after solving the puzzle/ability to play it again
 
@@ -71,29 +68,7 @@ fn run() -> Result<(), Cow<'static, str>> {
     let stdout = io::stdout();
     match get_terminal(stdout.lock()) {
         Ok(mut terminal) => {
-            if let State::Continue = event::input::window::await_fitting_size(&mut terminal, &grid)
-            {
-                let mut builder = Builder::new(&terminal, grid);
-
-                let all_clues_solved = builder.draw_all(&mut terminal);
-                draw_basic_controls_help(&mut terminal, &builder);
-
-                if all_clues_solved {
-                    solved_screen(&mut terminal, &builder, Duration::ZERO, true);
-                } else {
-                    terminal.flush();
-
-                    let state = event::r#loop(&mut terminal, &mut builder);
-
-                    match state {
-                        State::Solved(duration) => {
-                            solved_screen(&mut terminal, &builder, duration, false);
-                        }
-                        State::Exit => {}
-                        _ => unreachable!(),
-                    }
-                }
-            }
+            start_game(&mut terminal, grid);
 
             terminal.deinitialize();
         }
@@ -103,6 +78,31 @@ fn run() -> Result<(), Cow<'static, str>> {
     }
 
     Ok(())
+}
+
+pub fn start_game(terminal: &mut Terminal, grid: Grid) {
+    if let State::Continue = event::input::window::await_fitting_size(terminal, &grid) {
+        let mut builder = Builder::new(&terminal, grid);
+
+        let all_clues_solved = builder.draw_all(terminal);
+        draw_basic_controls_help(terminal, &builder);
+
+        if all_clues_solved {
+            solved_screen(terminal, &builder, Duration::ZERO, true);
+        } else {
+            terminal.flush();
+
+            let state = event::r#loop(terminal, &mut builder);
+
+            match state {
+                State::Solved(duration) => {
+                    solved_screen(terminal, &builder, duration, false);
+                }
+                State::Exit => {}
+                _ => unreachable!(),
+            }
+        }
+    }
 }
 
 pub const BASIC_CONTROLS_HELP: &[&str] = &["A: Undo, D: Redo, C: Clear", "X: Measure, F: Fill"];
