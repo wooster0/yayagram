@@ -22,7 +22,7 @@ pub enum State {
     Solved(Duration),
     /// Display an alert.
     ///
-    /// NOTE: alerts do not end in a period.
+    /// NOTE: alert messages do not end in a period.
     Alert(Cow<'static, str>),
     /// Clear the alert if present.
     ClearAlert,
@@ -87,10 +87,11 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 crate::grid::debug::display(terminal, builder);
             }
 
-            terminal.flush();
-
             match state {
-                State::Continue => continue,
+                State::Continue => {
+                    terminal.flush();
+                    continue;
+                }
                 State::Alert(alert_message) => {
                     // Draw a new alert. Alerts are cleared after some time.
 
@@ -102,6 +103,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                         alert_to_clear.clear(terminal, builder);
                         alert = None;
                     }
+                    terminal.flush();
                 }
                 State::LoadGrid => {
                     let message = format!(
