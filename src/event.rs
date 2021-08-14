@@ -2,12 +2,13 @@ mod alert;
 pub mod input;
 
 use crate::{
+    args::{valid_extension, FILE_EXTENSION},
     editor::{self, Editor},
     grid::{builder::Builder, CellPlacement, Grid},
     start_game,
 };
 use alert::Alert;
-use std::{borrow::Cow, ffi::OsStr, fs, path::Path, time::Duration};
+use std::{borrow::Cow, fs, time::Duration};
 use terminal::{
     event::{Event, Key},
     Terminal,
@@ -99,7 +100,11 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                     }
 
                     let new_alert = Alert::new(
-                        "Drop a `.yaya` grid file onto this window to load. Esc to abort".into(),
+                        format!(
+                            "Drop a `.{}` grid file onto this window to load. Esc to abort",
+                            FILE_EXTENSION
+                        )
+                        .into(),
                     );
 
                     new_alert.draw(terminal, builder);
@@ -109,18 +114,16 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
 
                     let mut path = String::new();
 
-                    fn grid_found(mut str: &str) -> bool {
+                    fn grid_found(str: &str) -> bool {
                         // In some terminals the paths start and end with apostrophes.
                         // We simply ignore those.
-                        str = str
+                        let path = str
                             .strip_prefix('\'')
                             .unwrap_or(str)
                             .strip_suffix('\'')
                             .unwrap_or(str);
 
-                        let path = Path::new(str);
-
-                        path.exists() && path.extension() == Some(OsStr::new("yaya"))
+                        valid_extension(path)
                     }
 
                     while !(grid_found(&path)) {

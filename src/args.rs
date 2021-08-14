@@ -1,13 +1,21 @@
 //! Parses the arguments to the program, if present.
 
 use crate::util;
-use std::{borrow::Cow, env, fs, io};
+use std::{borrow::Cow, env, ffi::OsStr, fs, io, path::Path};
 use terminal::util::Size;
 
 /// The maximum grid size must not have more than 2 digits
 /// because such numbers cannot be displayed correctly on the grid
 /// due to the grid being based on two characters for numbers.
 const MAX_GRID_SIZE: u16 = 99;
+
+/// The filename extension that grid level files need to have.
+pub const FILE_EXTENSION: &str = "yaya";
+
+pub fn valid_extension(path: &str) -> bool {
+    let path = Path::new(path);
+    path.extension() == Some(OsStr::new(FILE_EXTENSION))
+}
 
 /// The values that can be created out of the arguments.
 #[derive(Debug)]
@@ -76,17 +84,8 @@ fn parse_strings(
 
     match open_options.open(&first_string) {
         Ok(mut file) => {
-            fn valid_extension(str: &str) -> bool {
-                let path = std::path::Path::new(str);
-                if let Some(extension) = path.extension() {
-                    extension == "yaya"
-                } else {
-                    false
-                }
-            }
-
             if !valid_extension(&first_string) {
-                return Err("Filename extension must be \"yaya\"".into());
+                return Err(format!("Filename extension must be \"{}\"", FILE_EXTENSION).into());
             }
 
             let content = util::read_file_content(&mut file).map_err(|_| "File reading error")?;
@@ -158,7 +157,7 @@ mod tests {
     #[test]
     fn test_parse_strings() {
         assert!(matches!(
-            parse_strings(String::from("example.yaya"), None),
+            parse_strings(format!("example.{}", FILE_EXTENSION), None),
             Ok(Some(Arg::File {
                 name: _,
                 content: _

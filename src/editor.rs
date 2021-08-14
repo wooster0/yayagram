@@ -1,4 +1,5 @@
 use crate::{
+    args::FILE_EXTENSION,
     grid::{builder::Builder, Cell, Grid},
     util,
 };
@@ -98,7 +99,7 @@ impl Editor {
 
         let mut index = 1;
         let file = loop {
-            self.filename = format!("grid-{}.yaya", index);
+            self.filename = format!("grid-{}.{}", index, FILE_EXTENSION);
             let file = open_options.open(&self.filename);
             match file {
                 Err(err) => match err.kind() {
