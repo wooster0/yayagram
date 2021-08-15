@@ -32,6 +32,7 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 ## Controls
 
 The game is primarily played with both mouse and keyboard but can also be played exclusively with the keyboard.
+You don't need to memorize the following controls. The most important controls are displayed ingame.
 
 - Mouse movement or arrow keys: select a cell.
 - Left-click or `Q`: place a cell.
@@ -44,7 +45,7 @@ The game is primarily played with both mouse and keyboard but can also be played
 - `X`: set [measurement point](#Measurement-tool).
 - `Tab`: toggle the [editor](#Editor).
 - `S`: save the [edited](#Editor) grid as a file locally.
-- `L`: load local `.yaya` grid file.
+- `L`: load local `.yaya` grid files with drag & drop onto the window.
 - `Esc`: exit.
 
 ## Editor
@@ -54,8 +55,11 @@ You can make use of all cell kinds.
 To export your grid, press `Enter` to save while in editor mode. This will create a new `.yaya` grid file.
 Note that in the same session it will always write the grid to the same file again unless renamed.
 
-On Windows you can drag `.yaya` grid files onto the `.exe` to play the grid.
-On Linux and macOS the `.yaya` file is passed via the command line.
+## Loading grid files
+
+* You can press `L` ingame to load a `.yaya` grid file with drag & drop onto the window. Many but not all terminals support this.
+* On Linux, Windows and macOS the `.yaya` file can be passed via the [command line](#Command-line-arguments).
+* Additionally on Windows within the explorer you can drag `.yaya` grid files onto the [`.exe`](https://github.com/r00ster91/yayagram/releases) file to play the grid.
 
 ## img2yaya
 
@@ -105,7 +109,9 @@ yayagram is very well suited for big grids, up to size 99x99. Here are the reaso
 - Don't forget to cross out cells that you are sure won't be filled.
   This helps immensely at ruling out possibilities.
 - Be careful about accidentally pasting in your clipboard data. Some terminals paste with the press of a mouse button.
-  If the data contains a `'c'` for instance, the grid will be cleared. This clear can be undone using the `A` key of course, but it may be confusing.
+  If the data contains `'c'` for instance, the grid will be cleared because it's recognized as the `C` key being pressed.
+  This clear can be undone using the `A` key of course, but it may be confusing.
+  The same applies to items dropped onto the window. Press `L` before [loading grid files](#Loading-grid-files).
 
 ## Example
 
@@ -173,4 +179,4 @@ I hope this helped you grasp the game a little bit.
 Now you can try to apply some of what you learned on a small grid like 3x3 or 5x5 by simply passing the grid size as a command line argument to the program:
 `yayagram 3` or `yayagram 5` respectively.
 
-You can also load the above example grid into the game by passing this file as a command line argument to the binary: [example.yaya](example.yaya).
+You can also [load](#Loading-grid-files) the above example grid into the game with this file: [example.yaya](example.yaya).
