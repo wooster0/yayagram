@@ -1,4 +1,6 @@
 mod args;
+#[cfg(debug_assertions)]
+mod debug;
 mod editor;
 mod event;
 mod grid;
@@ -7,7 +9,7 @@ mod util;
 
 use event::State;
 use grid::{builder::Builder, Grid};
-use std::{borrow::Cow, io, process, time::Duration, cmp};
+use std::{borrow::Cow, cmp, io, process, time::Duration};
 use terminal::{
     util::{Color, Point, Size},
     Terminal,

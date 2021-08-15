@@ -1,7 +1,5 @@
 pub mod builder;
 mod cell;
-#[cfg(debug_assertions)]
-pub mod debug;
 mod random;
 pub mod tools;
 

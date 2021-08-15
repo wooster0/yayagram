@@ -51,11 +51,6 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 &mut cell_placement,
             );
 
-            #[cfg(debug_assertions)]
-            {
-                crate::grid::debug::display(terminal, builder);
-            }
-
             match state {
                 State::Continue => {
                     terminal.flush();

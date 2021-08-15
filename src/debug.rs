@@ -1,4 +1,6 @@
-use super::{builder::Builder, Cell, Grid};
+#![allow(unused)]
+
+use crate::grid::{Cell, Grid};
 use std::fmt;
 use terminal::{util::Point, Terminal};
 
@@ -37,35 +39,24 @@ impl fmt::Debug for Grid {
     }
 }
 
-/// NOTE: A hack to allow keeping this variable out of release builds.
-static mut LAST_DEBUG_GRID_DISPLAY_LEN: usize = 0;
-
-pub fn display(terminal: &mut Terminal, builder: &mut Builder) {
+/// Sets up the given terminal for debugging usage.
+pub fn with<F>(terminal: &mut Terminal, f: F)
+where
+    F: Fn(&mut Terminal) -> (),
+{
     terminal.save_cursor_point();
 
-    // This length ensures that the text does not touch the grid.
-    // `builder.point.x` will be the point of the first cell.
-    let max_length = (builder.point.x - builder.grid.max_clues_size.width) as usize;
+    // Place cursor below the flush count that is printed by the terminal in debug mode.
+    terminal.set_cursor(Point { x: 0, y: 1 });
 
-    let clear_spaces = &" ".repeat(unsafe { LAST_DEBUG_GRID_DISPLAY_LEN });
-    draw_chunks(terminal, clear_spaces, max_length);
-
-    let string = format!("{:?}", builder.grid);
-    draw_chunks(terminal, &string, max_length);
-
-    unsafe {
-        LAST_DEBUG_GRID_DISPLAY_LEN = string.len();
-    }
+    f(terminal);
 
     terminal.restore_cursor_point();
 }
 
-fn draw_chunks(terminal: &mut Terminal, string: &str, max_length: usize) {
-    for (index, line) in string.as_bytes().chunks(max_length).enumerate() {
-        terminal.set_cursor(Point {
-            x: 0,
-            y: index as u16 + 1,
-        });
-        terminal.write_bytes(line);
-    }
+/// Prints a debugging message.
+pub fn print(terminal: &mut Terminal, message: &str) {
+    terminal.write(message);
+    terminal.move_cursor_down();
+    terminal.set_cursor_x(0);
 }
