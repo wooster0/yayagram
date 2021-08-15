@@ -1,4 +1,4 @@
-use crate::grid::{Cell, Grid};
+use crate::grid::{self, Cell, Grid};
 use terminal::util::Point;
 
 #[derive(Clone, Debug)]
@@ -68,13 +68,13 @@ impl Grid {
                     *grid_cell = *cell;
                 }
                 Operation::Measure(line_points) => {
-                    crate::grid::set_measured_cells(self, line_points);
+                    grid::set_measured_cells(self, line_points);
                 }
                 Operation::Fill {
                     point,
                     first_cell,
                     fill_cell,
-                } => crate::grid::tools::fill::fill(self, *point, *first_cell, *fill_cell),
+                } => grid::tools::fill::fill(self, *point, *first_cell, *fill_cell),
                 Operation::Clear => {
                     self.clear();
                 }
