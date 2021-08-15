@@ -9,7 +9,7 @@ use terminal::util::Size;
 /// due to the grid being based on two characters for numbers.
 const MAX_GRID_SIZE: u16 = 99;
 
-/// The filename extension that grid level files need to have.
+/// The filename extension that grid files need to have.
 pub const FILE_EXTENSION: &str = "yaya";
 
 pub fn valid_extension(path: &str) -> bool {

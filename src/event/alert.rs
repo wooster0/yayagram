@@ -18,7 +18,7 @@ impl Alert {
     }
 
     /// Clears the previous alert.
-    pub fn clear(&mut self, terminal: &mut Terminal, builder: &mut Builder) {
+    pub fn clear(&mut self, terminal: &mut Terminal, builder: &Builder) {
         crate::set_cursor_for_top_text(terminal, &builder, self.message.len(), 0, None);
         for _ in 0..self.message.len() {
             terminal.write(" ");
@@ -33,5 +33,39 @@ impl Alert {
 
     pub fn reset_clear_delay(&mut self) {
         self.clear_delay = CLEAR_DELAY;
+    }
+}
+
+pub fn draw(
+    terminal: &mut Terminal,
+    builder: &Builder,
+    alert: &mut Option<Alert>,
+    message: Cow<'static, str>,
+) {
+    if let Some(ref mut current_alert) = alert {
+        // In some cases we might have colors so we safely reset them beforehand
+        terminal.reset_colors();
+
+        current_alert.clear(terminal, builder);
+
+        current_alert.message = message;
+        current_alert.reset_clear_delay();
+
+        current_alert.draw(terminal, builder);
+    } else {
+        let new_alert = Alert::new(message);
+        new_alert.draw(terminal, builder);
+        *alert = Some(new_alert);
+    }
+}
+
+pub fn handle_clear_delay(terminal: &mut Terminal, builder: &Builder, alert: &mut Option<Alert>) {
+    if let Some(ref mut alert_to_clear) = alert {
+        if alert_to_clear.clear_delay == 0 {
+            alert_to_clear.clear(terminal, builder);
+            *alert = None;
+        } else {
+            alert_to_clear.clear_delay -= 1;
+        }
     }
 }
