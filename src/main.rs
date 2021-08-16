@@ -20,7 +20,6 @@ use terminal::{
 // -An interactive tutorial
 // -Currently whole clue rows are grayed out once all cells for those clues have been solved
 //  Make them gray out individually. (Maybe itertools' `pad_using` is helpful)
-// -Ability to change grid size within the game without the command line
 // -Ability to save records to a file and determine new records with that
 // -Ability to continue after solving the puzzle/ability to play it again
 
@@ -118,6 +117,15 @@ fn draw_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.reset_colors();
 }
 
+fn clear_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
+    for (index, text) in BASIC_CONTROLS_HELP.iter().enumerate() {
+        set_cursor_for_bottom_text(terminal, &builder, text.len(), index as u16);
+        for _ in 0..text.len() {
+            terminal.write(" ");
+        }
+    }
+}
+
 fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, Cow<'static, str>> {
     match arg {
         Ok(arg) => match arg {
@@ -172,15 +180,18 @@ const BOTTOM_TEXT_HEIGHT: u16 = 2;
 
 pub fn total_height(grid: &Grid) -> u16 {
     TOP_TEXT_HEIGHT
-        + cmp::max(get_picture_height(grid), grid.max_clues_size.height)
+        + cmp::max(
+            get_picture_height(grid.size.clone()),
+            grid.max_clues_size.height,
+        )
         + grid.size.height
         + PROGRESS_BAR_HEIGHT
         + BOTTOM_TEXT_HEIGHT
 }
 
-pub const fn get_picture_height(grid: &Grid) -> u16 {
-    let mut picture_height = grid.size.height / 2; // Divide by 2 because the picture is made of half blocks
-    if grid.size.height % 2 == 1 {
+pub const fn get_picture_height(grid_size: Size) -> u16 {
+    let mut picture_height = grid_size.height / 2; // Divide by 2 because the picture is made of half blocks
+    if grid_size.height % 2 == 1 {
         picture_height += 1;
     }
     picture_height
@@ -194,8 +205,8 @@ pub enum TopTextPosition {
     AbovePicture,
 }
 
-const fn get_top_text_position(builder: &Builder, text_len: usize) -> TopTextPosition {
-    if text_len as u16 <= builder.grid.size.width * 2 {
+const fn get_top_text_position(grid_size: Size, text_len: usize) -> TopTextPosition {
+    if text_len as u16 <= grid_size.width * 2 {
         // Above the clues
         TopTextPosition::AboveClues
     } else {
@@ -212,9 +223,10 @@ pub fn set_cursor_for_top_text(
     y_alignment: u16,
     top_text_position: Option<TopTextPosition>,
 ) {
-    let picture_height = get_picture_height(&builder.grid);
+    let picture_height = get_picture_height(builder.grid.size.clone());
 
-    let height = match top_text_position.unwrap_or_else(|| get_top_text_position(builder, text_len))
+    let height = match top_text_position
+        .unwrap_or_else(|| get_top_text_position(builder.grid.size.clone(), text_len))
     {
         TopTextPosition::AboveClues => builder.grid.max_clues_size.height,
         TopTextPosition::AbovePicture => picture_height,
@@ -258,7 +270,7 @@ fn solved_screen(
     const TEXT: &str = "Press any key to continue";
 
     let mut y_alignment = 0;
-    let top_text_position = get_top_text_position(builder, TEXT.len());
+    let top_text_position = get_top_text_position(builder.grid.size.clone(), TEXT.len());
 
     set_cursor_for_top_text(
         terminal,

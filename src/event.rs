@@ -5,9 +5,7 @@ use crate::{
     editor::{self, Editor},
     event,
     grid::{builder::Builder, CellPlacement, Grid},
-    start_game,
 };
-use alert::Alert;
 use std::{borrow::Cow, fs, path, time::Duration};
 use terminal::Terminal;
 
@@ -32,7 +30,7 @@ pub enum State {
 pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
     let mut editor = Editor::default();
 
-    let mut alert: Option<Alert> = None;
+    let mut alert = None;
 
     let mut cell_placement = CellPlacement::default();
 
@@ -47,7 +45,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 event,
                 builder,
                 &mut editor,
-                &alert,
+                &mut alert,
                 &mut cell_placement,
             );
 
@@ -84,7 +82,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                                 // At some point we would probably hit a stack overflow if the user keeps loading new grid files within the same session.
 
                                 terminal.clear();
-                                start_game(terminal, grid);
+                                crate::start_game(terminal, grid);
 
                                 break State::Exit;
                             } else {

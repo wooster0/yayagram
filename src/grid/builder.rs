@@ -1,4 +1,4 @@
-use super::Grid;
+use super::{Cell, Grid};
 use itertools::Itertools;
 use terminal::{
     util::{Color, Point},
@@ -216,6 +216,38 @@ impl Builder {
         self.point.y = previous_point_y;
     }
 
+    fn empty_grid<F>(&mut self, terminal: &mut Terminal, f: F)
+    where
+        F: Fn(&mut Terminal, Point),
+    {
+        let previous_point_y = self.point.y;
+        for y in 0..self.grid.size.height {
+            terminal.set_cursor(self.point);
+            let previous_point_x = self.point.x;
+            for x in 0..self.grid.size.width {
+                f(terminal, Point { x, y });
+                self.point.x += 2;
+            }
+            self.point.x = previous_point_x;
+            self.point.y += 1;
+        }
+        self.point.y = previous_point_y;
+    }
+
+    /// Draws an empty grid.
+    pub fn draw_empty_grid(&mut self, terminal: &mut Terminal) {
+        self.empty_grid(terminal, |terminal, point| {
+            Cell::Empty.draw(terminal, point, false);
+        });
+    }
+
+    /// Clears the empty grid.
+    pub fn clear_empty_grid(&mut self, terminal: &mut Terminal) {
+        self.empty_grid(terminal, |terminal, _| {
+            terminal.write("  ");
+        });
+    }
+
     fn draw_half_block(terminal: &mut Terminal) {
         terminal.write("▄");
     }
@@ -266,8 +298,8 @@ impl Builder {
         });
 
         let grid_width = self.grid.size.width * 2;
-        let width = ((solved_rows as f64 / (self.grid.size.width + self.grid.size.height) as f64)
-            * grid_width as f64) as u16;
+        let percentage = solved_rows as f64 / (self.grid.size.width + self.grid.size.height) as f64;
+        let width = (percentage * grid_width as f64) as u16;
 
         terminal.set_foreground_color(Color::Gray);
         for _ in 0..width {
@@ -283,6 +315,25 @@ impl Builder {
         }
     }
 
+    pub fn draw_resize_arrow(&mut self, terminal: &mut Terminal) {
+        terminal.set_foreground_color(Color::DarkGray);
+
+        #[cfg(not(windows))]
+        terminal.write(" ↘");
+
+        // The above doesn't render in many cases on Windows so at least for now,
+        // until the situation improves (and https://en.wikipedia.org/wiki/Windows_Terminal becomes the new default on Windows?),
+        // this is used as an alternative.
+        // Someday the arrow could be used on Windows too.
+        //
+        // In the future it might be helpful to take a look at the market share of Windows 10 or 11 and decide by that.
+        //
+        // In this regard, for good Windows terminal compatibility,
+        // I generally recommend limiting yourself to characters listed on https://en.wikipedia.org/wiki/Code_page_437
+        #[cfg(windows)]
+        terminal.write(" +");
+    }
+
     /// Draws the grid, the picture and the clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
     #[must_use]
     pub fn draw_all(&mut self, terminal: &mut Terminal) -> bool {
@@ -293,6 +344,8 @@ impl Builder {
         let solved_rows = self.draw_clues(terminal);
 
         self.draw_progress_bar(terminal, solved_rows);
+
+        self.draw_resize_arrow(terminal);
 
         solved_rows == (self.grid.size.width + self.grid.size.height) as usize
     }
@@ -359,6 +412,16 @@ mod tests {
 
         let previous_point = builder.point;
         builder.draw_picture(&mut terminal);
+        assert_eq!(previous_point, builder.point);
+    }
+
+    #[test]
+    fn test_draw_empty_grid() {
+        let stdout = io::stdout();
+        let (mut terminal, mut builder) = get_terminal_and_builder(stdout.lock());
+
+        let previous_point = builder.point;
+        builder.empty_grid(&mut terminal, |_, _| {});
         assert_eq!(previous_point, builder.point);
     }
 

@@ -13,7 +13,7 @@ use terminal::{
 pub fn handle_resize(
     terminal: &mut Terminal,
     builder: &mut Builder,
-    last_alert: &Option<Alert>,
+    alert: &Option<Alert>,
 ) -> State {
     terminal.clear();
 
@@ -21,14 +21,14 @@ pub fn handle_resize(
 
     builder.point = grid::builder::centered_point(terminal, &builder.grid);
 
-    // No grid mutation happened
+    // The grid wasn't mutated
     #[allow(unused_must_use)]
     {
         builder.draw_all(terminal);
     }
 
     crate::draw_basic_controls_help(terminal, &builder);
-    if let Some(alert) = last_alert {
+    if let Some(alert) = alert {
         alert.draw(terminal, builder);
     }
 
@@ -117,11 +117,7 @@ pub fn await_dropped_grid_file_path(
 
     alert::draw(terminal, builder, alert, message);
 
-    // We don't want to capture escape sequences in the path.
-    terminal.disable_mouse_capture();
     terminal.flush();
-
-    // The accompanying flushes for the `enable_mouse_capture`s below follow later outside this function.
 
     let mut path = String::new();
 
@@ -130,27 +126,24 @@ pub fn await_dropped_grid_file_path(
 
         match input {
             Some(Event::Key(Key::Char(char))) => {
-                if path.is_empty() && char == '\'' {
-                    // In some terminals the path starts and ends with an apostrophe.
-                    // We simply ignore the first apostrophe, if there is one.
-                    // `valid_extension` will recognize the path before we push the last apostrophe,
-                    // meaning we don't need to care about the final apostrophe.
+                if path.is_empty() && char == '\'' || char == '"' {
+                    // In some terminals the path starts and ends with an apostrophe or a double quote.
+                    // We simply ignore the first apostrophe or double quote, if there is one.
+                    // `valid_extension` will recognize the path before we push the last character,
+                    // meaning we don't need to care about the final apostrophe or double quote.
                 } else {
                     path.push(char);
                 }
             }
             Some(Event::Key(Key::Esc)) => {
-                terminal.enable_mouse_capture();
                 return Err("Aborted");
             }
+            Some(Event::Resize | Event::Mouse(_)) => {}
             _ => {
-                terminal.enable_mouse_capture();
                 return Err("Invalid input. Aborted");
             }
         }
     }
-
-    terminal.enable_mouse_capture();
 
     Ok(path)
 }

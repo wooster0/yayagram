@@ -15,7 +15,7 @@ pub fn handle(
     event: Event,
     builder: &mut Builder,
     editor: &mut Editor,
-    last_alert: &Option<Alert>,
+    alert: &mut Option<Alert>,
     cell_placement: &mut CellPlacement,
 ) -> State {
     match event {
@@ -25,10 +25,11 @@ pub fn handle(
             builder,
             editor.toggled,
             cell_placement,
+            alert,
         ),
         Event::Key(key_event) => {
             key::handle_event(terminal, key_event, builder, editor, cell_placement)
         }
-        Event::Resize => window::handle_resize(terminal, builder, last_alert),
+        Event::Resize => window::handle_resize(terminal, builder, alert),
     }
 }
