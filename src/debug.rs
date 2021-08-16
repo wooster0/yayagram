@@ -42,7 +42,7 @@ impl fmt::Debug for Grid {
 /// Sets up the given terminal for debugging usage.
 pub fn with<F>(terminal: &mut Terminal, f: F)
 where
-    F: Fn(&mut Terminal) -> (),
+    F: Fn(&mut Terminal),
 {
     terminal.save_cursor_point();
 
