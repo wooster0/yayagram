@@ -42,10 +42,10 @@ pub fn draw(
     alert: &mut Option<Alert>,
     message: Cow<'static, str>,
 ) {
-    if let Some(ref mut current_alert) = alert {
-        // In some cases we might have colors so we safely reset them beforehand
-        terminal.reset_colors();
+    // In some cases we might have colors so we always safely reset them beforehand
+    terminal.reset_colors();
 
+    if let Some(ref mut current_alert) = alert {
         current_alert.clear(terminal, builder);
 
         current_alert.message = message;
