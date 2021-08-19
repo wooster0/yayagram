@@ -13,7 +13,7 @@ use terminal::util::Size;
 #[derive(Default)]
 pub struct Editor {
     pub toggled: bool,
-    pub writer: Option<io::BufWriter<fs::File>>,
+    writer: Option<io::BufWriter<fs::File>>,
     pub filename: String,
 }
 
@@ -90,10 +90,7 @@ impl Editor {
         Ok(())
     }
 
-    pub fn new_writer(
-        &mut self,
-        builder: &Builder,
-    ) -> Result<io::BufWriter<fs::File>, &'static str> {
+    fn new_writer(&mut self, builder: &Builder) -> Result<io::BufWriter<fs::File>, &'static str> {
         let mut open_options = fs::OpenOptions::new();
         open_options.create_new(true).write(true);
 
