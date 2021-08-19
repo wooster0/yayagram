@@ -4,6 +4,7 @@ use crate::{
     args::{valid_extension, FILE_EXTENSION},
     grid::{self, builder::Builder, Grid},
 };
+use std::time::Instant;
 use terminal::{
     event::{Event, Key},
     util::Point,
@@ -14,10 +15,11 @@ pub fn handle_resize(
     terminal: &mut Terminal,
     builder: &mut Builder,
     alert: &Option<Alert>,
+    starting_time: Option<Instant>,
 ) -> State {
     terminal.clear();
 
-    let state = await_fitting_size(terminal, &builder.grid);
+    let state = await_fitting_size(terminal, &builder.grid, starting_time);
 
     builder.point = grid::builder::centered_point(terminal, &builder.grid);
 
@@ -35,7 +37,11 @@ pub fn handle_resize(
     state
 }
 
-pub fn await_fitting_size(terminal: &mut Terminal, grid: &Grid) -> State {
+pub fn await_fitting_size(
+    terminal: &mut Terminal,
+    grid: &Grid,
+    starting_time: Option<Instant>,
+) -> State {
     const fn terminal_width_is_within_grid_width(grid: &Grid, terminal: &Terminal) -> bool {
         terminal.size.width >= grid.size.width * 2 + grid.max_clues_size.width
     }
@@ -74,8 +80,8 @@ pub fn await_fitting_size(terminal: &mut Terminal, grid: &Grid) -> State {
                 ) {
                     (true, true) => break state,
                     _ => {
-                        state = await_resize(terminal);
-                        if let State::Exit = state {
+                        state = await_resize(terminal, starting_time);
+                        if let State::Exit(_) = state {
                             break state;
                         }
                     }
@@ -92,11 +98,11 @@ pub fn await_fitting_size(terminal: &mut Terminal, grid: &Grid) -> State {
     }
 }
 
-fn await_resize(terminal: &mut Terminal) -> State {
+fn await_resize(terminal: &mut Terminal, starting_time: Option<Instant>) -> State {
     loop {
         let event = terminal.read_event();
         match event {
-            Some(Event::Key(Key::Esc)) => break State::Exit,
+            Some(Event::Key(Key::Esc)) => break State::Exit(starting_time),
             Some(Event::Key(_)) => break State::Continue,
             Some(Event::Resize) => break State::Continue,
             _ => {}

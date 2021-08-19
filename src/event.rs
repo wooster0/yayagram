@@ -6,14 +6,23 @@ use crate::{
     event,
     grid::{builder::Builder, CellPlacement, Grid},
 };
-use std::{borrow::Cow, fs, path, time::Duration};
-use terminal::Terminal;
+use std::{
+    borrow::Cow,
+    fs, path,
+    time::{Duration, Instant},
+};
+use terminal::{
+    event::Event::{self},
+    event::Key,
+    Terminal,
+};
 
 #[must_use]
 pub enum State {
     /// Execution is to be continued normally.
     Continue,
     /// The grid has been solved.
+    /// The duration specifies how long it took to solve the grid.
     Solved(Duration),
     /// Display an alert. Alerts are cleared after some time.
     ///
@@ -24,7 +33,8 @@ pub enum State {
     /// Halt the game to load a new grid.
     LoadGrid,
     /// Exit the program.
-    Exit,
+    /// Once the state is evaluated, the instant is immediately converted to a duration which determines whether an exit confirmation prompt needs to be shown.
+    Exit(Option<Instant>),
 }
 
 pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
@@ -84,7 +94,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                                 terminal.clear();
                                 crate::start_game(terminal, grid);
 
-                                break State::Exit;
+                                break State::Exit(None);
                             } else {
                                 let err = if !path.contains(path::MAIN_SEPARATOR) {
                                     // The user likely dropped a grid file onto the window without having pressed
@@ -103,7 +113,40 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                         }
                     }
                 }
-                State::Solved(_) | State::Exit => break state,
+                State::Solved(_) => break state,
+                State::Exit(instant) => {
+                    if let Some(instant) = instant {
+                        if instant.elapsed().as_secs() > 60 {
+                            // If the player played for more than 1 minute, the game is considered to have some kind of value to the player,
+                            // so we make sure the player really wants to exit.
+
+                            let message = "Press Enter to confirm exit. Esc to abort".into();
+
+                            alert::draw(terminal, builder, &mut alert, message);
+
+                            terminal.flush();
+
+                            let message = loop {
+                                let input = terminal.read_event();
+
+                                match input {
+                                    Some(Event::Key(Key::Enter)) => return State::Exit(None),
+                                    Some(Event::Key(Key::Esc)) => break "Aborted",
+                                    Some(Event::Resize | Event::Mouse(_)) => {}
+                                    _ => break "Invalid input. Aborted",
+                                }
+                            };
+
+                            alert::draw(terminal, builder, &mut alert, message.into());
+
+                            terminal.flush();
+
+                            continue;
+                        }
+                    }
+
+                    return State::Exit(None);
+                }
             }
         }
     }

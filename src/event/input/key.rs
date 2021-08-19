@@ -164,7 +164,7 @@ pub fn handle_event(
 
             State::Continue
         }
-        Key::Esc => State::Exit,
+        Key::Esc => State::Exit(cell_placement.starting_time),
         _ => State::Continue,
     }
 }

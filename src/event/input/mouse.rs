@@ -179,7 +179,7 @@ fn resize_grid(
             terminal.clear();
             crate::start_game(terminal, Grid::random(builder.grid.size.clone()));
 
-            State::Exit
+            State::Exit(None)
         } else {
             builder.grid.size = original_grid_size;
 

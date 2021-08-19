@@ -30,6 +30,8 @@ pub fn handle(
         Event::Key(key_event) => {
             key::handle_event(terminal, key_event, builder, editor, cell_placement)
         }
-        Event::Resize => window::handle_resize(terminal, builder, alert),
+        Event::Resize => {
+            window::handle_resize(terminal, builder, alert, cell_placement.starting_time)
+        }
     }
 }

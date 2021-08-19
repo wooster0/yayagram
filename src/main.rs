@@ -78,7 +78,7 @@ fn run() -> Result<(), Cow<'static, str>> {
 }
 
 pub fn start_game(terminal: &mut Terminal, grid: Grid) {
-    if let State::Continue = event::input::window::await_fitting_size(terminal, &grid) {
+    if let State::Continue = event::input::window::await_fitting_size(terminal, &grid, None) {
         let mut builder = Builder::new(&terminal, grid);
 
         let all_clues_solved = builder.draw_all(terminal);
@@ -95,7 +95,7 @@ pub fn start_game(terminal: &mut Terminal, grid: Grid) {
                 State::Solved(duration) => {
                     solved_screen(terminal, &builder, duration, false);
                 }
-                State::Exit => {}
+                State::Exit(_) => {}
                 _ => unreachable!(),
             }
         }
