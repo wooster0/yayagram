@@ -24,7 +24,8 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 * Runs in the terminal!
 * Cross-platform: runs on Linux, Windows and macOS.
 * Helpful features and tools like undo, redo and clear.
-* [Create your own grids](#Editor) for others to play.
+* Random grids.
+* Custom grids: [create your own grids](#Editor) for others to play.
 * A new kind of cell: [maybed](#Maybed).
 * Very well suited for [big grids](#Big-grids).
 * Intuitive to play.
@@ -108,6 +109,7 @@ yayagram is very well suited for big grids, up to size 99x99. Here are the reaso
 - Try to avoid guesssing and play it safe! Guessing can come back later to bite you. Guessing is `unsafe`.
 - Don't forget to cross out cells that you are sure won't be filled.
   This helps immensely at ruling out possibilities.
+- If you want a new random grid, drag the litle resize icon in the grid's bottom right, next to the progress bar, to the size you want.
 - Be careful about accidentally pasting in your clipboard data. Some terminals paste with the press of a mouse button.
   If the data contains `'c'` for instance, the grid will be cleared because it's recognized as the `C` key being pressed.
   This clear can be undone using the `A` key of course, but it may be confusing.

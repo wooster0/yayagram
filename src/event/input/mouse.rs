@@ -2,7 +2,7 @@ use super::{super::alert, Alert, State};
 use crate::grid::{self, builder::Builder, Cell, CellPlacement, Grid};
 use terminal::{
     event::{Event, Key, MouseButton, MouseEvent, MouseEventKind},
-    util::Point,
+    util::{Point, Size},
     Terminal,
 };
 
@@ -41,13 +41,13 @@ pub fn handle_event(
                     x: builder.point.x + builder.grid.size.width * 2,
                     y: builder.point.y + builder.grid.size.height,
                 };
-                let resize_arrow = Point {
+                let resize_icon = Point {
                     x: grid_corner.x + 1,
                     ..grid_corner
                 };
 
-                if selected_cell_point == resize_arrow {
-                    resize_grid(terminal, builder, alert, resize_arrow)
+                if selected_cell_point == resize_icon {
+                    resize_grid(terminal, builder, alert, resize_icon)
                 } else {
                     State::Continue
                 }
@@ -79,11 +79,13 @@ fn resize_grid(
     terminal: &mut Terminal,
     builder: &mut Builder,
     alert: &mut Option<Alert>,
-    resize_arrow: Point,
+    resize_icon: Point,
 ) -> State {
     let original_grid_size = builder.grid.size.clone();
 
     crate::clear_basic_controls_help(terminal, builder);
+
+    builder.clear_progress_bar_and_resize_icon(terminal);
 
     loop {
         let event = terminal.read_event();
@@ -101,12 +103,12 @@ fn resize_grid(
 
                 use std::cmp::Ordering;
 
-                match point.x.cmp(&resize_arrow.x) {
+                match point.x.cmp(&resize_icon.x) {
                     Ordering::Greater => {
                         builder.clear_empty_grid(terminal);
 
                         builder.grid.size.width =
-                            original_grid_size.width + ((point.x - resize_arrow.x) / 2);
+                            original_grid_size.width + (point.x - resize_icon.x) / 2;
 
                         draw(terminal, builder);
                     }
@@ -115,7 +117,7 @@ fn resize_grid(
 
                         builder.grid.size.width = original_grid_size
                             .width
-                            .saturating_sub(resize_arrow.x.saturating_sub(point.x) / 2);
+                            .saturating_sub(resize_icon.x.saturating_sub(point.x) / 2);
 
                         if builder.grid.size.width < 1 {
                             builder.grid.size.width = 1;
@@ -126,14 +128,14 @@ fn resize_grid(
                     Ordering::Equal => {}
                 }
 
-                match point.y.cmp(&resize_arrow.y) {
+                match point.y.cmp(&resize_icon.y) {
                     Ordering::Greater |
                     Ordering::Equal // This prevents some weird behavior on expansion or contraction of the grid over the original grid size
                     => {
                         builder.clear_empty_grid(terminal);
 
                         builder.grid.size.height =
-                            original_grid_size.height + (point.y - resize_arrow.y);
+                            original_grid_size.height + (point.y - resize_icon.y);
 
                         draw(terminal, builder);
                     }
@@ -142,7 +144,7 @@ fn resize_grid(
 
                         builder.grid.size.height = original_grid_size
                             .height
-                            .saturating_sub(resize_arrow.y.saturating_sub(point.y));
+                            .saturating_sub(resize_icon.y.saturating_sub(point.y));
 
                         if builder.grid.size.height < 1 {
                             builder.grid.size.height = 1;
@@ -164,48 +166,61 @@ fn resize_grid(
             builder.draw_all(terminal);
         }
 
+        crate::draw_basic_controls_help(terminal, builder);
+
         State::Continue
     } else {
-        let message = "Press Enter to confirm new random grid in this size. Esc to abort".into();
+        let confirmed = confirmation_prompt(terminal, builder, original_grid_size.clone(), alert);
 
-        // Temporarily set the builder grid size back to the old size to render the alert properly.
-        let new_grid_size = builder.grid.size.clone();
-        builder.grid.size = original_grid_size.clone();
-        alert::draw(terminal, builder, alert, message);
-        builder.grid.size = new_grid_size;
+        if confirmed {
+            // Currently the new game simply runs inside of this existing game and the new game creates an entirely new state.
+            // At some point we would probably hit a stack overflow if the user keeps resizing the grid within the same session.
 
-        terminal.flush();
+            terminal.clear();
+            crate::start_game(terminal, Grid::random(builder.grid.size.clone()));
 
-        loop {
-            let input = terminal.read_event();
+            State::Exit
+        } else {
+            builder.grid.size = original_grid_size;
 
-            match input {
-                Some(Event::Key(Key::Enter)) => {
-                    // Currently the new game simply runs inside of this existing game and the new game creates an entirely new state.
-                    // At some point we would probably hit a stack overflow if the user keeps resizing the grid within the same session.
+            terminal.clear();
 
-                    terminal.clear();
-                    crate::start_game(terminal, Grid::random(builder.grid.size.clone()));
-
-                    break State::Exit;
-                }
-                Some(Event::Resize | Event::Mouse(_)) => {}
-                _ => {
-                    builder.grid.size = original_grid_size;
-
-                    terminal.clear();
-
-                    // Only the grid's size was mutated
-                    #[allow(unused_must_use)]
-                    {
-                        builder.draw_all(terminal);
-                    }
-
-                    crate::draw_basic_controls_help(terminal, builder);
-
-                    break State::Alert("Aborted".into());
-                }
+            // Only the grid's size was mutated
+            #[allow(unused_must_use)]
+            {
+                builder.draw_all(terminal);
             }
+
+            crate::draw_basic_controls_help(terminal, builder);
+
+            State::Alert("Aborted".into())
+        }
+    }
+}
+
+fn confirmation_prompt(
+    terminal: &mut Terminal,
+    builder: &mut Builder,
+    original_grid_size: Size,
+    alert: &mut Option<Alert>,
+) -> bool {
+    let message = "Press Enter to confirm new random grid in this size. Esc to abort".into();
+
+    // Temporarily set the builder grid size back to the old size to render the alert properly.
+    let new_grid_size = builder.grid.size.clone();
+    builder.grid.size = original_grid_size.clone();
+    alert::draw(terminal, builder, alert, message);
+    builder.grid.size = new_grid_size;
+
+    terminal.flush();
+
+    loop {
+        let input = terminal.read_event();
+
+        match input {
+            Some(Event::Key(Key::Enter)) => break true,
+            Some(Event::Resize | Event::Mouse(_)) => {}
+            _ => break false,
         }
     }
 }

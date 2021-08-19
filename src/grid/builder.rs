@@ -315,7 +315,24 @@ impl Builder {
         }
     }
 
-    pub fn draw_resize_arrow(&mut self, terminal: &mut Terminal) {
+    /// Clears the progress bar as well as the resize icon.
+    pub fn clear_progress_bar_and_resize_icon(&mut self, terminal: &mut Terminal) {
+        terminal.set_cursor(Point {
+            y: self.point.y + self.grid.size.height,
+            ..self.point
+        });
+
+        let grid_width = self.grid.size.width * 2;
+
+        for _ in 0..grid_width {
+            terminal.write(" ");
+        }
+
+        self.clear_resize_icon(terminal);
+    }
+
+    /// Draws the resize icon, at the bottom right, next to the progress bar.
+    fn draw_resize_icon(&mut self, terminal: &mut Terminal) {
         terminal.set_foreground_color(Color::DarkGray);
 
         #[cfg(not(windows))]
@@ -325,6 +342,7 @@ impl Builder {
         // until the situation improves (and https://en.wikipedia.org/wiki/Windows_Terminal becomes the new default on Windows?),
         // this is used as an alternative.
         // Someday the arrow could be used on Windows too.
+        // Then the resize icon could also be renamed to a resize arrow.
         //
         // In the future it might be helpful to take a look at the market share of Windows 10 or 11 and decide by that.
         //
@@ -332,6 +350,11 @@ impl Builder {
         // I generally recommend limiting yourself to characters listed on https://en.wikipedia.org/wiki/Code_page_437
         #[cfg(windows)]
         terminal.write(" +");
+    }
+
+    /// Clears the resize icon.
+    fn clear_resize_icon(&mut self, terminal: &mut Terminal) {
+        terminal.write("  ");
     }
 
     /// Draws the grid, the picture and the clues while also returning whether all the drawn clues were solved ones (i.e. whether the grid was solved).
@@ -345,7 +368,7 @@ impl Builder {
 
         self.draw_progress_bar(terminal, solved_rows);
 
-        self.draw_resize_arrow(terminal);
+        self.draw_resize_icon(terminal);
 
         solved_rows == (self.grid.size.width + self.grid.size.height) as usize
     }
