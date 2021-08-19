@@ -31,26 +31,25 @@ pub struct Grid {
     pub undo_redo_buffer: UndoRedoBuffer,
 }
 
-fn get_index(width: u16, point: Point) -> usize {
-    point.y as usize * width as usize + point.x as usize
+fn get_index(grid_width: u16, point: Point) -> usize {
+    point.y as usize * grid_width as usize + point.x as usize
 }
 
-fn get_horizontal_clues(cells: &[Cell], width: u16, y: u16) -> impl Iterator<Item = Clue> + '_ {
-    (0..width)
-        .map(move |x| cells[get_index(width, Point { x, y })] == Cell::Filled)
+fn get_horizontal_clues(
+    cells: &[Cell],
+    grid_width: u16,
+    y: u16,
+) -> impl Iterator<Item = Clue> + '_ {
+    (0..grid_width)
+        .map(move |x| cells[get_index(grid_width, Point { x, y })] == Cell::Filled)
         .dedup_with_count()
         .filter(|(_, filled)| *filled)
         .map(|(count, _)| count as Clue)
 }
 
-fn get_vertical_clues(
-    cells: &[Cell],
-    width: u16,
-    height: u16,
-    x: u16,
-) -> impl Iterator<Item = Clue> + '_ {
-    (0..height)
-        .map(move |y| cells[get_index(width, Point { x, y })] == Cell::Filled)
+fn get_vertical_clues(cells: &[Cell], grid_size: Size, x: u16) -> impl Iterator<Item = Clue> + '_ {
+    (0..grid_size.height)
+        .map(move |y| cells[get_index(grid_size.width, Point { x, y })] == Cell::Filled)
         .dedup_with_count()
         .filter(|(_, filled)| *filled)
         .map(|(count, _)| count as Clue)
@@ -76,7 +75,7 @@ impl Grid {
         let mut vertical_clues_solutions = Vec::<Clues>::new();
         for x in 0..size.width {
             let vertical_clues_solution: Clues =
-                get_vertical_clues(&cells, size.width, size.height, x).collect();
+                get_vertical_clues(&cells, size.clone(), x).collect();
             vertical_clues_solutions.push(vertical_clues_solution);
         }
         let max_clues_height = vertical_clues_solutions
@@ -115,7 +114,7 @@ impl Grid {
         );
     }
 
-    pub fn get_cell(&self, point: Point) -> Cell {
+    fn get_cell(&self, point: Point) -> Cell {
         let index = get_index(self.size.width, point);
         *self
             .cells
@@ -130,12 +129,12 @@ impl Grid {
             .unwrap_or_else(|| Self::cell_panic(point, index))
     }
 
-    pub fn get_horizontal_clues(&self, y: u16) -> impl Iterator<Item = Clue> + '_ {
+    fn get_horizontal_clues(&self, y: u16) -> impl Iterator<Item = Clue> + '_ {
         get_horizontal_clues(&self.cells, self.size.width, y)
     }
 
-    pub fn get_vertical_clues(&self, x: u16) -> impl Iterator<Item = Clue> + '_ {
-        get_vertical_clues(&self.cells, self.size.width, self.size.height, x)
+    fn get_vertical_clues(&self, x: u16) -> impl Iterator<Item = Clue> + '_ {
+        get_vertical_clues(&self.cells, self.size.clone(), x)
     }
 
     pub fn clear(&mut self) {
