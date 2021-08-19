@@ -35,19 +35,15 @@ fn main() {
     process::exit(code);
 }
 
-const HELP: &[&str] = &[
-    "Play nonograms/picross in your terminal.",
-    "For the arguments please check <https://github.com/r00ster91/yayagram#command-line-arguments>.",
-];
-
 fn run() -> Result<(), Cow<'static, str>> {
     let arg = args::parse();
 
     let grid = match arg {
         Ok(Some(args::Arg::Help)) => {
-            for line in HELP {
-                println!("{}", line);
-            }
+            println!(concat!(
+                "Play nonograms/picross in your terminal.\n",
+                "For the arguments please check <https://github.com/r00ster91/yayagram#command-line-arguments>."
+            ));
 
             return Ok(());
         }

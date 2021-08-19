@@ -92,7 +92,7 @@ pub fn await_fitting_size(terminal: &mut Terminal, grid: &Grid) -> State {
     }
 }
 
-pub fn await_resize(terminal: &mut Terminal) -> State {
+fn await_resize(terminal: &mut Terminal) -> State {
     loop {
         let event = terminal.read_event();
         match event {

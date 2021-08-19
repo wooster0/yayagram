@@ -208,7 +208,7 @@ fn confirmation_prompt(
 
     // Temporarily set the builder grid size back to the old size to render the alert properly.
     let new_grid_size = builder.grid.size.clone();
-    builder.grid.size = original_grid_size.clone();
+    builder.grid.size = original_grid_size;
     alert::draw(terminal, builder, alert, message);
     builder.grid.size = new_grid_size;
 
