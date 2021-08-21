@@ -74,8 +74,7 @@ impl Grid {
 
         let mut vertical_clues_solutions = Vec::<Clues>::new();
         for x in 0..size.width {
-            let vertical_clues_solution: Clues =
-                get_vertical_clues(&cells, size, x).collect();
+            let vertical_clues_solution: Clues = get_vertical_clues(&cells, size, x).collect();
             vertical_clues_solutions.push(vertical_clues_solution);
         }
         let max_clues_height = vertical_clues_solutions

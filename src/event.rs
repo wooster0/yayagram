@@ -3,7 +3,7 @@ pub mod input;
 
 use crate::{
     editor::{self, Editor},
-    event,
+    event::{self, input::window},
     grid::{builder::Builder, CellPlacement, Grid},
 };
 use std::{
@@ -11,11 +11,7 @@ use std::{
     fs, path,
     time::{Duration, Instant},
 };
-use terminal::{
-    event::Event::{self},
-    event::Key,
-    Terminal,
-};
+use terminal::Terminal;
 
 #[must_use]
 pub enum State {
@@ -120,28 +116,16 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                             // If the player played for more than 1 minute, the game is considered to have some kind of value to the player,
                             // so we make sure the player really wants to exit.
 
-                            let message = "Press Enter to confirm exit. Esc to abort".into();
+                            let confirmed =
+                                window::confirmation_prompt(terminal, builder, &mut alert, "exit");
 
-                            alert::draw(terminal, builder, &mut alert, message);
-
-                            terminal.flush();
-
-                            let message = loop {
-                                let input = terminal.read_event();
-
-                                match input {
-                                    Some(Event::Key(Key::Enter)) => return State::Exit(None),
-                                    Some(Event::Key(Key::Esc)) => break "Aborted",
-                                    Some(Event::Resize | Event::Mouse(_)) => {}
-                                    _ => break "Invalid input. Aborted",
-                                }
-                            };
-
-                            alert::draw(terminal, builder, &mut alert, message.into());
-
-                            terminal.flush();
-
-                            continue;
+                            if confirmed {
+                                return State::Exit(None);
+                            } else {
+                                alert::draw(terminal, builder, &mut alert, "Canceled".into());
+                                terminal.flush();
+                                continue;
+                            }
                         }
                     }
 

@@ -110,17 +110,20 @@ fn await_resize(terminal: &mut Terminal, starting_time: Option<Instant>) -> Stat
     }
 }
 
+/// Awaits a grid file path dropped onto the window.
+///
+/// As opposed to [`confirmation_prompt`], this does not disable mouse capturing to change the pointer icon because
+/// the user is, differently from the prompt, supposed to do something with their mouse.
 pub fn await_dropped_grid_file_path(
     terminal: &mut Terminal,
     builder: &Builder,
     alert: &mut Option<Alert>,
 ) -> Result<String, &'static str> {
     let message = format!(
-        "Drag & drop a `.{}` grid file onto this window to load. Esc to abort",
-        FILE_EXTENSION,
+        "Drag & drop a `.{}` grid file onto this window to load. Esc to cancel",
+        FILE_EXTENSION
     )
     .into();
-
     alert::draw(terminal, builder, alert, message);
 
     terminal.flush();
@@ -142,14 +145,49 @@ pub fn await_dropped_grid_file_path(
                 }
             }
             Some(Event::Key(Key::Esc)) => {
-                return Err("Aborted");
+                return Err("Canceled");
             }
             Some(Event::Resize | Event::Mouse(_)) => {}
             _ => {
-                return Err("Invalid input. Aborted");
+                return Err("Invalid input. Canceled");
             }
         }
     }
 
     Ok(path)
+}
+
+/// Draws an alert asking the user to confirm the given thing and returns whether the user confirmed the action.
+///
+/// Despite the alert saying that Esc cancels, every other key apart from Enter will cancel as well.
+///
+/// NOTE: mouse capturing is disabled for the duration of the prompt and a flush is required after this call to reenable it.
+pub fn confirmation_prompt(
+    terminal: &mut Terminal,
+    builder: &mut Builder,
+    alert: &mut Option<Alert>,
+    thing_to_confirm: &str,
+) -> bool {
+    let message = format!("Press Enter to confirm {}. Esc to cancel", thing_to_confirm).into();
+    alert::draw(terminal, builder, alert, message);
+
+    // We could also just ignore `Event::Mouse(_)` in the loop below but disabling mouse capture changes the pointer icon
+    // in some terminals, which helps inform the user that the game is halted and that they can't use their mouse and need to respond to the confirmation prompt.
+    terminal.disable_mouse_capture();
+
+    terminal.flush();
+
+    let confirmed = loop {
+        let input = terminal.read_event();
+
+        match input {
+            Some(Event::Key(Key::Enter)) => break true,
+            Some(Event::Resize) => {}
+            _ => break false,
+        }
+    };
+
+    terminal.enable_mouse_capture();
+
+    confirmed
 }

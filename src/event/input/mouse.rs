@@ -1,8 +1,8 @@
-use super::{super::alert, Alert, State};
+use super::{window, Alert, State};
 use crate::grid::{self, builder::Builder, Cell, CellPlacement, Grid};
 use terminal::{
-    event::{Event, Key, MouseButton, MouseEvent, MouseEventKind},
-    util::{Point, Size},
+    event::{Event, MouseButton, MouseEvent, MouseEventKind},
+    util::Point,
     Terminal,
 };
 
@@ -170,7 +170,12 @@ fn resize_grid(
 
         State::Continue
     } else {
-        let confirmed = confirmation_prompt(terminal, builder, original_grid_size, alert);
+        // Temporarily set the builder grid size back to the old size to render the confirmation alert properly.
+        let new_grid_size = builder.grid.size;
+        builder.grid.size = original_grid_size;
+        let confirmed =
+            window::confirmation_prompt(terminal, builder, alert, "new random grid in this size");
+        builder.grid.size = new_grid_size;
 
         if confirmed {
             // Currently the new game simply runs inside of this existing game and the new game creates an entirely new state.
@@ -193,34 +198,7 @@ fn resize_grid(
 
             crate::draw_basic_controls_help(terminal, builder);
 
-            State::Alert("Aborted".into())
-        }
-    }
-}
-
-fn confirmation_prompt(
-    terminal: &mut Terminal,
-    builder: &mut Builder,
-    original_grid_size: Size,
-    alert: &mut Option<Alert>,
-) -> bool {
-    let message = "Press Enter to confirm new random grid in this size. Esc to abort".into();
-
-    // Temporarily set the builder grid size back to the old size to render the alert properly.
-    let new_grid_size = builder.grid.size;
-    builder.grid.size = original_grid_size;
-    alert::draw(terminal, builder, alert, message);
-    builder.grid.size = new_grid_size;
-
-    terminal.flush();
-
-    loop {
-        let input = terminal.read_event();
-
-        match input {
-            Some(Event::Key(Key::Enter)) => break true,
-            Some(Event::Resize | Event::Mouse(_)) => {}
-            _ => break false,
+            State::Alert("Canceled".into())
         }
     }
 }
