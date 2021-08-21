@@ -55,7 +55,7 @@ impl Editor {
                         }
                         Cell::Maybed => {
                             help[2] = Some("?: maybed");
-                            "????" // Indicates the unclearness.
+                            "????" // Represents unclearness.
                         }
                         Cell::Measured(_) => {
                             help[3] = Some("R: measured");

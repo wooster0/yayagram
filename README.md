@@ -53,7 +53,7 @@ You don't need to memorize the following controls. The most important controls a
 
 Press `Tab` to toggle the editor and start placing the cells for your grid.
 You can make use of all cell kinds.
-To export your grid, press `Enter` to save while in editor mode. This will create a new `.yaya` grid file.
+To export your grid, press `S` to save while in editor mode. This will create a new `.yaya` grid file.
 Note that in the same session it will always write the grid to the same file again unless renamed.
 
 ## Loading grid files
