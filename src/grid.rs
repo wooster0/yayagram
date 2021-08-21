@@ -70,7 +70,7 @@ impl Grid {
             .iter()
             .map(|horizontal_clues_solution| horizontal_clues_solution.len() * 2)
             .max()
-            .unwrap() as u16;
+            .unwrap() as u16; // The iterator won't be empty
 
         let mut vertical_clues_solutions = Vec::<Clues>::new();
         for x in 0..size.width {
@@ -81,7 +81,7 @@ impl Grid {
             .iter()
             .map(|vertical_clues_solution| vertical_clues_solution.len())
             .max()
-            .unwrap() as u16;
+            .unwrap() as u16; // The iterator won't be empty
 
         for cell in &mut cells {
             if *cell == Cell::Filled {

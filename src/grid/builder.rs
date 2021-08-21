@@ -268,7 +268,7 @@ impl Builder {
         let mut chunks = self.grid.cells.chunks(self.grid.size.width as usize);
 
         if self.grid.size.height % 2 == 1 {
-            let uneven_chunk = chunks.next().unwrap();
+            let uneven_chunk = chunks.next().unwrap(); // There will be one more chunk
 
             terminal.set_cursor(self.point);
             for cell in uneven_chunk {
