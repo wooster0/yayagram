@@ -75,7 +75,7 @@ impl Grid {
         let mut vertical_clues_solutions = Vec::<Clues>::new();
         for x in 0..size.width {
             let vertical_clues_solution: Clues =
-                get_vertical_clues(&cells, size.clone(), x).collect();
+                get_vertical_clues(&cells, size, x).collect();
             vertical_clues_solutions.push(vertical_clues_solution);
         }
         let max_clues_height = vertical_clues_solutions
@@ -134,7 +134,7 @@ impl Grid {
     }
 
     fn get_vertical_clues(&self, x: u16) -> impl Iterator<Item = Clue> + '_ {
-        get_vertical_clues(&self.cells, self.size.clone(), x)
+        get_vertical_clues(&self.cells, self.size, x)
     }
 
     pub fn clear(&mut self) {

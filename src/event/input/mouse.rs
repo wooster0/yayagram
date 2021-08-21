@@ -81,7 +81,7 @@ fn resize_grid(
     alert: &mut Option<Alert>,
     resize_icon: Point,
 ) -> State {
-    let original_grid_size = builder.grid.size.clone();
+    let original_grid_size = builder.grid.size;
 
     crate::clear_basic_controls_help(terminal, builder);
 
@@ -170,14 +170,14 @@ fn resize_grid(
 
         State::Continue
     } else {
-        let confirmed = confirmation_prompt(terminal, builder, original_grid_size.clone(), alert);
+        let confirmed = confirmation_prompt(terminal, builder, original_grid_size, alert);
 
         if confirmed {
             // Currently the new game simply runs inside of this existing game and the new game creates an entirely new state.
             // At some point we would probably hit a stack overflow if the user keeps resizing the grid within the same session.
 
             terminal.clear();
-            crate::start_game(terminal, Grid::random(builder.grid.size.clone()));
+            crate::start_game(terminal, Grid::random(builder.grid.size));
 
             State::Exit(None)
         } else {
@@ -207,7 +207,7 @@ fn confirmation_prompt(
     let message = "Press Enter to confirm new random grid in this size. Esc to abort".into();
 
     // Temporarily set the builder grid size back to the old size to render the alert properly.
-    let new_grid_size = builder.grid.size.clone();
+    let new_grid_size = builder.grid.size;
     builder.grid.size = original_grid_size;
     alert::draw(terminal, builder, alert, message);
     builder.grid.size = new_grid_size;

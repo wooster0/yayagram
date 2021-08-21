@@ -21,6 +21,6 @@ fn random_cells(size: u32) -> Vec<Cell> {
 
 impl Grid {
     pub fn random(size: Size) -> Grid {
-        Self::new(size.clone(), random_cells(size.product()))
+        Self::new(size, random_cells(size.product()))
     }
 }

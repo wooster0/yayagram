@@ -176,10 +176,7 @@ const BOTTOM_TEXT_HEIGHT: u16 = 2;
 
 pub fn total_height(grid: &Grid) -> u16 {
     TOP_TEXT_HEIGHT
-        + cmp::max(
-            get_picture_height(grid.size.clone()),
-            grid.max_clues_size.height,
-        )
+        + cmp::max(get_picture_height(grid.size), grid.max_clues_size.height)
         + grid.size.height
         + PROGRESS_BAR_HEIGHT
         + BOTTOM_TEXT_HEIGHT
@@ -219,10 +216,10 @@ pub fn set_cursor_for_top_text(
     y_alignment: u16,
     top_text_position: Option<TopTextPosition>,
 ) {
-    let picture_height = get_picture_height(builder.grid.size.clone());
+    let picture_height = get_picture_height(builder.grid.size);
 
     let height = match top_text_position
-        .unwrap_or_else(|| get_top_text_position(builder.grid.size.clone(), text_len))
+        .unwrap_or_else(|| get_top_text_position(builder.grid.size, text_len))
     {
         TopTextPosition::AboveClues => builder.grid.max_clues_size.height,
         TopTextPosition::AbovePicture => picture_height,
@@ -266,7 +263,7 @@ fn solved_screen(
     const TEXT: &str = "Press any key to continue";
 
     let mut y_alignment = 0;
-    let top_text_position = get_top_text_position(builder.grid.size.clone(), TEXT.len());
+    let top_text_position = get_top_text_position(builder.grid.size, TEXT.len());
 
     set_cursor_for_top_text(
         terminal,
