@@ -154,7 +154,7 @@ fn get_grid(arg: Result<Option<args::Arg>, Cow<'static, str>>) -> Result<Grid, C
                 Ok(Grid::random(grid_size))
             }
         },
-        Err(err) => Err(err.clone()),
+        Err(err) => Err(err),
     }
 }
 

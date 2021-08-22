@@ -386,7 +386,7 @@ mod tests {
             width: 10,
             height: 5,
         };
-        let grid = Grid::new(size.clone(), vec![Cell::Empty; size.product() as usize]);
+        let grid = Grid::new(size, vec![Cell::Empty; size.product() as usize]);
         let terminal = Terminal::new(stdout).unwrap();
         let builder = Builder::new(&terminal, grid);
         (terminal, builder)
