@@ -13,12 +13,6 @@ type Clue = u16;
 /// A complete set of clues.
 type Clues = Vec<Clue>;
 
-#[derive(Debug)]
-pub struct SolvedClues {
-    pub horizontal_clues: Vec<Cell>,
-    pub vertical_clues: Vec<Cell>,
-}
-
 pub struct Grid {
     pub size: Size,
     /// This is where the player's input is stored. It is initially empty.
@@ -56,9 +50,9 @@ fn get_vertical_clues(cells: &[Cell], grid_size: Size, x: u16) -> impl Iterator<
 }
 
 impl Grid {
-    /// Creates a new grid. `cells` must have a length of `size.width * size.height`.
+    /// Creates a new grid. `cells`' `len` must be equal to the product of the width and height of `size`.
     pub fn new(size: Size, mut cells: Vec<Cell>) -> Self {
-        debug_assert_eq!(cells.len(), (size.width as usize * size.height as usize));
+        debug_assert_eq!(cells.len(), size.product() as usize);
 
         let mut horizontal_clues_solutions = Vec::<Clues>::new();
         for y in 0..size.height {

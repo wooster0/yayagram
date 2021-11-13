@@ -194,7 +194,7 @@ pub const fn get_picture_height(grid_size: Size) -> u16 {
 pub enum TopTextPosition {
     /// The top text is positioned above the clues because it fits and does not overlap with the picture.
     AboveClues,
-    /// The top text is positioned above the picture because it does not fit below ([`AboveClues`]) and would overlap with the picture.
+    /// The top text is positioned above the picture because it does not fit below ([`Self::AboveClues`]) and would overlap with the picture.
     AbovePicture,
 }
 
