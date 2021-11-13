@@ -36,29 +36,29 @@ The game is primarily played with both mouse and keyboard but can also be played
 You don't need to memorize the following controls. The most important controls are displayed ingame.
 
 - Mouse movement or arrow keys: select a cell.
-- Left-click or `Q`: place a cell.
-- Middle-click or `W`: [maybe a cell](#Maybed).
-- Right-click or `E`: cross out a cell.
-- `C`: clear the grid.
-- `A`: undo cell placements or a grid clear.
-- `D`: redo cell placements or a grid clear.
-- `F`: flood-fill multiple cells.
-- `X`: set [measurement point](#Measurement-tool).
-- `Tab`: toggle the [editor](#Editor).
-- `S`: save the [edited](#Editor) grid as a file locally.
-- `L`: load local `.yaya` grid files with drag & drop onto the window.
-- `Esc`: exit.
+- Left-click or <kbd>Q</kbd>: place a cell.
+- Middle-click or <kbd>W</kbd>: [maybe a cell](#Maybed).
+- Right-click or <kbd>E</kbd>: cross out a cell.
+- <kbd>C</kbd>: clear the grid.
+- <kbd>A</kbd>: undo cell placements or a grid clear.
+- <kbd>D</kbd>: redo cell placements or a grid clear.
+- <kbd>F</kbd>: flood-fill multiple cells.
+- <kbd>X</kbd>: set [measurement point](#Measurement-tool).
+- <kbd>Tab</kbd>: toggle the [editor](#Editor).
+- <kbd>S</kbd>: save the [edited](#Editor) grid as a file locally.
+- <kbd>L</kbd>: load local `.yaya` grid files with drag & drop onto the window.
+- <kbd>Esc</kbd>: exit.
 
 ## Editor
 
-Press `Tab` to toggle the editor and start placing the cells for your grid.
+Press <kbd>Tab</kbd> to toggle the editor and start placing the cells for your grid.
 You can make use of all cell kinds.
-To export your grid, press `S` to save while in editor mode. This will create a new `.yaya` grid file.
+To export your grid, press <kbd>S</kbd> to save while in editor mode. This will create a new `.yaya` grid file.
 Note that in the same session it will always write the grid to the same file again unless renamed.
 
 ## Loading grid files
 
-* You can press `L` ingame to load a `.yaya` grid file with drag & drop onto the window. Many but not all terminals support this.
+* You can press <kbd>L</kbd> ingame to load a `.yaya` grid file with drag & drop onto the window. Many but not all terminals support this.
 * On Linux, Windows and macOS the `.yaya` file can be passed via the [command line](#Command-line-arguments).
 * Additionally on Windows within the explorer you can drag `.yaya` grid files onto the [`.exe`](https://github.com/r00ster91/yayagram/releases) file to play the grid.
 
@@ -82,7 +82,7 @@ yayagram example.yaya # a custom grid
 ## Measurement tool
 
 Particularly on bigger grids it can sometimes become hard to count all the cells.
-For this you can use the measurement tool. Simply press `X` to set your first point and then `X` again to set your second point.
+For this you can use the measurement tool. Simply press <kbd>X</kbd> to set your first point and then <kbd>X</kbd> again to set your second point.
 You will then be able to see the distance between those two points with the measured cells that appear.
 Measured cells never overwrite cell kinds other than empty cells and its own.
 
@@ -111,9 +111,9 @@ yayagram is very well suited for big grids, up to size 99x99. Here are the reaso
   This helps immensely at ruling out possibilities.
 - If you want a new random grid, drag the litle resize icon in the grid's bottom right, next to the progress bar, to the size you want.
 - Be careful about accidentally pasting in your clipboard data. Some terminals paste with the press of a mouse button.
-  If the data contains `'c'` for instance, the grid will be cleared because it's recognized as the `C` key being pressed.
-  This clear can be undone using the `A` key of course, but it may be confusing.
-  The same applies to items dropped onto the window. Press `L` before [loading grid files](#Loading-grid-files).
+  If the data contains `'c'` for instance, the grid will be cleared because it's recognized as the <kbd>C</kbd> key being pressed.
+  This clear can be undone using the <kbd>A</kbd> key of course, but it may be confusing.
+  The same applies to items dropped onto the window. Press <kbd>L</kbd> before [loading grid files](#Loading-grid-files).
 
 ## Example
 
