@@ -50,7 +50,7 @@ pub fn optimal_string_capacity(file: &fs::File) -> io::Result<usize> {
 
 /// Reads the file's content into a string.
 pub fn read_file_content(file: &mut fs::File) -> io::Result<String> {
-    let mut string = String::with_capacity(optimal_string_capacity(&file)?);
+    let mut string = String::with_capacity(optimal_string_capacity(file)?);
     file.read_to_string(&mut string)?;
     Ok(string)
 }

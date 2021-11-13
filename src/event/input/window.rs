@@ -29,7 +29,7 @@ pub fn handle_resize(
         builder.draw_all(terminal);
     }
 
-    crate::draw_basic_controls_help(terminal, &builder);
+    crate::draw_basic_controls_help(terminal, builder);
     if let Some(alert) = alert {
         alert.draw(terminal, builder);
     }
@@ -53,8 +53,8 @@ pub fn await_fitting_size(
     let mut state = State::Continue;
 
     match (
-        terminal_width_is_within_grid_width(&grid, terminal),
-        terminal_height_is_within_grid_height(&grid, terminal),
+        terminal_width_is_within_grid_width(grid, terminal),
+        terminal_height_is_within_grid_height(grid, terminal),
     ) {
         (true, true) => state,
         (within_width, within_height) => {
@@ -75,8 +75,8 @@ pub fn await_fitting_size(
 
             let state = loop {
                 match (
-                    terminal_width_is_within_grid_width(&grid, terminal),
-                    terminal_height_is_within_grid_height(&grid, terminal),
+                    terminal_width_is_within_grid_width(grid, terminal),
+                    terminal_height_is_within_grid_height(grid, terminal),
                 ) {
                     (true, true) => break state,
                     _ => {

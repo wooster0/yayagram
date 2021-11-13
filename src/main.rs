@@ -79,7 +79,7 @@ fn run() -> Result<(), Cow<'static, str>> {
 
 pub fn start_game(terminal: &mut Terminal, grid: Grid) {
     if let State::Continue = event::input::window::await_fitting_size(terminal, &grid, None) {
-        let mut builder = Builder::new(&terminal, grid);
+        let mut builder = Builder::new(terminal, grid);
 
         let all_clues_solved = builder.draw_all(terminal);
         draw_basic_controls_help(terminal, &builder);
@@ -107,7 +107,7 @@ pub const BASIC_CONTROLS_HELP: &[&str] = &["A: Undo, D: Redo, C: Clear", "X: Mea
 fn draw_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
     for (index, text) in BASIC_CONTROLS_HELP.iter().enumerate() {
-        set_cursor_for_bottom_text(terminal, &builder, text.len(), index as u16);
+        set_cursor_for_bottom_text(terminal, builder, text.len(), index as u16);
         terminal.write(text);
     }
     terminal.reset_colors();
@@ -115,7 +115,7 @@ fn draw_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
 
 fn clear_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
     for (index, text) in BASIC_CONTROLS_HELP.iter().enumerate() {
-        set_cursor_for_bottom_text(terminal, &builder, text.len(), index as u16);
+        set_cursor_for_bottom_text(terminal, builder, text.len(), index as u16);
         for _ in 0..text.len() {
             terminal.write(" ");
         }
@@ -267,7 +267,7 @@ fn solved_screen(
 
     set_cursor_for_top_text(
         terminal,
-        &builder,
+        builder,
         TEXT.len(),
         y_alignment,
         Some(top_text_position),
@@ -289,7 +289,7 @@ fn solved_screen(
     terminal.set_foreground_color(Color::White);
     set_cursor_for_top_text(
         terminal,
-        &builder,
+        builder,
         text.len(),
         y_alignment,
         Some(top_text_position),

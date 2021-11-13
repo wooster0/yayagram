@@ -210,7 +210,7 @@ impl CellPlacement {
                 builder.draw_grid(terminal);
 
                 // We know that this point is hovered
-                draw_highlighted_cells(terminal, &builder, selected_cell_point);
+                draw_highlighted_cells(terminal, builder, selected_cell_point);
 
                 return State::Continue;
             }
@@ -276,7 +276,7 @@ impl CellPlacement {
         }
 
         // We know that this point is hovered
-        draw_highlighted_cells(terminal, &builder, selected_cell_point);
+        draw_highlighted_cells(terminal, builder, selected_cell_point);
 
         State::Continue
     }
@@ -309,7 +309,7 @@ impl CellPlacement {
                 builder.draw_grid(terminal);
 
                 // We know that this point is hovered
-                super::draw_highlighted_cells(terminal, &builder, selected_cell_point);
+                super::draw_highlighted_cells(terminal, builder, selected_cell_point);
 
                 self.measurement_point = None;
 

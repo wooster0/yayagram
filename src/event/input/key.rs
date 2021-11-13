@@ -73,7 +73,7 @@ pub fn handle_event(
             }
         }
         Key::Char('s' | 'S') if editor.toggled => {
-            if let Err(err) = editor.save_grid(&builder) {
+            if let Err(err) = editor.save_grid(builder) {
                 State::Alert(err.into())
             } else {
                 State::Alert(format!("Grid saved as {}", editor.filename).into())
@@ -160,7 +160,7 @@ pub fn handle_event(
             builder.draw_grid(terminal);
 
             // We know that this point is hovered
-            grid::draw_highlighted_cells(terminal, &builder, selected_cell_point);
+            grid::draw_highlighted_cells(terminal, builder, selected_cell_point);
 
             State::Continue
         }

@@ -64,7 +64,7 @@ pub fn handle_event(
                 let some_selected_cell_point = point;
 
                 // We know that this point is hovered
-                grid::draw_highlighted_cells(terminal, &builder, some_selected_cell_point);
+                grid::draw_highlighted_cells(terminal, builder, some_selected_cell_point);
             }
             State::Continue
         }

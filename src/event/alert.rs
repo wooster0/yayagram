@@ -19,7 +19,7 @@ impl Alert {
 
     /// Clears the previous alert.
     pub fn clear(&mut self, terminal: &mut Terminal, builder: &Builder) {
-        crate::set_cursor_for_top_text(terminal, &builder, self.message.len(), 0, None);
+        crate::set_cursor_for_top_text(terminal, builder, self.message.len(), 0, None);
         for _ in 0..self.message.len() {
             terminal.write(" ");
         }
@@ -27,7 +27,7 @@ impl Alert {
 
     /// Draws an alert above the grid.
     pub fn draw(&self, terminal: &mut Terminal, builder: &Builder) {
-        crate::set_cursor_for_top_text(terminal, &builder, self.message.len(), 0, None);
+        crate::set_cursor_for_top_text(terminal, builder, self.message.len(), 0, None);
         terminal.write(&self.message);
     }
 
