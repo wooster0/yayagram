@@ -102,7 +102,7 @@ pub fn start_game(terminal: &mut Terminal, grid: Grid) {
     }
 }
 
-pub const BASIC_CONTROLS_HELP: &[&str] = &["A: Undo, D: Redo, C: Clear", "X: Measure, F: Fill"];
+const BASIC_CONTROLS_HELP: &[&str] = &["A: Undo, D: Redo, C: Clear", "X: Measure, F: Fill"];
 
 fn draw_basic_controls_help(terminal: &mut Terminal, builder: &Builder) {
     terminal.set_foreground_color(Color::DarkGray);
@@ -174,7 +174,7 @@ const PROGRESS_BAR_HEIGHT: u16 = 1;
 const TOP_TEXT_HEIGHT: u16 = 2;
 const BOTTOM_TEXT_HEIGHT: u16 = 2;
 
-pub fn total_height(grid: &Grid) -> u16 {
+fn total_height(grid: &Grid) -> u16 {
     TOP_TEXT_HEIGHT
         + cmp::max(get_picture_height(grid.size), grid.max_clues_size.height)
         + grid.size.height
@@ -182,7 +182,7 @@ pub fn total_height(grid: &Grid) -> u16 {
         + BOTTOM_TEXT_HEIGHT
 }
 
-pub const fn get_picture_height(grid_size: Size) -> u16 {
+const fn get_picture_height(grid_size: Size) -> u16 {
     let mut picture_height = grid_size.height / 2; // Divide by 2 because the picture is made of half blocks
     if grid_size.height % 2 == 1 {
         picture_height += 1;
