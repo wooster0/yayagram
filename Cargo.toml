@@ -16,19 +16,16 @@ rand = { version = "0.8.4", default-features = false, features = ["small_rng", "
 itertools = "0.10.1"
 line_drawing = "0.8.1"
 
-# Compact build mode:
-#
-# [profile.release]
-# opt-level = "z"
-# lto = true
-# codegen-units = 1
+[profile.compact]
+inherits = "release"
+opt-level = "z"
+lto = true
+panic = 'abort'
+codegen-units = 1
 
-# Very Fast build mode:
-#
 # export RUSTFLAGS="-C target-cpu=native"
-#
-# [profile.release]
-# opt-level = 3
-# lto = true
-# panic = 'abort'
-# codegen-units = 1
+[profile.release]
+opt-level = 3
+lto = true
+panic = 'abort'
+codegen-units = 1
