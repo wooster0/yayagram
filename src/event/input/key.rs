@@ -79,37 +79,17 @@ pub fn handle_event(
                 State::Alert(format!("Grid saved as {}", editor.filename).into())
             }
         }
-        Key::Char('l' | 'L') => State::LoadGrid,
-        Key::Char(char) => {
-            if let Some(selected_cell_point) = cell_placement.selected_cell_point {
-                let cell_to_place = match char {
-                    'q' | 'Q' => Cell::Filled,
-                    'w' | 'W' => Cell::Maybed,
-                    'e' | 'E' => Cell::Crossed,
-                    _ => return State::Continue,
-                };
-
-                let state = cell_placement.place(
-                    terminal,
-                    builder,
-                    selected_cell_point,
-                    cell_to_place,
-                    editor.toggled,
-                );
-
-                cell_placement.cell = None;
-
-                state
-            } else {
-                State::Continue
-            }
-        }
-        Key::Up | Key::Down | Key::Left | Key::Right => {
+        Key::Enter => State::LoadGrid,
+        Key::Up
+        | Key::Down
+        | Key::Left
+        | Key::Right
+        | Key::Char('h' | 'H' | 'j' | 'J' | 'k' | 'K' | 'l' | 'L') => {
             let selected_cell_point = if let Some(selected_cell_point) =
                 &mut cell_placement.selected_cell_point
             {
                 match key_event {
-                    Key::Up => {
+                    Key::Up | Key::Char('k' | 'K') => {
                         selected_cell_point.y -= 1;
 
                         if !(builder.point.y..builder.point.y + builder.grid.size.height)
@@ -118,7 +98,7 @@ pub fn handle_event(
                             selected_cell_point.y = builder.point.y + builder.grid.size.height - 1;
                         }
                     }
-                    Key::Down => {
+                    Key::Down | Key::Char('j' | 'J') => {
                         selected_cell_point.y += 1;
 
                         if !(builder.point.y..builder.point.y + builder.grid.size.height)
@@ -127,7 +107,7 @@ pub fn handle_event(
                             selected_cell_point.y = builder.point.y;
                         }
                     }
-                    Key::Left => {
+                    Key::Left | Key::Char('h' | 'H') => {
                         selected_cell_point.x -= 2;
 
                         if !(builder.point.x..builder.point.x + builder.grid.size.width * 2)
@@ -137,7 +117,7 @@ pub fn handle_event(
                                 builder.point.x + builder.grid.size.width * 2 - 2;
                         }
                     }
-                    Key::Right => {
+                    Key::Right | Key::Char('l' | 'L') => {
                         selected_cell_point.x += 2;
 
                         if !(builder.point.x..builder.point.x + builder.grid.size.width * 2)
@@ -163,6 +143,30 @@ pub fn handle_event(
             grid::draw_highlighted_cells(terminal, builder, selected_cell_point);
 
             State::Continue
+        }
+        Key::Char(char) => {
+            if let Some(selected_cell_point) = cell_placement.selected_cell_point {
+                let cell_to_place = match char {
+                    'q' | 'Q' => Cell::Filled,
+                    'w' | 'W' => Cell::Maybed,
+                    'e' | 'E' => Cell::Crossed,
+                    _ => return State::Continue,
+                };
+
+                let state = cell_placement.place(
+                    terminal,
+                    builder,
+                    selected_cell_point,
+                    cell_to_place,
+                    editor.toggled,
+                );
+
+                cell_placement.cell = None;
+
+                state
+            } else {
+                State::Continue
+            }
         }
         Key::Esc => State::Exit(cell_placement.starting_time),
         _ => State::Continue,

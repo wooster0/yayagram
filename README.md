@@ -35,7 +35,7 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 The game is primarily played with both mouse and keyboard but can also be played exclusively with the keyboard.
 You don't need to memorize the following controls. The most important controls are displayed ingame.
 
-- Mouse movement or arrow keys: select a cell.
+- Mouse movement, arrow keys or <kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd>: select a cell.
 - Left-click or <kbd>Q</kbd>: place a cell.
 - Middle-click or <kbd>W</kbd>: [maybe a cell](#Maybed).
 - Right-click or <kbd>E</kbd>: cross out a cell.
@@ -46,8 +46,10 @@ You don't need to memorize the following controls. The most important controls a
 - <kbd>X</kbd>: set [measurement point](#Measurement-tool).
 - <kbd>Tab</kbd>: toggle the [editor](#Editor).
 - <kbd>S</kbd>: save the [edited](#Editor) grid as a file locally.
-- <kbd>L</kbd>: load local `.yaya` grid files with drag & drop onto the window.
+- <kbd>Enter</kbd>: load local `.yaya` grid files with drag & drop onto the window.
 - <kbd>Esc</kbd>: exit.
+
+For anyone that prefers to use the vi keys, you may be interested in [@Maugrift](https://github.com/Maugrift)'s wonderful [**fork**](https://github.com/Maugrift/yayagram) which features an alternate control scheme!
 
 ## Editor
 
@@ -58,7 +60,7 @@ Note that in the same session it will always write the grid to the same file aga
 
 ## Loading grid files
 
-* You can press <kbd>L</kbd> ingame to load a `.yaya` grid file with drag & drop onto the window. Many but not all terminals support this.
+* You can press <kbd>Enter</kbd> ingame to load a `.yaya` grid file with drag & drop onto the window. Many but not all terminals support this.
 * On Linux, Windows and macOS the `.yaya` file can be passed via the [command line](#Command-line-arguments).
 * Additionally on Windows within the explorer you can drag `.yaya` grid files onto the [`.exe`](https://github.com/r00ster91/yayagram/releases) file to play the grid.
 
@@ -92,7 +94,7 @@ and the measured cells will only appear as green when that grid is loaded.
 ## Maybed
 
 The blue "maybed" cell kind can be placed on the grid with middle-click and is supposed to make "what if?" reasoning and trying out things easier,
-as an alternative to using crossed out or filled cells which might be confusing.
+as an alternative to using crossed out or filled cells which may be confusing.
 It can help you imagine theoretical situations better.
 
 ## Big grids
@@ -113,7 +115,7 @@ yayagram is very well suited for big grids, up to size 99x99. Here are the reaso
 - Be careful about accidentally pasting in your clipboard data. Some terminals paste with the press of a mouse button.
   If the data contains `'c'` for instance, the grid will be cleared because it's recognized as the <kbd>C</kbd> key being pressed.
   This clear can be undone using the <kbd>A</kbd> key of course, but it may be confusing.
-  The same applies to items dropped onto the window. Press <kbd>L</kbd> before [loading grid files](#Loading-grid-files).
+  The same applies to items dropped onto the window. Press <kbd>Enter</kbd> before [loading grid files](#Loading-grid-files).
 
 ## Example
 
