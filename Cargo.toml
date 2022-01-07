@@ -29,3 +29,6 @@ opt-level = 3
 lto = true
 panic = 'abort'
 codegen-units = 1
+
+[patch.crates-io]
+tanmatsu = { path = "tanmatsu-0.6.3" }
