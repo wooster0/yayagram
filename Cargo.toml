@@ -11,9 +11,9 @@ keywords = ["nonogram", "cli", "game", "terminal", "puzzle"]
 categories = ["command-line-utilities", "games"]
 
 [dependencies]
-terminal = { package = "tanmatsu", version = "0.6.3" }
+terminal = { package = "tanmatsu", version = "0.6.4" }
 rand = { version = "0.8.4", default-features = false, features = ["small_rng", "std"] }
-itertools = "0.10.1"
+itertools = "0.10.3"
 line_drawing = "0.8.1"
 
 [profile.compact]
