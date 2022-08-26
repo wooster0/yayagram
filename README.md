@@ -22,7 +22,7 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 # Features
 
 * Runs in the terminal!
-* Cross-platform: runs on Linux, Windows and macOS.
+* Cross-platform: runs on Linux and macOS.
 * Helpful features and tools like undo, redo and clear.
 * Random grids.
 * Custom grids: [create your own grids](#Editor) for others to play.
@@ -61,8 +61,7 @@ Note that in the same session it will always write the grid to the same file aga
 ## Loading grid files
 
 * You can press <kbd>Enter</kbd> ingame to load a `.yaya` grid file with drag & drop onto the window. Many but not all terminals support this.
-* On Linux, Windows and macOS the `.yaya` file can be passed via the [command line](#Command-line-arguments).
-* Additionally on Windows within the explorer you can drag `.yaya` grid files onto the [`.exe`](https://github.com/r00ster91/yayagram/releases) file to play the grid.
+* On Linux and macOS the `.yaya` file can be passed via the [command line](#Command-line-arguments).
 
 ## img2yaya
 
