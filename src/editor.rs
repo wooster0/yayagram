@@ -128,7 +128,7 @@ impl Editor {
                 // but does the file for it still exist?
                 if !Path::new(&self.filename).exists() {
                     match self.new_writer(builder) {
-                        Ok(writer) => (writer),
+                        Ok(writer) => writer,
                         Err(err) => {
                             return Err(err);
                         }
@@ -144,7 +144,7 @@ impl Editor {
             None => {
                 // This is the first time we are saving the grid
                 match self.new_writer(builder) {
-                    Ok(writer) => (writer),
+                    Ok(writer) => writer,
                     Err(err) => {
                         return Err(err);
                     }

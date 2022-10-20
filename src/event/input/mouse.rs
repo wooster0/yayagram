@@ -173,8 +173,12 @@ fn resize_grid(
         // Temporarily set the builder grid size back to the old size to render the confirmation alert properly.
         let new_grid_size = builder.grid.size;
         builder.grid.size = original_grid_size;
-        let confirmed =
-            window::confirmation_prompt(terminal, builder, alert, "new random grid in this size");
+        let confirmed = window::confirmation_prompt(
+            terminal,
+            builder,
+            alert,
+            "load new random grid in this size",
+        );
         builder.grid.size = new_grid_size;
 
         if confirmed {

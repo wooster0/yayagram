@@ -112,8 +112,9 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                 State::Solved(_) => break state,
                 State::Exit(instant) => {
                     if let Some(instant) = instant {
-                        if instant.elapsed().as_secs() > 60 {
-                            // If the player played for more than 1 minute, the game is considered to have some kind of value to the player,
+                        if instant.elapsed().as_secs() >= 30 {
+                            // If the player stayed for half a minute,
+                            // the game is considered to have some kind of value to the player,
                             // so we make sure the player really wants to exit.
 
                             let confirmed =

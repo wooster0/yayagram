@@ -15,19 +15,19 @@ use terminal::{
     Terminal,
 };
 
-// Things that could be implemented but might not be worth it:
-// -A main menu
-// -An interactive tutorial
-// -Currently whole clue rows are grayed out once all cells for those clues have been solved
+// Wishlist:
+// - A main menu
+// - An interactive tutorial
+// - Currently whole clue rows are grayed out once all cells for those clues have been solved
 //  Make them gray out individually. (Maybe itertools' `pad_using` is helpful)
-// -Ability to save records to a file and determine new records with that
-// -Ability to continue after solving the puzzle/ability to play it again
+// - Ability to save records to a file and determine new records with that
+// - Ability to continue after solving the puzzle/ability to play it again
 
 fn main() {
     let code = match run() {
         Ok(()) => 0,
         Err(err) => {
-            eprintln!("{}", err);
+            eprintln!("{err}");
             1
         }
     };
@@ -42,7 +42,7 @@ fn run() -> Result<(), Cow<'static, str>> {
         Ok(Some(args::Arg::Help)) => {
             println!(concat!(
                 "Play nonograms/picross in your terminal.\n",
-                "For the arguments please check <https://github.com/r00ster91/yayagram#command-line-arguments>."
+                "For command line arguments please visit <https://github.com/r00ster91/yayagram#command-line-arguments>."
             ));
 
             return Ok(());
@@ -50,7 +50,7 @@ fn run() -> Result<(), Cow<'static, str>> {
         Ok(Some(args::Arg::Version)) => {
             let version = env!("CARGO_PKG_VERSION");
 
-            println!("{}", version);
+            println!("{version}");
 
             return Ok(());
         }

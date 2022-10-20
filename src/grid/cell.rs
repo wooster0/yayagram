@@ -5,7 +5,7 @@ use terminal::{
     Terminal,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Cell {
     /// An umarked cell.
     Empty,
@@ -29,7 +29,7 @@ impl Default for Cell {
 
 impl From<bool> for Cell {
     fn from(filled: bool) -> Self {
-        filled.then(|| Cell::Filled).unwrap_or_default()
+        filled.then_some(Cell::Filled).unwrap_or_default()
     }
 }
 
@@ -317,7 +317,7 @@ impl CellPlacement {
             } else {
                 self.measurement_point = Some(selected_cell_point);
 
-                State::Alert("Set second measurement point".into())
+                State::Alert("Press X to set second measurement point".into())
             }
         } else {
             State::Continue

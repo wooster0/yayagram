@@ -69,7 +69,7 @@ As an alternative to the editor you can generate `.yaya` grids using [@AaronErha
 
 ## Command line arguments
 
-The program takes a single number for a squared grid size, two numbers for a width and height or the filename of a `.yaya` grid file.
+The program takes a single number for a squared grid size, two numbers for width and height, or the filename of a `.yaya` grid file to load a custom user-made grid.
 
 ```shell
 yayagram # a random 5x5 grid

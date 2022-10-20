@@ -347,7 +347,7 @@ impl Builder {
         // In the future it might be helpful to take a look at the market share of Windows 10 or 11 and decide by that.
         //
         // In this regard, for good Windows terminal compatibility,
-        // I generally recommend limiting yourself to characters listed on https://en.wikipedia.org/wiki/Code_page_437
+        // I generally recommend sticking to the characters listed on https://en.wikipedia.org/wiki/Code_page_437
         #[cfg(windows)]
         terminal.write(" +");
     }

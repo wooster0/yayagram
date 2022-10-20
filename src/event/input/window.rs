@@ -66,10 +66,8 @@ pub fn await_fitting_size(
             } else {
                 unreachable!()
             };
-            let message = format!(
-                "Please increase window {} or decrease text size (Ctrl and -)",
-                length
-            );
+            let message =
+                format!("Please increase window {length} or decrease text size (Ctrl and -)");
             terminal.write(&message);
             terminal.flush();
 
@@ -157,7 +155,7 @@ pub fn await_dropped_grid_file_path(
     Ok(path)
 }
 
-/// Draws an alert asking the user to confirm the given thing and returns whether the user confirmed the action.
+/// Draws an alert asking the user to confirm the given verb and returns whether the user confirmed the action.
 ///
 /// Despite the alert saying that Esc cancels, every other key apart from Enter will cancel as well.
 ///
@@ -166,9 +164,9 @@ pub fn confirmation_prompt(
     terminal: &mut Terminal,
     builder: &mut Builder,
     alert: &mut Option<Alert>,
-    thing_to_confirm: &str,
+    verb_to_confirm: &str,
 ) -> bool {
-    let message = format!("Press Enter to confirm {}. Esc to cancel", thing_to_confirm).into();
+    let message = format!("Press Enter to {}; Esc to cancel", verb_to_confirm).into();
     alert::draw(terminal, builder, alert, message);
 
     // We could also just ignore `Event::Mouse(_)` in the loop below but disabling mouse capture changes the pointer icon
