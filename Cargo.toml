@@ -1,6 +1,6 @@
 [package]
 name = "yayagram"
-version = "0.8.0"
+version = "0.8.5"
 authors = ["r00ster91 <r00ster91@protonmail.com>"]
 edition = "2018"
 description = "Play nonograms/picross in your terminal"
@@ -16,6 +16,8 @@ fastrand = "1.8.0"
 itertools = "0.10.5"
 line_drawing = "0.8.1"
 
+# export RUSTFLAGS="-C target-cpu=native"
+# cargo build --profile compact
 [profile.compact]
 inherits = "release"
 opt-level = "z"
@@ -24,6 +26,7 @@ panic = 'abort'
 codegen-units = 1
 
 # export RUSTFLAGS="-C target-cpu=native"
+# cargo build --release
 [profile.release]
 opt-level = 3
 lto = true
