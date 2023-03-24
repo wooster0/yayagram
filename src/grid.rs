@@ -23,6 +23,7 @@ pub struct Grid {
     pub vertical_clues_solutions: Vec<Clues>,
     pub max_clues_size: Size,
     pub undo_redo_buffer: UndoRedoBuffer,
+    pub measurement_counter: usize,
 }
 
 fn get_index(grid_width: u16, point: Point) -> usize {
@@ -90,6 +91,8 @@ impl Grid {
 
         let undo_redo_buffer = UndoRedoBuffer::default();
 
+        let measurement_counter = 0;
+
         Self {
             size,
             cells,
@@ -97,6 +100,7 @@ impl Grid {
             vertical_clues_solutions,
             max_clues_size,
             undo_redo_buffer,
+            measurement_counter,
         }
     }
 

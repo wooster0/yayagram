@@ -57,7 +57,7 @@ impl Editor {
                             help[2] = Some("?: maybed");
                             "????" // Represents unclearness.
                         }
-                        Cell::Measured(_) => {
+                        Cell::Measured(_, _) => {
                             help[3] = Some("R: measured");
                             "RRRR" // Resembles 尺 which is a unit of measure.
                         }
@@ -206,7 +206,7 @@ fn deserialize(str: &str) -> Result<(Size, Vec<Cell>), LoadError> {
                 '1' => Cell::Filled,
                 'X' => Cell::Crossed,
                 '?' => Cell::Maybed,
-                'R' => Cell::Measured(None),
+                'R' => Cell::Measured(None, None),
                 _ => {
                     return Err(LoadError {
                         message: "expected ' ', '1', 'X', '?' or 'R'",

@@ -1,6 +1,6 @@
 # yayagram - Play nonograms/picross in your terminal
 
-**yayagram** is a puzzle game in which you fill out a grid with cells based on logic and number clues.
+**yayagram** is a puzzle game in which you fill out a grid with cells based on logic and number clues in your terminal.
 
 The game goes by many names: nonogram, picross, paint by numbers, griddlers, pic-a-pix, hanjie and others.
 
@@ -23,7 +23,7 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 
 * Runs in the terminal!
 * Cross-platform: runs on Linux and macOS.
-* Helpful features and tools like undo, redo and clear.
+* Helpful features and tools like undo, redo and, clear.
 * Random grids.
 * Custom grids: [create your own grids](#Editor) for others to play.
 * A new kind of cell: [maybed](#Maybed).

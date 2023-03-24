@@ -16,9 +16,14 @@ pub enum Cell {
     /// Used to mark cells that are certainly empty.
     Crossed,
     /// Used for indicating cells that were measured using the measurement tool.
+    /// The first element of this tuple, the index, is a number shown on the cell.
     ///
-    /// When this cell is saved, the index is not preserved.
-    Measured(Option<usize>),
+    /// When this cell is saved, the index is not preserved and therefore the index can be null.
+    ///
+    /// The second element is a measurement counter. On each new measurement added, the counter is incremented.
+    /// We use the measurement counter to make measurement cells disappear after a while.
+    /// Use None for them to never disappear.
+    Measured(Option<usize>, Option<usize>),
 }
 
 impl Default for Cell {
@@ -40,7 +45,7 @@ impl Cell {
             Cell::Filled => Color::White,
             Cell::Maybed => Color::Blue,
             Cell::Crossed => Color::Red,
-            Cell::Measured(_) => Color::Green,
+            Cell::Measured(_, _) => Color::Green,
         }
     }
 
@@ -50,7 +55,7 @@ impl Cell {
             Cell::Filled => Color::Gray,
             Cell::Maybed => Color::DarkBlue,
             Cell::Crossed => Color::DarkRed,
-            Cell::Measured(_) => Color::DarkGreen,
+            Cell::Measured(_, _) => Color::DarkGreen,
         }
     }
 
@@ -95,7 +100,7 @@ impl Cell {
 
                 (None, background_color, "  ".into())
             }
-            Cell::Measured(index) => {
+            Cell::Measured(index, _) => {
                 let (foreground_color, content) = if let Some(index) = index {
                     (Some(Color::Black), format!("{:>2}", index).into())
                 } else {
@@ -130,13 +135,27 @@ pub const fn get_cell_point_from_cursor_point(cursor_point: Point, builder: &Bui
 }
 
 pub fn set_measured_cells(grid: &mut Grid, line_points: &[Point]) {
+    let measurement_counter = grid.measurement_counter;
     for (index, point) in line_points.iter().enumerate() {
         let cell = grid.get_mut_cell(*point);
-
-        if let Cell::Empty | Cell::Measured(_) = cell {
-            *cell = Cell::Measured(Some(index + 1));
+        if let Cell::Empty | Cell::Measured(_, _) = cell {
+            *cell = Cell::Measured(Some(index + 1), Some(measurement_counter));
         }
     }
+
+    // We want to clean up old measurement lines after a while to avoid cluttering up the grid with green cells,
+    // so we'll only allow a certain amount of lines at a time.
+    let allowed_count = 2;
+    for cell in &mut grid.cells {
+        if let Cell::Measured(_, Some(measurement_counter)) = *cell {
+            if grid.measurement_counter >= allowed_count
+                && measurement_counter == grid.measurement_counter - allowed_count
+            {
+                *cell = Cell::Empty;
+            }
+        }
+    }
+    grid.measurement_counter += 1;
 }
 
 pub fn draw_highlighted_cells(
