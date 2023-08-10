@@ -162,7 +162,7 @@ pub fn await_dropped_grid_file_path(
 /// NOTE: mouse capturing is disabled for the duration of the prompt and a flush is required after this call to reenable it.
 pub fn confirmation_prompt(
     terminal: &mut Terminal,
-    builder: &mut Builder,
+    builder: &Builder,
     alert: &mut Option<Alert>,
     verb_to_confirm: &str,
 ) -> bool {

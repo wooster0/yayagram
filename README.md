@@ -1,8 +1,8 @@
 # yayagram - Play nonograms/picross in your terminal
 
-**yayagram** is a puzzle game in which you fill out a grid with cells based on logic and number clues in your terminal.
+**yayagram** is a puzzle game in which you fill out a grid with cells based on logic and number clues in your terminal using the mouse.
 
-The game goes by many names: nonogram, picross, paint by numbers, griddlers, pic-a-pix, hanjie and others.
+The game goes by many names: nonogram, picross, paint by numbers, griddlers, pic-a-pix, hanjie, and others.
 
 ![Showcase](showcase.png)
 
@@ -19,11 +19,11 @@ yayagram
 
 Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagram/releases).
 
-# Features
+## Features
 
-* Runs in the terminal!
+* Runs in the terminal and is playable with the mouse!
 * Cross-platform: runs on Linux and macOS.
-* Helpful features and tools like undo, redo and, clear.
+* Helpful additional features and tools like undo, redo, flood fill, clear, and more.
 * Random grids.
 * Custom grids: [create your own grids](#Editor) for others to play.
 * A new kind of cell: [maybed](#Maybed).
@@ -32,10 +32,10 @@ Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagr
 
 ## Controls
 
-The game is primarily played with both mouse and keyboard but can also be played exclusively with the keyboard.
+The game is primarily played with mouse and keyboard but can also be played exclusively with the keyboard.
 You don't need to memorize the following controls. The most important controls are displayed ingame.
 
-- Mouse movement, arrow keys or <kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd>: select a cell.
+- Mouse movement, arrow keys, or <kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd>: select a cell.
 - Left-click or <kbd>Q</kbd>: place a cell.
 - Middle-click or <kbd>W</kbd>: [maybe a cell](#Maybed).
 - Right-click or <kbd>E</kbd>: cross out a cell.
@@ -94,7 +94,6 @@ and the measured cells will only appear as green when that grid is loaded.
 
 The blue "maybed" cell kind can be placed on the grid with middle-click and is supposed to make "what if?" reasoning and trying out things easier,
 as an alternative to using crossed out or filled cells which may be confusing.
-It can help you imagine theoretical situations better.
 
 ## Big grids
 

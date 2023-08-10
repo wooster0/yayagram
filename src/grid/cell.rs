@@ -5,9 +5,10 @@ use terminal::{
     Terminal,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Cell {
     /// An umarked cell.
+    #[default]
     Empty,
     /// Used to mark filled cells.
     Filled,
@@ -24,12 +25,6 @@ pub enum Cell {
     /// We use the measurement counter to make measurement cells disappear after a while.
     /// Use None for them to never disappear.
     Measured(Option<usize>, Option<usize>),
-}
-
-impl Default for Cell {
-    fn default() -> Self {
-        Cell::Empty
-    }
 }
 
 impl From<bool> for Cell {

@@ -1,7 +1,7 @@
 [package]
 name = "yayagram"
 version = "0.8.5"
-authors = ["r00ster91 <r00ster91@protonmail.com>"]
+authors = ["wooster0 <wooster0@proton.me>"]
 edition = "2018"
 description = "Play nonograms/picross in your terminal"
 readme = "README.md"
@@ -12,7 +12,7 @@ categories = ["command-line-utilities", "games"]
 
 [dependencies]
 terminal = { package = "tanmatsu", version = "0.6.4" }
-fastrand = "1.8.0"
+fastrand = "1.9.0"
 itertools = "0.10.5"
 line_drawing = "0.8.1"
 

@@ -77,7 +77,7 @@ pub fn r#loop(terminal: &mut Terminal, builder: &mut Builder) -> State {
                     ) {
                         Ok(path) => {
                             fn load(path: &str) -> Option<Grid> {
-                                let content = fs::read_to_string(&path).ok()?;
+                                let content = fs::read_to_string(path).ok()?;
                                 let grid = editor::load_grid(&content).ok()?;
 
                                 Some(grid)
