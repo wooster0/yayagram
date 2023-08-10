@@ -19,6 +19,10 @@ yayagram
 
 Binaries are also provided in the [Releases](https://github.com/r00ster91/yayagram/releases).
 
+## Demo
+
+https://github.com/wooster0/yayagram/assets/35064754/26d179a2-7719-4bbb-88c4-d27f1688624c
+
 ## Features
 
 * Runs in the terminal and is playable with the mouse!
